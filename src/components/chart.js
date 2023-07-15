@@ -1,8 +1,9 @@
 import { DataFetcher } from "../data-fetcher";
-import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
-import { colors } from "../utils";
+import { ref, onMounted, watch, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { randomHexColor } from "../utils";
 import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
+import { timestampToYear } from "../utils";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
 // Registrar a escala "category"
@@ -23,13 +24,24 @@ export const chart = {
       type: Object,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const api = new DataFetcher(props.api);
     const chartDefined = ref(true);
     const loading = ref(true);
     const valueSick = computed(() => props.form.sick);
     const valueAcronym = computed(() => props.form.local);
-    const valuePeriod = computed(() => props.form.period);
+    const valueYears = computed(() => {
+      const periods = props.form.periods;
+      if (!Array.isArray(periods)) {
+        return [];
+      }
+      let y =  timestampToYear(periods[0]);
+      const result = [];
+      while (y <= timestampToYear(periods[1])) {
+        result.push(y++);
+      }
+      return result;
+    })
 
     let chart = null;
     const renderChart = (labels, datasets) => {
@@ -59,7 +71,12 @@ export const chart = {
             maintainAspectRatio: false,
             scales: {
               x: {
-                display: false,
+                border: {
+                  display: false,
+                },
+                grid: {
+                  color: "rgba(127,127,127, .2)",
+                },
                 ticks: {
                   color: "rgba(127,127,127, 1)",
                   padding: 20,
@@ -87,44 +104,44 @@ export const chart = {
                     size: 14,
                   }
                 }
-              }
-            },
-            layout: {
-              padding: {
-                bottom: 20
-              }
+              },
             },
             plugins: {
               legend: {
-                display: false,
+                display: false
               },
               datalabels: {
-                formatter: function(value, context) {
-                  if (context.dataIndex === context.dataset.data.length - 1) {
-                    return `${context.dataset.label}\n${value}%`;
-                  } else {
-                    return null;
-                  }
+                align: function(context) {
+                  return 5;
+                },
+                color: function(context) {
+                  return context.dataset.borderColor;
                 },
                 font: {
-                  weight: 'bold'
+                  size: 10,
                 },
-                align: 'end',
-                offset: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                borderRadius: 4,
-                textAlign: 'center',
-                color: function(context) {
-                  return context.dataset.backgroundColor;
+                display: 'auto',
+                formatter: function(value, context) {
+                  const dataset = context.dataset.data;
+                  let count = 1;
+                  while(dataset[dataset.length - count] === null) {
+                    count++
+                  }
+                  if (context.dataIndex === dataset.length - count) {
+                    const labelSplited = context.dataset.label.split(" ");
+                    return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1]} ${value}%`;
+                  }
+
+                  return null;
                 },
               }
             },
             layout: {
               padding: {
-                right: 40
+                right: 100
               }
             },
-          }
+          },
         });
       } catch (e) {
         // Do nothing
@@ -136,52 +153,50 @@ export const chart = {
 
       let results = [];
       let sicks = valueSick.value;
-      let period = valuePeriod.value;
-      if (!sicks) {
-        return;
-      }
-      if(!sicks.length) {
+      let years = valueYears.value;
+      let locals = valueAcronym.value;
+
+      if(!sicks || !sicks.length || !locals || !locals.length) {
         renderChart();
         return;
       }
 
       results = await api.request(sicks);
 
-      if (!Array.isArray(sicks)) {
-        results = { [sicks]: results }
-        sicks = [sicks];
+      // TODO: API shoud send correct data fomated and we will not need this fix here
+      if (!Object.keys(results).find(x => x === sicks[0])) {
+        results = { [sicks[0]]: results }
+      };
+
+      if (!years) {
+        return;
       }
 
-      const allYears = [];
+      const resultChart = {};
       for(let sick of sicks) {
-        allYears.push(...Object.keys(results[sick]));
-      }
-      const years = [...new Set(allYears)].sort();
-
-      const result = {};
-      for(let sick of [sicks]) {
-        for (let year of years) {
-          if (result[sick]) {
-            if (results[sick][year]) {
-              result[sick].push(results[sick][year][valueAcronym.value]);
+        for(let local of locals) {
+          const legend = sick + " " + local;
+          for (let year of years) {
+            if (resultChart[legend]) {
+              if (results[sick] && results[sick][year]) {
+                resultChart[legend].push(results[sick][year][local]);
+              } else {
+                resultChart[legend].push(null);
+              }
             } else {
-              result[sick].push(null);
-            }
-          } else {
-            if (results[sick][year]) {
-              result[sick] = [results[sick][year][valueAcronym.value]];
-            } else {
-              result[sick] = [null];
+              if (results[sick] && results[sick][year]) {
+                resultChart[legend] = [results[sick][year][local]];
+              } else {
+                resultChart[legend] = [null];
+              }
             }
           }
         }
       }
 
       const data = [];
-      let counter = 0;
-      for(let [key, value] of Object.entries(result)) {
-        const color = colors[counter];
-        counter++;
+      for(let [key, value] of Object.entries(resultChart)) {
+        const color = randomHexColor(key.replace(" ", "") + value);
         data.push({
           label: key,
           data: value,
@@ -202,11 +217,20 @@ export const chart = {
     });
 
     watch(
-      () => [props.form.local, props.form.sick, props.form.period],
+      () => [props.form.local, props.form.sick, props.form.periods],
       async () => {
         await setChartData();
       }
     )
+
+    onBeforeMount(() => {
+      if(!Array.isArray(props.form.sick)) {
+        emit("update:form",  {
+          ...props.form,
+          sick: props.form.sick ? [props.form.sick] : []
+        })
+      }
+    })
 
     return {
       valueSick,
@@ -219,7 +243,12 @@ export const chart = {
     <n-spin :show="loading">
       <div class="mct-canva mct-canva--chart">
         <canvas :class="chartDefined ? '' : 'element-hidden'" id="chart"></canvas>
-        <n-empty :class="chartDefined ? 'element-hidden' : ''" style="justify-content: center"></n-empty>
+        <n-empty
+          :class="chartDefined ? 'element-hidden' : ''"
+          style="justify-content: center"
+          description="Nada para ser exibido"
+        >
+        </n-empty>
       </div>
     </n-spin>
   `

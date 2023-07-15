@@ -89,10 +89,6 @@ export const mapRange = {
         hideTooltip();
       });
 
-      document.addEventListener("tooltipMapOpened", (e) => {
-        console.log("tooltipOpened", e.detail.name)
-      })
-
     }
 
     const showTooltip = (evt, text, value) => {

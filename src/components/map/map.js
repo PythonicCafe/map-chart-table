@@ -1,6 +1,6 @@
 import { DataFetcher } from "../../data-fetcher";
 import { MapChart } from "../../map-chart";
-import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 
 export const map = {
@@ -99,6 +99,15 @@ export const map = {
         await setMap();
       }
     )
+
+    onBeforeMount(() => {
+      if(props.form.sick && Array.isArray(props.form.sick)) {
+        emit("update:form",  {
+          ...props.form,
+          sick: props.form.sick[0]
+        })
+      }
+    })
 
     return {
       loading,

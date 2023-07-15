@@ -113,7 +113,7 @@ export const mainCard = {
             <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
             <div style="width: 100%;">
               <Map
-                :form="form"
+                v-model:form="form"
                 :api='api'
                 @map-change="handleMapChange"
                 @map-tooltip="handleMapTooltip"
@@ -123,10 +123,10 @@ export const mainCard = {
           </div>
         </template>
         <template v-else-if="tab === 'chart'">
-          <Chart :api='api' :form="form" />
+          <Chart :api='api' v-model:form="form" />
         </template>
         <template v-else>
-          <Table :api='api' :form="form" />
+          <Table :api='api' v-model:form="form" />
         </template>
       </section>
       <SubButtons />

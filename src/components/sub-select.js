@@ -26,7 +26,7 @@ export const subSelect = {
     NDatePicker,
     NButton
   },
-  setup (props) {
+  setup (props, { emit }) {
     const local = ref(null);
     const showingLocalsOptions = ref(null);
     const selectAll = (options) => {
@@ -44,13 +44,19 @@ export const subSelect = {
       showingLocalsOptions.value = show;
 
       if (!showingLocalsOptions.value && local.value){
-        props.form.local = local.value;
+        emit('update:form', {
+          ...props.form,
+          local: local.value
+        });
       }
     };
     const handleLocalsUpdateValue = (value) => {
       local.value = value;
       if (!showingLocalsOptions.value){
-        props.form.local = value;
+        emit('update:form', {
+          ...props.form,
+          local: local.value
+        });
       }
     };
 
@@ -70,6 +76,7 @@ export const subSelect = {
           style="width: 200px"
           max-tag-count="responsive"
           placeholder="Selecione doença"
+          :multiple="tab !== 'map'"
         />
       </n-form-item>
       <n-form-item label="Tipo de dado">
