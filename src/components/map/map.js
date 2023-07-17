@@ -60,7 +60,7 @@ export const map = {
             'https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=image/svg+xml&qualidade=intermediaria&intrarregiao=UF'
           );
 
-        if (sick) {
+        if (sick && sick.length) {
           const datasetStates = await api.request(sick);
           const states = await api.request("statesAcronym");
           renderMap({ element: mapElement, map, datasetStates: datasetStates[period], states, statesSelected: local });
@@ -100,9 +100,9 @@ export const map = {
       }
     )
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
       if(props.form.sick && Array.isArray(props.form.sick)) {
-        emit("update:form",  {
+        await emit("update:form",  {
           ...props.form,
           sick: props.form.sick[0]
         })

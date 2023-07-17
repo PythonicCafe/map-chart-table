@@ -43,15 +43,83 @@ export const chart = {
       return result;
     })
 
+    const getOrCreateLegendList = (chart, id) => {
+      const legendContainer = document.getElementById(id);
+      let listContainer = legendContainer.querySelector('ul');
+
+      if (!listContainer) {
+        listContainer = document.createElement('ul');
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'row';
+        listContainer.style.flexWrap = 'wrap';
+        listContainer.style.margin = 0;
+        listContainer.style.padding = 0;
+
+        legendContainer.appendChild(listContainer);
+      }
+
+      return listContainer;
+    };
+
+    const htmlLegendPlugin = {
+      id: 'htmlLegend',
+      afterUpdate(chart, args, options) {
+        const ul = getOrCreateLegendList(chart, options.containerID);
+
+        // Remove old legend items
+        while (ul.firstChild) {
+          ul.firstChild.remove();
+        }
+
+        // Reuse the built-in legendItems generator
+        const items = chart.options.plugins.legend.labels.generateLabels(chart);
+
+        items.forEach(item => {
+          const li = document.createElement('li');
+          li.style.alignItems = 'center';
+          li.style.display = 'flex';
+          li.style.flexDirection = 'row';
+          li.style.marginLeft = '10px';
+
+          // Color box
+          const boxSpan = document.createElement('span');
+          boxSpan.style.background = item.fillStyle;
+          boxSpan.style.borderColor = item.strokeStyle;
+          boxSpan.style.borderWidth = item.lineWidth + 'px';
+          boxSpan.style.display = 'inline-block';
+          boxSpan.style.borderRadius = '50%';
+          boxSpan.style.height = '14px';
+          boxSpan.style.marginRight = '4px';
+          boxSpan.style.width = '14px';
+
+          // Text
+          const textContainer = document.createElement('p');
+          textContainer.style.color = item.fontColor;
+          textContainer.style.margin = 0;
+          textContainer.style.padding = 0;
+          textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+
+          const text = document.createTextNode(item.text);
+          textContainer.appendChild(text);
+
+          li.appendChild(boxSpan);
+          li.appendChild(textContainer);
+          ul.appendChild(li);
+        });
+      }
+    };
+
     let chart = null;
     const renderChart = (labels, datasets) => {
       if (!labels && !datasets) {
+        const legend = document.querySelector("#legend-container");
+        legend.innerHTML = "";
         chartDefined.value = false;
         return;
       }
       chartDefined.value = true;
 
-      if(chart) {
+      if (chart) {
         chart.data.labels = labels;
         chart.data.datasets = datasets;
         chart.update();
@@ -69,6 +137,10 @@ export const chart = {
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+              animateRotate: true,
+              animateScale: true
+            },
             scales: {
               x: {
                 border: {
@@ -107,6 +179,10 @@ export const chart = {
               },
             },
             plugins: {
+              htmlLegend: {
+                // ID of the container to put the legend in
+                containerID: 'legend-container',
+              },
               legend: {
                 display: false
               },
@@ -119,12 +195,15 @@ export const chart = {
                 },
                 font: {
                   size: 10,
+                  weight: 'bold'
                 },
                 display: 'auto',
                 formatter: function(value, context) {
                   const dataset = context.dataset.data;
+                  // Get last populated year data index from dataset
                   let count = 1;
-                  while(dataset[dataset.length - count] === null) {
+                  while(
+                    dataset[dataset.length - count] === null) {
                     count++
                   }
                   if (context.dataIndex === dataset.length - count) {
@@ -142,6 +221,7 @@ export const chart = {
               }
             },
           },
+          plugins: [htmlLegendPlugin],
         });
       } catch (e) {
         // Do nothing
@@ -156,7 +236,7 @@ export const chart = {
       let years = valueYears.value;
       let locals = valueAcronym.value;
 
-      if(!sicks || !sicks.length || !locals || !locals.length) {
+      if(!sicks.length || !locals.length || !years.length) {
         renderChart();
         return;
       }
@@ -213,6 +293,12 @@ export const chart = {
     }
 
     onMounted(async () => {
+      if(!props.form.sick || !Array.isArray(props.form.sick)) {
+        await emit("update:form",  {
+          ...props.form,
+          sick: props.form.sick ? [props.form.sick] : []
+        })
+      }
       await setChartData();
     });
 
@@ -223,32 +309,21 @@ export const chart = {
       }
     )
 
-    onBeforeMount(() => {
-      if(!Array.isArray(props.form.sick)) {
-        emit("update:form",  {
-          ...props.form,
-          sick: props.form.sick ? [props.form.sick] : []
-        })
-      }
-    })
-
     return {
-      valueSick,
-      valueAcronym,
       chartDefined,
       loading
     };
   },
   template: `
     <n-spin :show="loading">
+      <div id="legend-container" style="padding-right: 64px; padding-left: 64px;"></div>
       <div class="mct-canva mct-canva--chart">
         <canvas :class="chartDefined ? '' : 'element-hidden'" id="chart"></canvas>
         <n-empty
           :class="chartDefined ? 'element-hidden' : ''"
-          style="justify-content: center"
-          description="Nada para ser exibido"
-        >
-        </n-empty>
+          style="justify-content: center; border: 1px dashed gray; width: 100%; border-radius: .25rem"
+          description="Selecione valores para serem exibidos"
+        />
       </div>
     </n-spin>
   `

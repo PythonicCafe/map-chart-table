@@ -90,7 +90,7 @@ export const yearSlider = {
   template: `
     <section
       v-show="showSlider"
-      style="display: flex; gap: 14px; margin-top: 24px; align-items: center;"
+      class="year-slider"
     >
       <n-button
         v-if="!mapPlaying"

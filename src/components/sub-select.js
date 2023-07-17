@@ -1,4 +1,4 @@
-import { ref } from "vue/dist/vue.esm-bundler";
+import { ref, watch } from "vue/dist/vue.esm-bundler";
 import { NSelect, NFormItem, NDatePicker, NButton } from "naive-ui";
 
 export const subSelect = {
@@ -28,7 +28,9 @@ export const subSelect = {
   },
   setup (props, { emit }) {
     const local = ref(null);
+    const sick = ref(null);
     const showingLocalsOptions = ref(null);
+    const showingSicksOptions = ref(null);
     const selectAll = (options) => {
       const allOptions = options.map((option) => option.value)
       const selectLength = Array.isArray(local.value) ? local.value.length : null
@@ -50,6 +52,7 @@ export const subSelect = {
         });
       }
     };
+
     const handleLocalsUpdateValue = (value) => {
       local.value = value;
       if (!showingLocalsOptions.value){
@@ -60,23 +63,56 @@ export const subSelect = {
       }
     };
 
+    const handleSicksUpdateShow = (show) => {
+      showingSicksOptions.value = show;
+
+      if (!showingSicksOptions.value && sick.value) {
+        emit('update:form', {
+          ...props.form,
+          sick: sick.value
+        });
+      }
+    };
+
+    const handleSicksUpdateValue = (value) => {
+      sick.value = value;
+      if (!showingSicksOptions.value) {
+        emit('update:form', {
+          ...props.form,
+          sick: sick.value
+        });
+      }
+    };
+
+    watch(
+      () => [props.form.sick],
+      async () => {
+        sick.value = props.form.sick;
+      }
+    )
+
     return {
       selectAll,
       local,
+      sick,
       handleLocalsUpdateShow,
       handleLocalsUpdateValue,
+      handleSicksUpdateShow,
+      handleSicksUpdateValue
     }
   },
   template: `
     <section style="display:flex; gap: 14px">
       <n-form-item label="Doença">
         <n-select
-          v-model:value="form.sick"
+          v-model:value="sick"
           :options="form.sicks"
           style="width: 200px"
           max-tag-count="responsive"
           placeholder="Selecione doença"
           :multiple="tab !== 'map'"
+          :on-update:show="handleSicksUpdateShow"
+          :on-update:value="handleSicksUpdateValue"
         />
       </n-form-item>
       <n-form-item label="Tipo de dado">

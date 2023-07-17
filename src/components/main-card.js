@@ -90,7 +90,7 @@ export const mainCard = {
       mapData,
       mapTooltip,
       mainTitle,
-      form,
+      form
     };
   },
   template: `
@@ -101,10 +101,10 @@ export const mainCard = {
         :tab-by="tabBy"
         v-model:form="form"
       />
-      <h2 style="margin: 0px; font-weight: 700">
+      <h2 style="margin: 0px; font-weight: 700; font-size: 1.5rem">
        {{ mainTitle }}
       </h2>
-      <h3 style="margin-top: 5px; font-weight: 400">
+      <h3 style="margin-top: 5px; font-weight: 400; font-size: 1.25rem">
         Cobertura vacinal estimada de BCG, considerando população-alvo
       </h3>
       <section>
@@ -118,7 +118,7 @@ export const mainCard = {
                 @map-change="handleMapChange"
                 @map-tooltip="handleMapTooltip"
               />
-              <YearSlider :form="form" />
+              <YearSlider v-model:form="form" />
             </div>
           </div>
         </template>
