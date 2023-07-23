@@ -1,6 +1,8 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NCard, NSlider, NSpace, NButton, NIconWrapper } from "naive-ui";
 import { timestampToYear } from "../../utils";
+import { useStore } from 'vuex'
+import { computedVar } from "../../utils";
 
 export const yearSlider = {
   components:  {
@@ -10,40 +12,24 @@ export const yearSlider = {
     NButton,
     NIconWrapper
   },
-  props: {
-    form: {
-      type: Object,
-      required: true,
-    }
-  },
-  setup (props) {
+  setup () {
+    const store = useStore();
+    const period = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM",  field: "period" }));
     const showSlider = ref(false);
     const showTooltip = ref(false);
     const mapPlaying = ref(false);
     const stopPlayMap = ref(false);
-    const setSliderValue = (periods, i) => {
-      if (Array.isArray(periods)) {
-        if(periods[0] !== periods[1]) {
-          showSlider.value = true;
-        } else {
-          showSlider.value = false;
-        }
-        return timestampToYear(periods[i])
-      }
+    const setSliderValue = (period) => {
+      if (period) {
+        showSlider.value = true;
+        return timestampToYear(period)
+      } 
       showSlider.value = false;
-      return 0;
+      return;
     }
 
-    const min = computed(
-      () => {
-        const result = setSliderValue(props.form.periods, 0);
-        props.form.period = result;
-        return result;
-      }
-    );
-    const max = computed(
-      () => setSliderValue(props.form.periods, 1)
-    );
+    const max = computed(() => setSliderValue(store.state.form.periodEnd));
+    const min = computed(() => setSliderValue(store.state.form.periodStart));
 
     const years = computed(() => {
       let y = min.value;
@@ -59,12 +45,12 @@ export const yearSlider = {
     const playMap = async () => {
       showTooltip.value = true;
       mapPlaying.value = true;
-      for (let year of years.value) {
+      for (let year of years.value){
         if (stopPlayMap.value) {
           stopPlayMap.value = false;
           return;
         }
-        props.form.period = year;
+        period.value = year
         await waitFor(1000)
       }
       showTooltip.value = false;
@@ -73,7 +59,6 @@ export const yearSlider = {
     }
 
     return {
-      value: ref(0),
       max,
       min,
       showSlider,
@@ -84,18 +69,19 @@ export const yearSlider = {
         stopPlayMap.value = true
         showTooltip.value = false;
         mapPlaying.value = false;
-      }
+      },
+      period
     }
   },
   template: `
     <section
-      v-show="showSlider"
       class="year-slider"
     >
       <n-button
         v-if="!mapPlaying"
         type="primary"
         circle
+        :disabled="!showSlider"
         @click="playMap"
       >
         <template #icon>
@@ -135,9 +121,9 @@ export const yearSlider = {
         </template>
       </n-button>
       <span style="white-space:nowrap; padding: 0px 6px; font-size: 14px">{{ min }}</span>
-      <n-slider :show-tooltip="showTooltip" v-model:value="form.period" :min="min" :max="max" :tooltip="true">
+      <n-slider :disabled="!showSlider" :show-tooltip="showTooltip" v-model:value="period" :min="min" :max="max" :tooltip="showSlider">
         <template #thumb>
-          <n-icon-wrapper :size="12" :border-radius="12"></n-icon-wrapper>
+          <n-icon-wrapper :size="12" :border-radius="12" style="cursor: auto"></n-icon-wrapper>
         </template>
       </n-slider>
       <span style="white-space:nowrap; padding: 0px 6px; font-size: 14px">{{ max }}</span>

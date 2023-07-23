@@ -1,7 +1,8 @@
 import { DataFetcher } from "../../data-fetcher";
 import { MapChart } from "../../map-chart";
-import { ref, onMounted, watch, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
+import { useStore } from "vuex";
 
 export const map = {
   components: {
@@ -14,10 +15,6 @@ export const map = {
     api: {
       type: String,
       required: true
-    },
-    form: {
-      type: Object,
-      required: true
     }
   },
   setup(props, { emit }) {
@@ -25,6 +22,7 @@ export const map = {
     const loading = ref(true);
     const yearMapElement = ref(null);
     const mapChart = ref(null);
+    const store = useStore();
 
     const queryMap = async (mapUrl) => {
       const svg = await fetch(mapUrl);
@@ -47,9 +45,9 @@ export const map = {
     }
 
     const setMap = async () => {
-      const local = props.form.local;
-      const sick = props.form.sick;
-      const period = props.form.period;
+      const local = store.state.form.local;
+      const sick = store.state.form.sick;
+      const period = store.state.form.period;
 
       const mapElement = document.querySelector('#map');
 
@@ -94,20 +92,11 @@ export const map = {
     });
 
     watch(
-      () => [props.form.local, props.form.sick, props.form.period],
+      () => [store.state.form.local, store.state.form.sick, store.state.form.period],
       async () => {
         await setMap();
       }
     )
-
-    onBeforeMount(async () => {
-      if(props.form.sick && Array.isArray(props.form.sick)) {
-        await emit("update:form",  {
-          ...props.form,
-          sick: props.form.sick[0]
-        })
-      }
-    })
 
     return {
       loading,

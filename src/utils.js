@@ -16,3 +16,33 @@ export const timestampToYear = (timestamp) => {
   const year = date.getFullYear();
   return year;
 };
+
+export const mapFields = (options) => {
+  const object = {};
+  for (let i = 0; i < options.fields.length; i++) {
+    const field = [options.fields[i]];
+    object[field] = {
+      get() {
+        return options.store.state[options.base][field];
+      },
+      set(value) {
+        options.store.commit(options.mutation, { [field]: value });
+      }
+    };
+  }
+  return object;
+}
+
+export const computedVar = (options) => {
+  return {
+    get() {
+      if (options.base) {
+        return options.store.state[options.base][options.field];
+      }
+      return options.store.state[options.field];
+    },
+    set(value) {
+      options.store.commit(options.mutation, { [options.field]: value });
+    }
+  }
+}

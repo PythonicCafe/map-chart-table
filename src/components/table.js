@@ -2,6 +2,7 @@ import { DataFetcher } from "../data-fetcher";
 import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
 import { timestampToYear } from "../utils";
+import { useStore } from 'vuex';
 
 export const table = {
   components: {
@@ -20,37 +21,33 @@ export const table = {
     },
   },
   setup(props, { emit }) {
+    const store = useStore();
     const loading = ref(true);
     const api = new DataFetcher(props.api);
     const rows =  ref([]);
     const columns = ref([]);
-    const sick = computed(() => props.form.sick);
-    const local = computed(() => props.form.local);
+    const sick = computed(() => store.state.form.sick);
+    const local = computed(() => store.state.form.local);
     const valueYears = computed(() => {
-      const periods = props.form.periods;
-      if (!Array.isArray(periods)) {
+      const periodStart = store.state.form.periodStart;
+      const periodEnd = store.state.form.periodEnd;
+      if (!periodStart) {
         return [];
       }
-      let y =  timestampToYear(periods[0]);
+      let y =  timestampToYear(periodStart);
       const result = [];
-      while (y <= timestampToYear(periods[1])) {
+      while (y <= timestampToYear(periodEnd)) {
         result.push(y++);
       }
       return result;
     })
 
     onMounted(async () => {
-      if(!props.form.sick || !Array.isArray(props.form.sick)) {
-        await emit("update:form",  {
-          ...props.form,
-          sick: props.form.sick ? [props.form.sick] : []
-        })
-      }
       await setTableData();
     });
 
     const setTableData = async () => {
-      if (!sick.value.length || !local.value.length || !valueYears.value.length){
+      if ((sick.value && !sick.value.length) || !local.value.length || !valueYears.value.length){
         loading.value = false;
         return;
       }
@@ -113,7 +110,12 @@ export const table = {
     }
 
     watch(
-      () => [props.form.local, props.form.sick, props.form.periods],
+      () => [
+        store.state.form.local,
+        store.state.form.sick,
+        store.state.form.periodStart,
+        store.state.form.periodEnd
+      ],
       async () => {
         await setTableData();
       }

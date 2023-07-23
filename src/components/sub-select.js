@@ -1,5 +1,7 @@
-import { ref, watch } from "vue/dist/vue.esm-bundler";
+import { ref, watch, computed } from "vue/dist/vue.esm-bundler";
 import { NSelect, NFormItem, NDatePicker, NButton } from "naive-ui";
+import { useStore } from 'vuex';
+import { computedVar } from "../utils";
 
 export const subSelect = {
   props: {
@@ -7,18 +9,6 @@ export const subSelect = {
       type: String,
       required: true
     },
-    tab: {
-      type: String,
-      required: true
-    },
-    tabBy: {
-      type: String,
-      required: true
-    },
-    form: {
-      type: Object,
-      required: true,
-    }
   },
   components:  {
     NSelect,
@@ -26,87 +16,136 @@ export const subSelect = {
     NDatePicker,
     NButton
   },
-  setup (props, { emit }) {
-    const local = ref(null);
-    const sick = ref(null);
+  setup () {
+    const store = useStore();
+    const tab = computed(() => store.state.tab);
+    const sickTemp = ref(null);
+    const localTemp = ref(null);
+    const sick = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sick" }));
+    const sicks = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sicks" }));
+    const type = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "type" }));
+    const types = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "types" }));
+    const local = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "local" }));
+    const locals = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "locals" }))
+    const period = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "period" }));
+    const granularity = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "granularity" }));
+    const granularities = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "granularities" }));
+    const periodStart = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "periodStart" }));
+    const periodEnd = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "periodEnd" }))
+
     const showingLocalsOptions = ref(null);
     const showingSicksOptions = ref(null);
-    const selectAll = (options) => {
+
+    const updateDatePosition = () => {
+      const endDate = periodEnd.value
+      const startDate = periodStart.value
+      const tsEndDate = endDate ? new Date(endDate) : null
+      const tsStartDate = startDate ? new Date(startDate) : null
+      if (!tsStartDate || !tsEndDate) {
+        return
+      }
+      if (tsStartDate > tsEndDate) {
+        periodEnd.value = startDate
+        periodStart.value = endDate
+      }
+    }
+
+    const selectAllLocals = (options) => {
       const allOptions = options.map((option) => option.value)
-      const selectLength = Array.isArray(local.value) ? local.value.length : null
+      const selectLength = Array.isArray(localTemp.value) ? localTemp.value.length : null
       if (selectLength == allOptions.length) {
-        local.value = [];
+        localTemp.value = [];
         return;
       }
 
-      local.value = allOptions;
+      localTemp.value = allOptions;
     }
 
     const handleLocalsUpdateShow = (show) => {
       showingLocalsOptions.value = show;
 
-      if (!showingLocalsOptions.value && local.value){
-        emit('update:form', {
-          ...props.form,
-          local: local.value
-        });
+      if (!showingLocalsOptions.value && localTemp.value) {
+        local.value = localTemp.value;
       }
     };
 
     const handleLocalsUpdateValue = (value) => {
-      local.value = value;
-      if (!showingLocalsOptions.value){
-        emit('update:form', {
-          ...props.form,
-          local: local.value
-        });
+      localTemp.value = value;
+      if (!showingLocalsOptions.value && localTemp.value){
+        local.value = localTemp.value;
       }
     };
 
     const handleSicksUpdateShow = (show) => {
       showingSicksOptions.value = show;
 
-      if (!showingSicksOptions.value && sick.value) {
-        emit('update:form', {
-          ...props.form,
-          sick: sick.value
-        });
+      if (!showingSicksOptions.value && sickTemp.value) {
+        sick.value = sickTemp.value;
       }
     };
 
     const handleSicksUpdateValue = (value) => {
-      sick.value = value;
+      sickTemp.value = value;
+
       if (!showingSicksOptions.value) {
-        emit('update:form', {
-          ...props.form,
-          sick: sick.value
-        });
+        sick.value = value;
       }
     };
 
+    const disablePreviousDate = (ts) => {
+      const timestamp = Date.now()
+      const dateNow = new Date(timestamp)
+      const tsDate = new Date(ts)
+      dateNow.setHours(23)
+      dateNow.setMinutes(59)
+      dateNow.setSeconds(59)
+      return tsDate >= dateNow
+    };
+
     watch(
-      () => [props.form.sick],
-      async () => {
-        sick.value = props.form.sick;
+      () => store.state.form.local,
+      (loc) => {
+        localTemp.value = loc
       }
-    )
+    );
+
+    watch(
+      () => store.state.form.sick,
+      (sic) => {
+        sickTemp.value = sic
+      }
+    );
 
     return {
-      selectAll,
-      local,
-      sick,
+      selectAllLocals,
       handleLocalsUpdateShow,
       handleLocalsUpdateValue,
       handleSicksUpdateShow,
-      handleSicksUpdateValue
+      handleSicksUpdateValue,
+      disablePreviousDate,
+      type,
+      types,
+      local,
+      locals,
+      sick,
+      sicks,
+      periodStart,
+      periodEnd,
+      period,
+      granularity,
+      granularities,
+      localTemp,
+      sickTemp,
+      updateDatePosition,
+      tab
     }
   },
   template: `
     <section style="display:flex; gap: 14px">
       <n-form-item label="Doença">
         <n-select
-          v-model:value="sick"
-          :options="form.sicks"
+          v-model:value="sickTemp"
+          :options="sicks"
           style="width: 200px"
           max-tag-count="responsive"
           placeholder="Selecione doença"
@@ -117,8 +156,8 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Tipo de dado">
         <n-select
-          v-model:value="form.type"
-          :options="form.types"
+          v-model="type"
+          :options="types"
           style="width: 200px"
           placeholder="Selecione Tipo de dado"
           multiple
@@ -127,8 +166,8 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Estados">
         <n-select
-          v-model:value="local"
-          :options="form.locals"
+          v-model:value="localTemp"
+          :options="locals"
           style="width: 200px"
           placeholder="Selecione Estado"
           multiple
@@ -138,24 +177,32 @@ export const subSelect = {
           :on-update:value="handleLocalsUpdateValue"
         >
           <template #action>
-            <n-button @click="selectAll(form.locals, 'local')" tertiary>Selecionar todos</n-button>
+            <n-button @click="selectAllLocals(locals)" tertiary>Selecionar todos</n-button>
           </template>
         </n-select>
       </n-form-item>
       <n-form-item label="Abrangência temporal" style="width: 200px">
         <n-date-picker
-         :update-value-on-close="true"
-         v-model:value="form.periods"
-         type="yearrange"
-         start-placeholder="Início"
-         end-placeholder="Final"
+         v-model:value="periodStart"
+         type="year"
+         placeholder="Início"
+         :is-date-disabled="disablePreviousDate"
+         @update:value="updateDatePosition"
+         clearable
+        />
+        <n-date-picker
+         v-model:value="periodEnd"
+         type="year"
+         placeholder="Final"
+         :is-date-disabled="disablePreviousDate"
+         @update:value="updateDatePosition"
          clearable
         />
       </n-form-item>
       <n-form-item label="Granularidade">
         <n-select
-          v-model:value="form.granurality"
-          :options="form.granuralities"
+          v-model:value="granularity"
+          :options="granularities"
           style="width: 200px"
           placeholder="Selecione Granularidade"
           multiple

@@ -1,9 +1,12 @@
 import "./assets/css/style.css";
 
-import { createApp, ref } from "vue/dist/vue.esm-bundler";
+import { createApp, ref, computed } from "vue/dist/vue.esm-bundler";
+import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
 import { NTabs, NTabPane, NTab } from "naive-ui";
+import { useStore } from "vuex";
+import { computedVar } from "./utils";
 
 
 export default class MCT {
@@ -17,9 +20,9 @@ export default class MCT {
     const App = {
       components: { NTabs, NTabPane, NTab, Config, MainCard },
       setup() {
-        const tab = ref("map");
-        const tabBy = ref("bySick");
-        const mainTitle = ref("Cobertura Vacinal de Poliomielite, Brasil, Janeiro de 2023");
+        const store = useStore();
+        const tab = computed(computedVar({ store,  mutation: "UPDATE_TAB", field: "tab" }));
+        const tabBy = computed(computedVar({ store, mutation: "UPDATE_TABBY", field: "tabBy" }));
 
         const handleUpdateValueTabBy = (tabByName) => {
           tabBy.value = tabByName;
@@ -30,7 +33,6 @@ export default class MCT {
         return {
           tab,
           tabBy,
-          mainTitle,
           api: self.api,
           handleUpdateValueTab,
           handleUpdateValueTabBy
@@ -42,11 +44,11 @@ export default class MCT {
             <section class="main-header">
               <h1 style="margin:0px; color: #e96f5f">VacinasBR</h1>
               <div style="display:flex; gap: 32px; overflow: auto">
-                <n-tabs type="segment" @update:value="handleUpdateValueTabBy">
-                  <n-tab name="bySick" tab="Por doença" />
-                  <n-tab name="byImmunizing" tab="Imunizante" />
+                <n-tabs type="segment" v-model:value="tabBy">
+                  <n-tab name="sick" tab="Por doença" />
+                  <n-tab name="immunizing" tab="Imunizante" />
                 </n-tabs>
-                <n-tabs :value="tab" type="segment" @update:value="handleUpdateValueTab">
+                <n-tabs v-model:value="tab" type="segment">
                   <n-tab name="map" tab="Mapa" />
                   <n-tab name="chart" tab="Gráfico"/>
                   <n-tab name="table" tab="Tabela"/>
@@ -54,7 +56,7 @@ export default class MCT {
               </div>
             </section>
             <div>
-              <MainCard :api="api" :main-title="mainTitle" :tab-by="tabBy" :tab="tab" />
+              <MainCard :api="api" />
             </div>
           </main>
         </Config>
@@ -62,6 +64,7 @@ export default class MCT {
     };
 
     const app = createApp(App);
+    app.use(store);
     app.mount("#app");
   }
 }

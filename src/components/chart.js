@@ -5,6 +5,7 @@ import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
 import { timestampToYear } from "../utils";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { useStore } from "vuex";
 
 // Registrar a escala "category"
 Chart.register(CategoryScale, LineController, LineElement, PointElement, LinearScale, Tooltip, Legend, ChartDataLabels);
@@ -19,25 +20,24 @@ export const chart = {
     api: {
       type: String,
       required: true
-    },
-    form: {
-      type: Object,
-    },
+    }
   },
-  setup(props, { emit }) {
+  setup(props) {
+    const store = useStore();
     const api = new DataFetcher(props.api);
     const chartDefined = ref(true);
     const loading = ref(true);
-    const valueSick = computed(() => props.form.sick);
-    const valueAcronym = computed(() => props.form.local);
+    const valueSick = computed(() => store.state.form.sick);
+    const valueAcronym = computed(() => store.state.form.local);
     const valueYears = computed(() => {
-      const periods = props.form.periods;
-      if (!Array.isArray(periods)) {
+      const periodStart = store.state.form.periodStart;
+      const periodEnd = store.state.form.periodEnd;
+      if (!periodStart) {
         return [];
       }
-      let y =  timestampToYear(periods[0]);
+      let y =  timestampToYear(periodStart);
       const result = [];
-      while (y <= timestampToYear(periods[1])) {
+      while (y <= timestampToYear(periodEnd)) {
         result.push(y++);
       }
       return result;
@@ -64,6 +64,9 @@ export const chart = {
     const htmlLegendPlugin = {
       id: 'htmlLegend',
       afterUpdate(chart, args, options) {
+        if (!document.getElementById(options.containerID)){
+          return;
+        }
         const ul = getOrCreateLegendList(chart, options.containerID);
 
         // Remove old legend items
@@ -236,7 +239,7 @@ export const chart = {
       let years = valueYears.value;
       let locals = valueAcronym.value;
 
-      if(!sicks.length || !locals.length || !years.length) {
+      if((sicks && !sicks.length) || !locals.length || !years.length) {
         renderChart();
         return;
       }
@@ -293,17 +296,16 @@ export const chart = {
     }
 
     onMounted(async () => {
-      if(!props.form.sick || !Array.isArray(props.form.sick)) {
-        await emit("update:form",  {
-          ...props.form,
-          sick: props.form.sick ? [props.form.sick] : []
-        })
-      }
       await setChartData();
     });
 
     watch(
-      () => [props.form.local, props.form.sick, props.form.periods],
+      () => [
+        store.state.form.local,
+        store.state.form.sick,
+        store.state.form.periodStart,
+        store.state.form.periodEnd
+      ],
       async () => {
         await setChartData();
       }
