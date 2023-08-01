@@ -1,4 +1,3 @@
-import { DataFetcher } from "../data-fetcher";
 import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
 import { timestampToYear } from "../utils";
@@ -12,21 +11,16 @@ export const table = {
     NEmpty
   },
   props: {
-    api: {
-      type: String,
-      required: true
-    },
     form: {
       type: Object,
     },
   },
-  setup(props, { emit }) {
+  setup() {
     const store = useStore();
     const loading = ref(true);
-    const api = new DataFetcher(props.api);
     const rows =  ref([]);
     const columns = ref([]);
-    const sick = computed(() => store.state.form.sick);
+    const sick = computed(() => store.state.form.sickImmunizer);
     const local = computed(() => store.state.form.local);
     const valueYears = computed(() => {
       const periodStart = store.state.form.periodStart;
@@ -47,11 +41,12 @@ export const table = {
     });
 
     const setTableData = async () => {
-      if ((sick.value && !sick.value.length) || !local.value.length || !valueYears.value.length){
+      if (!sick.value || (sick.value && !sick.value.length) || !local.value.length || !valueYears.value.length){
         loading.value = false;
+        rows.value = [];
         return;
       }
-      const currentResult = await api.request(sick.value);
+      const currentResult = await store.dispatch("requestBySick");
 
       columns.value = [];
       const tableData = convertObjectToArray(currentResult);
@@ -93,18 +88,20 @@ export const table = {
       // Push the headers (year, acronym, value) to the result array
       result.push(['Ano', 'Sigla', 'Nome', 'Valor']);
 
-      // Loop through each year
-      for (const sickName of sicksNames) {
-        for (const year of years) {
-          // Loop through each state in the year
-          for (const acronym of locals) {
-            const value = externalObj[sickName][year] && externalObj[sickName][year][acronym] ? externalObj[sickName][year][acronym] : null;
-            if (value){
-              result.push([year, acronym, sickName, value + "%"]);
+        // Loop through each year
+        for (const sickName of sicksNames) {
+          for (const year of years) {
+            if (externalObj[sickName]) {
+              // Loop through each state in the year
+              for (const acronym of locals) {
+                const value = externalObj[sickName][year] && externalObj[sickName][year][acronym] ? externalObj[sickName][year][acronym] : null;
+                if (value){
+                  result.push([year, acronym, sickName, value + "%"]);
+                }
+              }
             }
           }
         }
-      }
 
       return result;
     }
@@ -112,7 +109,7 @@ export const table = {
     watch(
       () => [
         store.state.form.local,
-        store.state.form.sick,
+        store.state.form.sickImmunizer,
         store.state.form.periodStart,
         store.state.form.periodEnd
       ],

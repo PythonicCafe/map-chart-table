@@ -7,10 +7,9 @@ import { subSelect as SubSelect } from "./sub-select";
 import { subButtons as SubButtons } from "./sub-buttons";
 import { yearSlider as YearSlider } from "./map/year-slider";
 import { mapRange as MapRange } from "./map/map-range";
-import { DataFetcher } from "../data-fetcher";
-import { ufs } from "../exampleData";
 import { useStore } from 'vuex'
 import { mapFields } from '../utils';
+import { useRouter, useRoute } from 'vue-router';
 
 export const mainCard = {
   components:  {
@@ -30,7 +29,7 @@ export const mainCard = {
       required: true
     },
   },
-  setup(props) {
+  setup() {
     const store = useStore();
     const mapData = ref([]);
     const mapTooltip = ref([]);
@@ -39,8 +38,8 @@ export const mainCard = {
       {
         store,
         fields: [
-          "sick",
-          "sicks",
+          "sickImmunizer",
+          "sicksImmunizers",
           "type",
           "types",
           "local",
@@ -57,6 +56,9 @@ export const mainCard = {
       })
     );
 
+    const router = useRouter();
+    const route = useRoute();
+
     const handleMapChange = (datasetValues) => {
       mapData.value = datasetValues;
     };
@@ -65,24 +67,17 @@ export const mainCard = {
       mapTooltip.value = tooltip;
     };
 
-    const api = new DataFetcher(props.api);
 
     onBeforeMount(async () => {
-      let [sicks, locals] = await Promise.all([
-        api.request("options"),
-        api.request("statesAcronym")
-      ]);
       // Set sicks options
-      form.value.sicks.set(sicks.result.map(x => { return { label: x, value: x } }))
+      await store.dispatch("updateSicksImmunizers", "sicks")
       // Set locals options
-      locals = Object.values(form.value.locals).map(x => x.acronym).sort();
-      locals.unshift("BR");
-      locals.value = locals.map((local) =>  { return { label: local, value: local } } );
+      store.dispatch("updateLocals", "sicks")
 
       // TODO: How years range will work
       // TODO: Get states from API
-      form.value.locals.set(ufs);
     });
+
 
     return {
       handleMapChange,
@@ -97,9 +92,7 @@ export const mainCard = {
   },
   template: `
     <n-card style="border: #D8D8D8 1px solid">
-      <SubSelect
-        :api="api"
-      />
+      <SubSelect />
       <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
         {{ mainTitle }}
       </h2>
@@ -125,10 +118,10 @@ export const mainCard = {
           </div>
         </template>
         <template v-else-if="tab === 'chart'">
-          <Chart :api='api' />
+          <Chart />
         </template>
         <template v-else>
-          <Table :api='api' v-model:form="form" />
+          <Table />
         </template>
       </section>
       <SubButtons />

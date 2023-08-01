@@ -37,13 +37,17 @@ export class MapChart {
   }
 
   update({ map, datasetCities, cities, datasetStates, states, statesSelected }) {
-    this.map = map;
-    this.datasetCities = datasetCities;
-    this.cities = cities;
-    this.datasetStates = datasetStates;
-    this.states = states;
-    this.statesSelected = statesSelected;
-    this.start();
+    const self = this;
+
+    self.map = map ?? self.map;
+    self.cities = cities ?? self.cities;
+    self.states = states ?? self.states;
+    self.statesSelected = statesSelected ?? self.statesSelected;
+
+    self.datasetCities = datasetCities;
+    self.datasetStates = datasetStates;
+
+    self.start();
   }
 
   applyMap(map) {

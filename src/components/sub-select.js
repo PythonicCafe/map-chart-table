@@ -4,12 +4,6 @@ import { useStore } from 'vuex';
 import { computedVar } from "../utils";
 
 export const subSelect = {
-  props: {
-    api: {
-      type: String,
-      required: true
-    },
-  },
   components:  {
     NSelect,
     NFormItem,
@@ -19,10 +13,11 @@ export const subSelect = {
   setup () {
     const store = useStore();
     const tab = computed(() => store.state.tab);
+    const tabBy = computed(() => store.state.tabBy);
     const sickTemp = ref(null);
     const localTemp = ref(null);
-    const sick = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sick" }));
-    const sicks = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sicks" }));
+    const sick = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sickImmunizer" }));
+    const sicks = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sicksImmunizers" }));
     const type = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "type" }));
     const types = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "types" }));
     const local = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "local" }));
@@ -110,7 +105,7 @@ export const subSelect = {
     );
 
     watch(
-      () => store.state.form.sick,
+      () => store.state.form.sickImmunizer,
       (sic) => {
         sickTemp.value = sic
       }
@@ -137,18 +132,19 @@ export const subSelect = {
       localTemp,
       sickTemp,
       updateDatePosition,
-      tab
+      tab,
+      tabBy
     }
   },
   template: `
     <section style="display:flex; gap: 14px">
-      <n-form-item label="Doença">
+      <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Imunizante'">
         <n-select
           v-model:value="sickTemp"
           :options="sicks"
           style="width: 200px"
           max-tag-count="responsive"
-          placeholder="Selecione doença"
+          :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'doença' : 'imunizante')"
           :multiple="tab !== 'map'"
           :on-update:show="handleSicksUpdateShow"
           :on-update:value="handleSicksUpdateValue"
@@ -183,6 +179,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Abrangência temporal" style="width: 200px">
         <n-date-picker
+         class="start-datepicker"
          v-model:value="periodStart"
          type="year"
          placeholder="Início"
@@ -191,6 +188,7 @@ export const subSelect = {
          clearable
         />
         <n-date-picker
+         class="end-datepicker"
          v-model:value="periodEnd"
          type="year"
          placeholder="Final"

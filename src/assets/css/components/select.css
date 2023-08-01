@@ -74,3 +74,21 @@
 }
 
 */
+
+.start-datepicker .n-input .n-input__border {
+  border-right-color: transparent;
+}
+
+.end-datepicker .n-input .n-input__border {
+  border-left-color: transparent;
+}
+
+.start-datepicker .n-input.n-input--resizable.n-input--stateful {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.end-datepicker .n-input.n-input--resizable.n-input--stateful {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

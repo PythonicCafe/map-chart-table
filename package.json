@@ -26,5 +26,8 @@
     "vue": "^3.2.47",
     "vuex": "^4.1.0",
     "vuex-map-fields": "^1.4.1"
+  },
+  "dependencies": {
+    "vue-router": "^4.2.4"
   }
 }

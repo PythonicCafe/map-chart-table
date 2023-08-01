@@ -1,5 +1,4 @@
-import { DataFetcher } from "../data-fetcher";
-import { ref, onMounted, watch, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { randomHexColor } from "../utils";
 import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
@@ -16,18 +15,11 @@ export const chart = {
     NEmpty,
     NSpin
   },
-  props: {
-    api: {
-      type: String,
-      required: true
-    }
-  },
-  setup(props) {
+  setup() {
     const store = useStore();
-    const api = new DataFetcher(props.api);
     const chartDefined = ref(true);
     const loading = ref(true);
-    const valueSick = computed(() => store.state.form.sick);
+    const valueSick = computed(() => store.state.form.sickImmunizer);
     const valueAcronym = computed(() => store.state.form.local);
     const valueYears = computed(() => {
       const periodStart = store.state.form.periodStart;
@@ -81,12 +73,20 @@ export const chart = {
           const li = document.createElement('li');
           li.style.alignItems = 'center';
           li.style.display = 'flex';
+          li.style.cursor = 'pointer';
           li.style.flexDirection = 'row';
           li.style.marginLeft = '10px';
+          li.style.opacity = item.hidden ? '30%' : '100%';
+          li.title = "Clique para" + (item.hidden ? " exibir " : " ocultar ") + "dado no gráfico";
+
+          li.onclick = () => {
+            chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+            chart.update();
+          };
 
           // Color box
           const boxSpan = document.createElement('span');
-          boxSpan.style.background = item.fillStyle;
+          boxSpan.style.background = item.hidden ? 'gray' : item.fillStyle;
           boxSpan.style.borderColor = item.strokeStyle;
           boxSpan.style.borderWidth = item.lineWidth + 'px';
           boxSpan.style.display = 'inline-block';
@@ -97,7 +97,7 @@ export const chart = {
 
           // Text
           const textContainer = document.createElement('p');
-          textContainer.style.color = item.fontColor;
+          textContainer.style.color = item.fontColor ;
           textContainer.style.margin = 0;
           textContainer.style.padding = 0;
           textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
@@ -239,12 +239,12 @@ export const chart = {
       let years = valueYears.value;
       let locals = valueAcronym.value;
 
-      if((sicks && !sicks.length) || !locals.length || !years.length) {
+      if(!sicks || (sicks && !sicks.length) || !locals.length || !years.length) {
         renderChart();
         return;
       }
 
-      results = await api.request(sicks);
+      results = await store.dispatch("requestBySick");
 
       // TODO: API shoud send correct data fomated and we will not need this fix here
       if (!Object.keys(results).find(x => x === sicks[0])) {
@@ -302,7 +302,7 @@ export const chart = {
     watch(
       () => [
         store.state.form.local,
-        store.state.form.sick,
+        store.state.form.sickImmunizer,
         store.state.form.periodStart,
         store.state.form.periodEnd
       ],

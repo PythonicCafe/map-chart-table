@@ -23,6 +23,8 @@ export const map = {
     const yearMapElement = ref(null);
     const mapChart = ref(null);
     const store = useStore();
+    const datasetStates = ref(null);
+    const datasetCities = ref(null);
 
     const queryMap = async (mapUrl) => {
       const svg = await fetch(mapUrl);
@@ -46,7 +48,7 @@ export const map = {
 
     const setMap = async () => {
       const local = store.state.form.local;
-      const sick = store.state.form.sick;
+      const sick = store.state.form.sickImmunizer;
       const period = store.state.form.period;
 
       const mapElement = document.querySelector('#map');
@@ -59,9 +61,10 @@ export const map = {
           );
 
         if (sick && sick.length) {
-          const datasetStates = await api.request(sick);
+          datasetCities.value = null;
+          datasetStates.value = await api.request(sick);
           const states = await api.request("statesAcronym");
-          renderMap({ element: mapElement, map, datasetStates: datasetStates[period], states, statesSelected: local });
+          renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
           return;
         }
 
@@ -77,9 +80,10 @@ export const map = {
         return renderMap({ element: mapElement, map });
       }
       try {
-        const datasetCities = await api.requestState(local + "/" + sick);
+        datasetCities.value = await api.requestState(local + "/" + sick);
         const cities = await api.requestState(local + "/" + "citiesAcronym");
-        renderMap({ element: mapElement, map, datasetCities: datasetCities[period], cities });
+        datasetStates.value = null;
+        renderMap({ element: mapElement, map, datasetCities: datasetCities.value[period], cities });
       } catch (e) {
         renderMap({ element: mapElement, map });
       }
@@ -92,9 +96,20 @@ export const map = {
     });
 
     watch(
-      () => [store.state.form.local, store.state.form.sick, store.state.form.period],
+      () => [store.state.form.local, store.state.form.sickImmunizer],
       async () => {
         await setMap();
+      }
+    )
+
+    watch(
+      () => [store.state.form.period],
+      async (period) => {
+        if (datasetStates.value) {
+          renderMap({ datasetCities: null, datasetStates: datasetStates.value[period] });
+        } else if (datasetCities.value) {
+          renderMap({ datasetStates: null, datasetCities: datasetCities.value[period] });
+        }
       }
     )
 
