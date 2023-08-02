@@ -50,7 +50,11 @@ export const computedVar = (options) => {
 export const formatDate = (timestamp) => {
   const date = new Date(timestamp);
   const year = date.getFullYear().toString().padStart(4, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${year}`;
 };
+
+export const convertDateToUtc = (dateString) => { 
+  const utcdate = Date.UTC(dateString, 1, 1);
+  return utcdate;
+};
+

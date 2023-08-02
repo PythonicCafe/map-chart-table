@@ -1,5 +1,5 @@
 import { NCard, NSkeleton } from "naive-ui";
-import { ref, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { ref, computed, onBeforeMount, watch } from "vue/dist/vue.esm-bundler";
 import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
 import { table as Table } from "./table";
@@ -8,8 +8,9 @@ import { subButtons as SubButtons } from "./sub-buttons";
 import { yearSlider as YearSlider } from "./map/year-slider";
 import { mapRange as MapRange } from "./map/map-range";
 import { useStore } from 'vuex'
-import { mapFields } from '../utils';
+import { mapFields, convertDateToUtc } from '../utils';
 import { useRouter, useRoute } from 'vue-router';
+import { formatToApi } from "../common";
 
 export const mainCard = {
   components:  {
@@ -67,6 +68,79 @@ export const mainCard = {
       mapTooltip.value = tooltip;
     };
 
+    const setStateFromUrl = () => {
+      const routeArgs = route.query;
+      const routerResult = {};
+
+      for (const [key, value] of Object.entries(routeArgs)) {
+        const result = new Date(String(value));
+        if (key === "period") { 
+          routerResult[key] = Number(value);
+          continue;
+        }
+        if (result instanceof Date && !isNaN(result.getTime())) {
+          const currentYear = new Date().getFullYear();
+          if (Number(value) <= currentYear) {
+            routerResult[key] = convertDateToUtc(String(value));
+          } else {
+            routerResult[key] = convertDateToUtc(String(currentYear));
+          }
+          continue;
+        }
+        if (value.includes(",")){
+          routerResult[key] = value.split(",");
+          continue
+        }
+        routerResult[key] = value;
+      }
+
+      const modelResult = {};
+
+      for (const field of Object.entries(form.value)) {
+        if (routerResult[field[0]]) {
+          modelResult[field[0]] = routerResult[field[0]] ?? null;
+        }
+      }
+
+      store.commit("UPDATE_FROM_URL", {
+        tab: routeArgs?.tab ? routeArgs.tab : "map",
+        tabBy: routeArgs?.tabBy ?  routeArgs.tabBy : "sicks",
+        form: { ...modelResult },
+      });
+    };
+
+    const setUrlFromState = () => {
+      let stateResult = formatToApi({
+        form: { ...store.state.form },
+        tab: store.state.tab !== "map" ? store.state.tab : undefined,
+        tabBy: store.state.tabBy !== "sicks" ? store.state.tabBy : undefined,
+      });
+      if (Array.isArray(stateResult.sickImmunizer) && stateResult.sickImmunizer.length) {
+        stateResult.sickImmunizer = [...stateResult?.sickImmunizer].join(",");
+      }
+      if (Array.isArray(stateResult.local) && stateResult.local.length) {
+        stateResult.local = [...stateResult?.local].join(",");
+      }
+      router.push({ query: stateResult })
+    }
+
+    watch(
+      () => [ 
+        store.state.form,
+        store.state.form.sickImmunizer,
+        store.state.form.type,
+        store.state.form.local,
+        store.state.form.period,
+        store.state.form.periodStart,
+        store.state.form.periodEnd,
+        store.state.form.granurality,
+        store.state.tab,
+        store.state.tabBy
+      ],
+      () => {
+        setUrlFromState()
+      }
+    )
 
     onBeforeMount(async () => {
       // Set sicks options
@@ -76,6 +150,7 @@ export const mainCard = {
 
       // TODO: How years range will work
       // TODO: Get states from API
+      setStateFromUrl()
     });
 
 

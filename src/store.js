@@ -94,7 +94,21 @@ export default createStore({
     },
     UPDATE_FROM_URL(state, payload) {
       for (let [key, value] of Object.entries(payload)) {
-        state[key] = value;
+        if (key === "form") {
+          for (let [formKey, formValue] of Object.entries(value)) {
+            if (Array.isArray(state.form[formKey])) {
+              state.form[formKey] = state.form[formKey].concat( ...state.form[formKey], formValue );
+            } else {
+              if (formKey === "sickImmunizer" && state.tab !== "map") { 
+                state.form[formKey] =  Array.isArray(formValue) ? formValue : [formValue];
+              } else {
+                state.form[formKey] = formValue;
+              }
+            }
+          }
+        } else {
+          state[key] = value;
+        }
       }
     },
   },

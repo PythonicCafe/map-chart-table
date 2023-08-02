@@ -58,7 +58,6 @@ export const subSelect = {
 
     const handleLocalsUpdateShow = (show) => {
       showingLocalsOptions.value = show;
-
       if (!showingLocalsOptions.value && localTemp.value) {
         local.value = localTemp.value;
       }
@@ -74,15 +73,14 @@ export const subSelect = {
     const handleSicksUpdateShow = (show) => {
       showingSicksOptions.value = show;
 
-      if (!showingSicksOptions.value && sickTemp.value) {
+      if (!showingSicksOptions.value && sickTemp.value && tab.value !== "map") {
         sick.value = sickTemp.value;
       }
     };
 
     const handleSicksUpdateValue = (value) => {
       sickTemp.value = value;
-
-      if (!showingSicksOptions.value) {
+      if (!showingSicksOptions.value && sickTemp.value) {
         sick.value = value;
       }
     };

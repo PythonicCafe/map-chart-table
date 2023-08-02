@@ -1,8 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { mainCard } from "../components/main-card";
 
-const router = createRouter({
+export default createRouter({
   history: createWebHistory(),
-  routes: [],
+  routes: [
+    {
+      path: "/",
+      name: "main",
+      component: mainCard
+    },
+  ],
 })
-
-export default router;
