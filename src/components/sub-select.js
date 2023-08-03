@@ -150,12 +150,10 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Tipo de dado">
         <n-select
-          v-model="type"
+          v-model:value="type"
           :options="types"
           style="width: 200px"
           placeholder="Selecione Tipo de dado"
-          multiple
-          disabled
         />
       </n-form-item>
       <n-form-item label="Estados">
@@ -201,8 +199,6 @@ export const subSelect = {
           :options="granularities"
           style="width: 200px"
           placeholder="Selecione Granularidade"
-          multiple
-          disabled
         />
       </n-form-item>
     </section>

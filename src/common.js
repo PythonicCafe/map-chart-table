@@ -9,21 +9,21 @@ export const formatToApi = ({
   if (form) {
     for (let formField in form) {
       switch (formField) {
-        case "types":
         case "local":
-        case "granuralities":
           if (form[formField] && form[formField].length) {
             routerResult[formField] = form[formField];
           }
           break;
-        case "periodStart":
         case "periodEnd":
+        case "periodStart":
           if (form[formField]) {
             routerResult[formField] = formatDate(form[formField]);
           }
           break;
         case "locals":
         case "sicksImmunizers":
+        case "types":
+        case "granularities":
           // Do Nothing
           break;
         default:

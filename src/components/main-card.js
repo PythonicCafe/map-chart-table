@@ -49,8 +49,8 @@ export const mainCard = {
           "periods",
           "periodStart",
           "periodEnd",
-          "granurality",
-          "granuralities"
+          "granularity",
+          "granularities"
         ],
         base: "form",
         mutation: "UPDATE_FORM"
@@ -133,7 +133,7 @@ export const mainCard = {
         store.state.form.period,
         store.state.form.periodStart,
         store.state.form.periodEnd,
-        store.state.form.granurality,
+        store.state.form.granularity,
         store.state.tab,
         store.state.tabBy
       ],
@@ -147,6 +147,8 @@ export const mainCard = {
       await store.dispatch("updateSicksImmunizers", "sicks")
       // Set locals options
       store.dispatch("updateLocals", "sicks")
+      store.dispatch("updateTypes")
+      store.dispatch("updateGranularities")
 
       // TODO: How years range will work
       // TODO: Get states from API

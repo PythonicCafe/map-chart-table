@@ -1,3 +1,14 @@
+export const types = [
+  { label: 'Cobertura', value: 'Cobertura' },
+  { label: 'Abandono', value: 'Abandono' },
+  { label: 'Homogeneidade', value: 'Homogeneidade' }
+];
+
+export const granularities = [
+  { label: 'Municípios', value: 'Municípios' },
+  { label: 'Região de saúde', value: 'Região de saúde' },
+];
+
 export const ufs = [
   { label: 'AC', value: 'AC' },
   { label: 'AL', value: 'AL' },
@@ -26,5 +37,5 @@ export const ufs = [
   { label: 'SP', value: 'SP' },
   { label: 'SE', value: 'SE' },
   { label: 'TO', value: 'TO' }
-]
+];
 

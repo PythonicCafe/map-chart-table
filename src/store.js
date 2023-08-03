@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import { timestampToYear } from "./utils";
 import { DataFetcher } from "./data-fetcher";
-import { ufs } from "./exampleData";
+import { ufs, types, granularities } from "./exampleData";
 
 const getDefaultState = () => {
   return {
@@ -19,8 +19,8 @@ const getDefaultState = () => {
       periods: null,
       periodStart: null,
       periodEnd: null,
-      granurality: null,
-      granuralities: [],
+      granularity: null,
+      granularities: [],
     }
   }
 }
@@ -38,11 +38,23 @@ export default createStore({
       const result = await api.request("options");
       commit("UPDATE_FORM_SICKSIMMUNIZERS", result[type].map(x => { return { label: x, value: x } }));
     },
+    updateTypes(
+      { commit }
+    ) {
+      let t = types.map(x => x.label).sort();
+      commit("UPDATE_FORM_OPTIONS", { types: t.map((x) =>  { return { label: x, value: x } }) });
+    },
+    updateGranularities(
+      { commit }
+    ) {
+      let g = granularities.map(x => x.label).sort();
+      commit("UPDATE_FORM_OPTIONS", { granularities: g.map((x) =>  { return { label: x, value: x } })});
+    },
     updateLocals(
       { commit }
     ) {
       let locals = ufs.map(x => x.label).sort();
-      commit("UPDATE_FORM_LOCALS", locals.map((local) =>  { return { label: local, value: local } }));
+      commit("UPDATE_FORM_OPTIONS", { locals: locals.map((x) =>  { return { label: x, value: x } })});
     },
     async requestBySick(
       { state },
@@ -67,8 +79,8 @@ export default createStore({
       state.form.sicksImmunizers = payload;
       state.form.sickImmunizer = null;
     },
-    UPDATE_FORM_LOCALS(state, payload) {
-      state.form.locals = payload;
+    UPDATE_FORM_OPTIONS(state, payload) {
+      state.form[Object.keys(payload)[0]] =  Object.values(payload)[0];
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];
