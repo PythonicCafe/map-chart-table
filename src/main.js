@@ -10,8 +10,9 @@ import { computedVar } from "./utils";
 import router from "./router";
 
 export default class MCT {
-  constructor(api) {
+  constructor(api, baseAddress = "") {
     this.api = api;
+    this.baseAddress = baseAddress;
     this.render();
   }
 
@@ -63,7 +64,7 @@ export default class MCT {
 
     const app = createApp(App);
     app.use(store);
-    app.use(router);
+    app.use(router(self.baseAddress));
     app.mount("#app");
   }
 }

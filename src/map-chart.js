@@ -65,7 +65,6 @@ export class MapChart {
     svgElement.style.maxWidth = "100%";
     svgElement.style.height = "100%";
     svgElement.style.margin = "auto";
-    svgElement.style.display = "block";
   }
 
   setData(

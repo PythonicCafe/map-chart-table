@@ -71,6 +71,8 @@ export default createStore({
           if (!state.form.periodEnd) {
             state.form.periodEnd = Date.now();
           }
+        } else if (key === "periodEnd" && value ) {
+          state.form.period = state.form.periodStart ? timestampToYear(state.form.periodStart) : timestampToYear(value);
         }
         state.form[key] = value;
       }
