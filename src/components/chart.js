@@ -19,11 +19,11 @@ export const chart = {
     const store = useStore();
     const chartDefined = ref(true);
     const loading = ref(true);
-    const valueSick = computed(() => store.state.form.sickImmunizer);
-    const valueAcronym = computed(() => store.state.form.local);
+    const valueSick = computed(() => store.state.content.form.sickImmunizer);
+    const valueAcronym = computed(() => store.state.content.form.local);
     const valueYears = computed(() => {
-      const periodStart = store.state.form.periodStart;
-      const periodEnd = store.state.form.periodEnd;
+      const periodStart = store.state.content.form.periodStart;
+      const periodEnd = store.state.content.form.periodEnd;
       if (!periodStart) {
         return [];
       }
@@ -301,10 +301,10 @@ export const chart = {
 
     watch(
       () => [
-        store.state.form.local,
-        store.state.form.sickImmunizer,
-        store.state.form.periodStart,
-        store.state.form.periodEnd
+        store.state.content.form.local,
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.periodStart,
+        store.state.content.form.periodEnd
       ],
       async () => {
         await setChartData();

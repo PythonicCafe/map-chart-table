@@ -12,21 +12,21 @@ export const subSelect = {
   },
   setup () {
     const store = useStore();
-    const tab = computed(() => store.state.tab);
-    const tabBy = computed(() => store.state.tabBy);
+    const tab = computed(() => store.state.content.tab);
+    const tabBy = computed(() => store.state.content.tabBy);
     const sickTemp = ref(null);
     const localTemp = ref(null);
-    const sick = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sickImmunizer" }));
-    const sicks = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "sicksImmunizers" }));
-    const type = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "type" }));
-    const types = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "types" }));
-    const local = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "local" }));
-    const locals = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "locals" }))
-    const period = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "period" }));
-    const granularity = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "granularity" }));
-    const granularities = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "granularities" }));
-    const periodStart = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "periodStart" }));
-    const periodEnd = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM", field: "periodEnd" }))
+    const sick = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sickImmunizer" }));
+    const sicks = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sicksImmunizers" }));
+    const type = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "type" }));
+    const types = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "types" }));
+    const local = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "local" }));
+    const locals = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "locals" }))
+    const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "period" }));
+    const granularity = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "granularity" }));
+    const granularities = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "granularities" }));
+    const periodStart = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "periodStart" }));
+    const periodEnd = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "periodEnd" }))
 
     const showingLocalsOptions = ref(null);
     const showingSicksOptions = ref(null);
@@ -96,14 +96,14 @@ export const subSelect = {
     };
 
     watch(
-      () => store.state.form.local,
+      () => store.state.content.form.local,
       (loc) => {
         localTemp.value = loc
       }
     );
 
     watch(
-      () => store.state.form.sickImmunizer,
+      () => store.state.content.form.sickImmunizer,
       (sic) => {
         sickTemp.value = sic
       }

@@ -20,11 +20,11 @@ export const table = {
     const loading = ref(true);
     const rows =  ref([]);
     const columns = ref([]);
-    const sick = computed(() => store.state.form.sickImmunizer);
-    const local = computed(() => store.state.form.local);
+    const sick = computed(() => store.state.content.form.sickImmunizer);
+    const local = computed(() => store.state.content.form.local);
     const valueYears = computed(() => {
-      const periodStart = store.state.form.periodStart;
-      const periodEnd = store.state.form.periodEnd;
+      const periodStart = store.state.content.form.periodStart;
+      const periodEnd = store.state.content.form.periodEnd;
       if (!periodStart) {
         return [];
       }
@@ -74,10 +74,10 @@ export const table = {
 
     watch(
       () => [
-        store.state.form.local,
-        store.state.form.sickImmunizer,
-        store.state.form.periodStart,
-        store.state.form.periodEnd
+        store.state.content.form.local,
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.periodStart,
+        store.state.content.form.periodEnd
       ],
       async () => {
         await setTableData();

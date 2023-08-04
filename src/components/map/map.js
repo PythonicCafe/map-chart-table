@@ -47,9 +47,9 @@ export const map = {
     }
 
     const setMap = async () => {
-      const local = store.state.form.local;
-      const sick = store.state.form.sickImmunizer;
-      const period = store.state.form.period;
+      const local = store.state.content.form.local;
+      const sick = store.state.content.form.sickImmunizer;
+      const period = store.state.content.form.period;
 
       const mapElement = document.querySelector('#map');
 
@@ -96,14 +96,14 @@ export const map = {
     });
 
     watch(
-      () => [store.state.form.local, store.state.form.sickImmunizer],
+      () => [store.state.content.form.local, store.state.content.form.sickImmunizer],
       async () => {
         await setMap();
       }
     )
 
     watch(
-      () => [store.state.form.period],
+      () => [store.state.content.form.period],
       async (period) => {
         if (datasetStates.value) {
           renderMap({ datasetCities: null, datasetStates: datasetStates.value[period] });

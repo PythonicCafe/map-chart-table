@@ -1,4 +1,4 @@
-import { NCard, NSkeleton } from "naive-ui";
+import { NCard, NSkeleton, useMessage } from "naive-ui";
 import { ref, computed, onBeforeMount, watch } from "vue/dist/vue.esm-bundler";
 import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
@@ -32,9 +32,10 @@ export const mainCard = {
   },
   setup() {
     const store = useStore();
+    const message = useMessage();
     const mapData = ref([]);
     const mapTooltip = ref([]);
-    const tab = computed(() => store.state.tab);
+    const tab = computed(() => store.state.content.tab);
     const form = computed(() => mapFields(
       {
         store,
@@ -53,7 +54,7 @@ export const mainCard = {
           "granularities"
         ],
         base: "form",
-        mutation: "UPDATE_FORM"
+        mutation: "content/UPDATE_FORM"
       })
     );
 
@@ -74,7 +75,7 @@ export const mainCard = {
 
       for (const [key, value] of Object.entries(routeArgs)) {
         const result = new Date(String(value));
-        if (key === "period") { 
+        if (key === "period") {
           routerResult[key] = Number(value);
           continue;
         }
@@ -102,7 +103,7 @@ export const mainCard = {
         }
       }
 
-      store.commit("UPDATE_FROM_URL", {
+      store.commit("content/UPDATE_FROM_URL", {
         tab: routeArgs?.tab ? routeArgs.tab : "map",
         tabBy: routeArgs?.tabBy ?  routeArgs.tabBy : "sicks",
         form: { ...modelResult },
@@ -111,9 +112,9 @@ export const mainCard = {
 
     const setUrlFromState = () => {
       let stateResult = formatToApi({
-        form: { ...store.state.form },
-        tab: store.state.tab !== "map" ? store.state.tab : undefined,
-        tabBy: store.state.tabBy !== "sicks" ? store.state.tabBy : undefined,
+        form: { ...store.state.content.form },
+        tab: store.state.content.tab !== "map" ? store.state.content.tab : undefined,
+        tabBy: store.state.content.tabBy !== "sicks" ? store.state.content.tabBy : undefined,
       });
       if (Array.isArray(stateResult.sickImmunizer) && stateResult.sickImmunizer.length) {
         stateResult.sickImmunizer = [...stateResult?.sickImmunizer].join(",");
@@ -125,17 +126,17 @@ export const mainCard = {
     }
 
     watch(
-      () => [ 
-        store.state.form,
-        store.state.form.sickImmunizer,
-        store.state.form.type,
-        store.state.form.local,
-        store.state.form.period,
-        store.state.form.periodStart,
-        store.state.form.periodEnd,
-        store.state.form.granularity,
-        store.state.tab,
-        store.state.tabBy
+      () => [
+        store.state.content.form,
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.type,
+        store.state.content.form.local,
+        store.state.content.form.period,
+        store.state.content.form.periodStart,
+        store.state.content.form.periodEnd,
+        store.state.content.form.granularity,
+        store.state.content.tab,
+        store.state.content.tabBy
       ],
       () => {
         setUrlFromState()
@@ -155,14 +156,28 @@ export const mainCard = {
       setStateFromUrl()
     });
 
+    // Show messages from state
+    store.subscribe((mutation, state) => {
+      if (
+        [
+          "message/ERROR",
+          "message/SUCCESS",
+          "message/INFO",
+          "message/WARNING",
+        ].includes(mutation.type)
+      ) {
+        message.create(state.message.message, { type: state.message.type });
+        store.commit("message/CLEAR");
+      }
+    });
 
     return {
       handleMapChange,
       handleMapTooltip,
       mapData,
       mapTooltip,
-      mainTitle: computed(() => store.getters[`mainTitle`]),
-      subTitle: computed(() => store.getters[`subTitle`]),
+      mainTitle: computed(() => store.getters[`content/mainTitle`]),
+      subTitle: computed(() => store.getters[`content/subTitle`]),
       form,
       tab
     };

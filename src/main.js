@@ -22,14 +22,14 @@ export default class MCT {
       components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider },
       setup() {
         const store = useStore();
-        const tab = computed(computedVar({ store,  mutation: "UPDATE_TAB", field: "tab" }));
-        const tabBy = computed(computedVar({ store, mutation: "UPDATE_TABBY", field: "tabBy" }));
+        const tab = computed(computedVar({ store,  mutation: "content/UPDATE_TAB", field: "tab" }));
+        const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
         const handleUpdateValueTabBy = (tabByName) => {
           tabBy.value = tabByName;
           store.dispatch("content/updateSicksImmunizers", tabByName)
         };
         // Define apiUrl in store state
-        store.commit("SET_API", self.api);
+        store.commit("content/SET_API", self.api);
         return {
           tab,
           tabBy,

@@ -37,9 +37,9 @@ export const computedVar = (options) => {
   return {
     get() {
       if (options.base) {
-        return options.store.state[options.base][options.field];
+        return options.store.state.content[options.base][options.field];
       }
-      return options.store.state[options.field];
+      return options.store.state.content[options.field];
     },
     set(value) {
       options.store.commit(options.mutation, { [options.field]: value });

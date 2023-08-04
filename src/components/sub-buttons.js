@@ -1,4 +1,4 @@
-import { ref } from "vue/dist/vue.esm-bundler";
+import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NModal, NCard, useMessage } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv } from "../icons.js";
 import { convertObjectToArrayTable, timestampToYear } from "../utils.js";
@@ -17,7 +17,7 @@ export const subButtons = {
     const message = useMessage();
     const store = useStore();
     const showModal = ref(false);
-    const legend = ref(computed(() => store.state.legend));
+    const legend = ref(computed(() => store.state.content.legend));
     const downloadSvg = () => {
       const svgData = document.querySelector("#canvas").innerHTML;
       const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
@@ -61,14 +61,14 @@ export const subButtons = {
     }
 
     const downloadCsv = async () => {
-      let sick = store.state.form.sickImmunizer;
+      let sick = store.state.content.form.sickImmunizer;
       if (!sick || !sick.length) {
-        message.info("Selecione conteúdo para poder gerar csv");
+        store.commit('message/ERROR', "Selecione conteúdo para poder gerar csv")
         return;
       }
       const currentResult = await store.dispatch("content/requestBySick");
-      const periodStart = store.state.form.periodStart;
-      const periodEnd = store.state.form.periodEnd;
+      const periodStart = store.state.content.form.periodStart;
+      const periodEnd = store.state.content.form.periodEnd;
       let years = [];
       if (periodStart) {
         let y =  timestampToYear(periodStart);
@@ -77,11 +77,11 @@ export const subButtons = {
         }
       }
 
-      sick = Array.isArray(store.state.form.sickImmunizer) ?
-        store.state.form.sickImmunizer : [store.state.form.sickImmunizer];
+      sick = Array.isArray(store.state.content.form.sickImmunizer) ?
+        store.state.content.form.sickImmunizer : [store.state.content.form.sickImmunizer];
       const result = convertObjectToArrayTable(
         currentResult,
-        store.state.form.local,
+        store.state.content.form.local,
         years,
         sick
       );
@@ -94,6 +94,10 @@ export const subButtons = {
       const map = document.querySelector("#canvas");
       svg.value = map?.innerHTML;
       showModal.value = true;
+    }
+    const copyCurrentLink = () => {
+      navigator.clipboard.writeText(window.location.href);
+      store.commit('message/SUCCESS', "Link copiado para o seu clipboard");
     }
     return {
       bodyStyle: {
@@ -110,7 +114,8 @@ export const subButtons = {
       downloadCsv,
       clickShowModal,
       svg,
-      legend
+      legend,
+      copyCurrentLink
     };
   },
   template: `
@@ -129,7 +134,7 @@ export const subButtons = {
           <template #icon><n-icon v-html="biDownload" /></template>
           Download
         </n-button>
-        <n-button quaternary type="primary" style="font-weight: 500">
+        <n-button quaternary type="primary" style="font-weight: 500" @click="copyCurrentLink">
           <template #icon><n-icon v-html="biShareFill" /></template>
           Compartilhar
         </n-button>

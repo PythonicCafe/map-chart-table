@@ -14,7 +14,7 @@ export const yearSlider = {
   },
   setup () {
     const store = useStore();
-    const period = computed(computedVar({ store, base: "form", mutation: "UPDATE_FORM",  field: "period" }));
+    const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM",  field: "period" }));
     const showSlider = ref(false);
     const showTooltip = ref(false);
     const mapPlaying = ref(false);
@@ -28,8 +28,8 @@ export const yearSlider = {
       return;
     }
 
-    const max = computed(() => setSliderValue(store.state.form.periodEnd));
-    const min = computed(() => setSliderValue(store.state.form.periodStart));
+    const max = computed(() => setSliderValue(store.state.content.form.periodEnd));
+    const min = computed(() => setSliderValue(store.state.content.form.periodStart));
 
     const years = computed(() => {
       let y = min.value;
