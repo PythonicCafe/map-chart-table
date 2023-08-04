@@ -42,7 +42,7 @@ export default class MCT {
           <main class="main">
             <n-message-provider>
               <section class="main-header">
-                <h1 style="margin:0px; color: #e96f5f">VacinasBR</h1>
+                <h1 class="page-default-title" style="margin:0px; color: #e96f5f">VacinasBR</h1>
                 <div style="display:flex; gap: 32px; overflow: auto">
                   <n-tabs type="segment" v-model:value="tabBy" @update:value="handleUpdateValueTabBy">
                     <n-tab name="sicks" tab="Por doença" />

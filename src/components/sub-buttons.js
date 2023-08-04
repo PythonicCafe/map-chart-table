@@ -1,4 +1,4 @@
-import { ref, onMounted } from "vue/dist/vue.esm-bundler";
+import { ref } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NModal, NCard, useMessage } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv } from "../icons.js";
 import { convertObjectToArrayTable, timestampToYear } from "../utils.js";
@@ -17,6 +17,7 @@ export const subButtons = {
     const message = useMessage();
     const store = useStore();
     const showModal = ref(false);
+    const legend = ref(computed(() => store.state.legend));
     const downloadSvg = () => {
       const svgData = document.querySelector("#canvas").innerHTML;
       const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
@@ -108,12 +109,13 @@ export const subButtons = {
       downloadPng,
       downloadCsv,
       clickShowModal,
-      svg
+      svg,
+      legend
     };
   },
   template: `
     <section class="main-card-footer">
-      <span class="main-card-footer__legend">Fonte: Programa Nacional de imunização (PNI), disponibilizadas no TabNet-DATASUS</span>
+      <span class="main-card-footer__legend">{{ legend }}</span>
       <div class="main-card-footer__buttons">
         <n-button quaternary type="primary" style="font-weight: 500">
           <template #icon><n-icon v-html="biBook" /></template>

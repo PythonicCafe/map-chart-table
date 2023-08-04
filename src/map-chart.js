@@ -273,7 +273,7 @@ export class MapChart {
                   <div class="mct-legend__gradient-box">
                     ${ Array(10).fill(0).map((x, i) =>
                       "<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>" ).join("")
-                      }
+                     }
                   </div>
                 </div>
               </div>
