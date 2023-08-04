@@ -58,3 +58,35 @@ export const convertDateToUtc = (dateString) => {
   return utcdate;
 };
 
+export const convertObjectToArrayTable = (
+  obj,
+  locals,
+  years,
+  sicks,
+  header = ['Ano', 'Sigla', 'Nome', 'Valor']
+) => {
+  const result = [];
+  let externalObj = obj;
+  if (!externalObj[sicks[0]]) {
+    externalObj = { [sicks[0]]: externalObj };
+  }
+  result.push(header);
+
+  // Loop through each year
+  for (const sickName of sicks) {
+    for (const year of years) {
+      if (externalObj[sickName]) {
+        // Loop through each state in the year
+        for (const acronym of locals) {
+          const value = externalObj[sickName][year] &&
+            externalObj[sickName][year][acronym] ? externalObj[sickName][year][acronym] : null;
+          if (value){
+            result.push([year, acronym, sickName, value + "%"]);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}

@@ -1,6 +1,6 @@
 import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
-import { timestampToYear } from "../utils";
+import { timestampToYear, convertObjectToArrayTable } from "../utils";
 import { useStore } from 'vuex';
 
 export const table = {
@@ -49,7 +49,7 @@ export const table = {
       const currentResult = await store.dispatch("requestBySick");
 
       columns.value = [];
-      const tableData = convertObjectToArray(currentResult);
+      const tableData = convertObjectToArrayTable(currentResult, local.value, valueYears.value, sick.value);
       for (const column of tableData[0]){
         columns.value.push(
           {
@@ -70,40 +70,6 @@ export const table = {
         rows.value.push(cells)
       }
       loading.value = false;
-    }
-
-    const convertObjectToArray = (obj) => {
-      const result = [];
-      let sicksNames = sick.value;
-      let externalObj = obj;
-
-      if (!externalObj[sicksNames[0]]) {
-        externalObj = { [sicksNames[0]]: externalObj };
-      }
-
-      const locals = local.value;
-      // Get the keys of the object and sort them in ascending order
-      const years = valueYears.value;
-
-      // Push the headers (year, acronym, value) to the result array
-      result.push(['Ano', 'Sigla', 'Nome', 'Valor']);
-
-        // Loop through each year
-        for (const sickName of sicksNames) {
-          for (const year of years) {
-            if (externalObj[sickName]) {
-              // Loop through each state in the year
-              for (const acronym of locals) {
-                const value = externalObj[sickName][year] && externalObj[sickName][year][acronym] ? externalObj[sickName][year][acronym] : null;
-                if (value){
-                  result.push([year, acronym, sickName, value + "%"]);
-                }
-              }
-            }
-          }
-        }
-
-      return result;
     }
 
     watch(

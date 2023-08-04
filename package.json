@@ -28,6 +28,7 @@
     "vuex-map-fields": "^1.4.1"
   },
   "dependencies": {
+    "csvwritergen": "^0.0.4",
     "vue-router": "^4.2.4"
   }
 }
