@@ -144,11 +144,11 @@ export const mainCard = {
 
     onBeforeMount(async () => {
       // Set sicks options
-      await store.dispatch("updateSicksImmunizers", "sicks")
+      await store.dispatch("content/updateSicksImmunizers", "sicks")
       // Set locals options
-      store.dispatch("updateLocals", "sicks")
-      store.dispatch("updateTypes")
-      store.dispatch("updateGranularities")
+      store.dispatch("content/updateLocals", "sicks")
+      store.dispatch("content/updateTypes")
+      store.dispatch("content/updateGranularities")
 
       // TODO: How years range will work
       // TODO: Get states from API

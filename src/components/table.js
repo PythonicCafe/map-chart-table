@@ -46,7 +46,7 @@ export const table = {
         rows.value = [];
         return;
       }
-      const currentResult = await store.dispatch("requestBySick");
+      const currentResult = await store.dispatch("content/requestBySick");
 
       columns.value = [];
       const tableData = convertObjectToArrayTable(currentResult, local.value, valueYears.value, sick.value);

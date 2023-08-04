@@ -244,7 +244,7 @@ export const chart = {
         return;
       }
 
-      results = await store.dispatch("requestBySick");
+      results = await store.dispatch("content/requestBySick");
 
       // TODO: API shoud send correct data fomated and we will not need this fix here
       if (!Object.keys(results).find(x => x === sicks[0])) {

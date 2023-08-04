@@ -26,7 +26,7 @@ export default class MCT {
         const tabBy = computed(computedVar({ store, mutation: "UPDATE_TABBY", field: "tabBy" }));
         const handleUpdateValueTabBy = (tabByName) => {
           tabBy.value = tabByName;
-          store.dispatch("updateSicksImmunizers", tabByName)
+          store.dispatch("content/updateSicksImmunizers", tabByName)
         };
         // Define apiUrl in store state
         store.commit("SET_API", self.api);

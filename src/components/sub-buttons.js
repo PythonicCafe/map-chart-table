@@ -66,7 +66,7 @@ export const subButtons = {
         message.info("Selecione conteúdo para poder gerar csv");
         return;
       }
-      const currentResult = await store.dispatch("requestBySick");
+      const currentResult = await store.dispatch("content/requestBySick");
       const periodStart = store.state.form.periodStart;
       const periodEnd = store.state.form.periodEnd;
       let years = [];
