@@ -26,10 +26,10 @@ export const map = {
     const datasetStates = ref(null);
     const datasetCities = ref(null);
 
-    const queryMap = async (mapUrl) => {
-      const svg = await fetch(mapUrl);
-      const mapText = await svg.text();
-      return mapText;
+    const queryMap = async (local) => {
+      const file = await import(`../../assets/images/maps/${local}.svg`);
+      const response = await fetch(file.default);
+      return await response.text();
     };
 
     const renderMap = (args) => {
@@ -51,17 +51,15 @@ export const map = {
       const sickImmunizer = store.state.content.form.sickImmunizer;
       const tab = store.state.content.tabBy;
       const period = store.state.content.form.period;
+      const type = store.state.content.form.type;
+      const granularity = store.state.content.form.granularity;
 
       const mapElement = document.querySelector('#map');
 
-      // TODO: Update to use local data
       if (!local.length || local.length > 1) {
-        const map =
-          await queryMap(
-            'https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=image/svg+xml&qualidade=intermediaria&intrarregiao=UF'
-          );
+        const map = await queryMap("BR");
 
-        if (sickImmunizer && sickImmunizer.length) {
+        if (sickImmunizer && sickImmunizer.length && type && granularity) {
           datasetCities.value = null;
           try {
             datasetStates.value = await api.request("?tab=" + tab + "&sickImmunizer=" + sickImmunizer);
@@ -77,11 +75,8 @@ export const map = {
         return;
       }
 
-      // TODO: Update to use local data
-      const map = await queryMap(
-        `https://servicodados.ibge.gov.br/api/v3/malhas/estados/${local}?formato=image/svg+xml&qualidade=intermediaria&intrarregiao=municipio`
-      );
-      if (!sickImmunizer) {
+      const map = await queryMap(local);
+      if (!sickImmunizer || !type || !granularity) {
         return renderMap({ element: mapElement, map });
       }
       try {
@@ -101,7 +96,12 @@ export const map = {
     });
 
     watch(
-      () => [store.state.content.form.local, store.state.content.form.sickImmunizer],
+      () => [
+        store.state.content.form.local,
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.type,
+        store.state.content.form.granularity
+      ],
       async () => {
         await setMap();
       }
