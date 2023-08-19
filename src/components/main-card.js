@@ -43,6 +43,7 @@ export const mainCard = {
           "sickImmunizer",
           "sicksImmunizers",
           "type",
+          "dose",
           "types",
           "local",
           "locals",
@@ -51,7 +52,7 @@ export const mainCard = {
           "periodStart",
           "periodEnd",
           "granularity",
-          "granularities"
+          "granularities",
         ],
         base: "form",
         mutation: "content/UPDATE_FORM"
@@ -127,9 +128,9 @@ export const mainCard = {
 
     watch(
       () => [
-        store.state.content.form,
         store.state.content.form.sickImmunizer,
         store.state.content.form.type,
+        store.state.content.form.dose,
         store.state.content.form.local,
         store.state.content.form.period,
         store.state.content.form.periodStart,
@@ -145,7 +146,7 @@ export const mainCard = {
 
     onBeforeMount(async () => {
       // Set sicks options
-      await store.dispatch("content/updateSicksImmunizers", "sicks")
+      await store.dispatch("content/updateFormSelect", "sicks")
       // Set locals options
       store.dispatch("content/updateLocals", "sicks")
       store.dispatch("content/updateTypes")

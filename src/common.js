@@ -20,10 +20,13 @@ export const formatToApi = ({
             routerResult[formField] = formatDate(form[formField]);
           }
           break;
-        case "locals":
-        case "sicksImmunizers":
-        case "types":
+        case "doses":
         case "granularities":
+        case "immunizers":
+        case "locals":
+        case "sicks":
+        case "types":
+        case "years":
           // Do Nothing
           break;
         default:

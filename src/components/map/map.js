@@ -48,7 +48,8 @@ export const map = {
 
     const setMap = async () => {
       const local = store.state.content.form.local;
-      const sick = store.state.content.form.sickImmunizer;
+      const sickImmunizer = store.state.content.form.sickImmunizer;
+      const tab = store.state.content.tabBy;
       const period = store.state.content.form.period;
 
       const mapElement = document.querySelector('#map');
@@ -60,11 +61,15 @@ export const map = {
             'https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=image/svg+xml&qualidade=intermediaria&intrarregiao=UF'
           );
 
-        if (sick && sick.length) {
+        if (sickImmunizer && sickImmunizer.length) {
           datasetCities.value = null;
-          datasetStates.value = await api.request(sick);
-          const states = await api.request("statesAcronym");
-          renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
+          try {
+            datasetStates.value = await api.request("?tab=" + tab + "&sickImmunizer=" + sickImmunizer);
+            const states = await api.request("statesAcronym");
+            renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
+          } catch (e) {
+            renderMap({ element: mapElement, map });
+          }
           return;
         }
 
@@ -76,12 +81,12 @@ export const map = {
       const map = await queryMap(
         `https://servicodados.ibge.gov.br/api/v3/malhas/estados/${local}?formato=image/svg+xml&qualidade=intermediaria&intrarregiao=municipio`
       );
-      if (!sick) {
+      if (!sickImmunizer) {
         return renderMap({ element: mapElement, map });
       }
       try {
-        datasetCities.value = await api.requestState(local + "/" + sick);
-        const cities = await api.requestState(local + "/" + "citiesAcronym");
+        datasetCities.value = await api.requestState("?tab=" + tab + "&local=" + local + "&sickImmunizer=" + sickImmunizer);
+        const cities = await api.request("?citiesAcronym=" + local);
         datasetStates.value = null;
         renderMap({ element: mapElement, map, datasetCities: datasetCities.value[period], cities });
       } catch (e) {

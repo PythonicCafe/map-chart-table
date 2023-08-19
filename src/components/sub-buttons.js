@@ -158,7 +158,7 @@ export const subButtons = {
                 <div v-html="svg" style="max-width: 100px"></div>
                 <div>
                   <h3>Imagem PNG</h3>
-                  <p>Adequado para a maioria dos usos, amplamento compatível</p>
+                  <p>Adequado para a maioria dos usos, amplamente compatível</p>
                 </div>
               </div>
               <n-button quaternary type="primary" style="font-weight: 500" @click="downloadPng">

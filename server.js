@@ -11,36 +11,66 @@ const app = express();
 app.use(cors());
 const __dirname = path.resolve();
 
-app.get('/:arg', (req, res) => {
+app.get('/UF/', (req, res) => {
   res.header("Content-Type",'application/json');
-  if (req.params.arg.includes(",")){
-    const args = req.params.arg.split(",");
-    const result = {};
-    for (let arg of args) {
-      result[arg] = JSON.parse(fs.readFileSync(path.join(__dirname, `./api/${arg}.json`)));
+  const sickImmunizer = req.query.sickImmunizer;
+  const local = req.query.local;
+  if (sickImmunizer) {
+    if (sickImmunizer.includes(",")) {
+      const result = {};
+      for (let arg of sickImmunizer.split(",")) {
+        result[arg] =
+          JSON.parse(fs.readFileSync(
+            path.join(
+              __dirname,
+              `./api/UF/${local}/sicks/${arg}.json`
+            )
+          ));
+      }
+      res.send(result);
+    } else {
+      res.sendFile(path.join(__dirname, `./api/UF/${local}/sicks/${sickImmunizer}.json`));
     }
-    res.send(result)
 
     return;
   }
+  
+  const citiesAcronym = req.query.citiesAcronym;
+  res.sendFile(path.join(__dirname, `./api/UF/${local}/${citiesAcronym}.json`));
+});
 
+app.get('/:arg', (req, res) => {
+  res.header("Content-Type",'application/json');
   res.sendFile(path.join(__dirname, `./api/${req.params.arg}.json`));
 });
 
-app.get('/UF/:state/:arg', (req, res) => {
+app.get('/', (req, res) => {
   res.header("Content-Type",'application/json');
-  if (req.params.arg.includes(",")){
-    const args = req.params.arg.split(",");
-    const result = {};
-    for (let arg of args) {
-      result[arg] = JSON.parse(fs.readFileSync(path.join(__dirname, `./api/${arg}.json`)));
-    }
-    res.send(result)
+  const sickImmunizer = req.query.sickImmunizer;
+  if (sickImmunizer) {
+    if (sickImmunizer.includes(",")) {
+      const sickImmunizers = sickImmunizer.split(",");
+      const result = {};
+      for (let arg of sickImmunizers) {
+        result[arg] =
+          JSON.parse(fs.readFileSync(
+            path.join(
+              __dirname,
+              `./api/sicks/${arg}.json`
+            )
+          ));
+      }
+      res.send(result);
 
+    } else {
+      res.sendFile(path.join(__dirname, `./api/sicks/${req.query.sickImmunizer}.json`));
+    }
     return;
   }
-
-  res.sendFile(path.join(__dirname, `./api/UF/${req.params.state}/${req.params.arg}.json`));
+  const citiesAcronym = req.query.citiesAcronym;
+  if (citiesAcronym) {
+    res.sendFile(path.join(__dirname, `./api/${'citiesAcronym' + citiesAcronym}.json`));
+  }
 });
 
 const port = process.env.SERVER_HOST_PORT;

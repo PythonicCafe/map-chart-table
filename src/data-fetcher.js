@@ -5,6 +5,7 @@ export class DataFetcher {
 
   async requestData(endPoint) {
     const self = this;
+
     try {
       const response = await fetch(self.api + endPoint);
       const data = await response.json();

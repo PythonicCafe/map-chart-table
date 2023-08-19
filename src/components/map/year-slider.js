@@ -23,7 +23,7 @@ export const yearSlider = {
       if (period) {
         showSlider.value = true;
         return timestampToYear(period)
-      } 
+      }
       showSlider.value = false;
       return;
     }

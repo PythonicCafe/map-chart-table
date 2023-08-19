@@ -74,10 +74,13 @@ export const table = {
 
     watch(
       () => [
+        store.state.content.form.granularity,
+        store.state.content.form.dose,
         store.state.content.form.local,
-        store.state.content.form.sickImmunizer,
+        store.state.content.form.periodEnd,
         store.state.content.form.periodStart,
-        store.state.content.form.periodEnd
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.type,
       ],
       async () => {
         await setTableData();

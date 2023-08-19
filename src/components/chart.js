@@ -246,14 +246,14 @@ export const chart = {
 
       results = await store.dispatch("content/requestBySick");
 
+      if (!results || !years) {
+        return;
+      }
+
       // TODO: API shoud send correct data fomated and we will not need this fix here
       if (!Object.keys(results).find(x => x === sicks[0])) {
         results = { [sicks[0]]: results }
       };
-
-      if (!years) {
-        return;
-      }
 
       const resultChart = {};
       for(let sick of sicks) {
@@ -301,10 +301,13 @@ export const chart = {
 
     watch(
       () => [
+        store.state.content.form.granularity,
+        store.state.content.form.dose,
         store.state.content.form.local,
-        store.state.content.form.sickImmunizer,
+        store.state.content.form.periodEnd,
         store.state.content.form.periodStart,
-        store.state.content.form.periodEnd
+        store.state.content.form.sickImmunizer,
+        store.state.content.form.type,
       ],
       async () => {
         await setChartData();
