@@ -1,9 +1,11 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NButton, NIcon, NModal, NCard, useMessage } from "naive-ui";
+import { NButton, NIcon, NModal, NCard } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv } from "../icons.js";
 import { convertObjectToArrayTable, timestampToYear } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
+import sbim from "../assets/images/sbim.png"
+import riAlertLine from "../assets/images/ri-alert-line.svg"
 
 export const subButtons = {
   components:  {
@@ -14,7 +16,6 @@ export const subButtons = {
   },
   setup() {
     const svg = ref(null);
-    const message = useMessage();
     const store = useStore();
     const showModal = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
@@ -99,6 +100,10 @@ export const subButtons = {
       navigator.clipboard.writeText(window.location.href);
       store.commit('message/SUCCESS', "Link copiado para o seu clipboard");
     }
+    const sendMail = () => {
+      document.location.href = 
+        "mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem";
+    }
     return {
       bodyStyle: {
         maxWidth: '900px',
@@ -115,29 +120,81 @@ export const subButtons = {
       clickShowModal,
       svg,
       legend,
-      copyCurrentLink
+      copyCurrentLink,
+      sbim,
+      sendMail,
+      riAlertLine
     };
   },
   template: `
-    <section class="main-card-footer">
-      <span class="main-card-footer__legend">{{ legend }}</span>
-      <div class="main-card-footer__buttons">
-        <n-button quaternary type="primary" style="font-weight: 500">
-          <template #icon><n-icon v-html="biBook" /></template>
-          Sobre a vacina
-        </n-button>
-        <n-button quaternary type="primary" style="font-weight: 500">
-          <template #icon><n-icon v-html="biListUl" /></template>
-          Glossário
-        </n-button>
-        <n-button quaternary type="primary" style="font-weight: 500" @click="clickShowModal">
-          <template #icon><n-icon v-html="biDownload" /></template>
-          Download
-        </n-button>
-        <n-button quaternary type="primary" style="font-weight: 500" @click="copyCurrentLink">
-          <template #icon><n-icon v-html="biShareFill" /></template>
-          Compartilhar
-        </n-button>
+    <section>
+      <div class="main-card-footer-container">
+        <div class="main-card-footer">
+          <span class="main-card-footer__legend">{{ legend }}</span>
+          <div class="main-card-footer__buttons">
+            <n-button quaternary type="primary" style="font-weight: 500">
+              <template #icon><n-icon v-html="biBook" /></template>
+              Sobre a vacina
+            </n-button>
+            <n-button quaternary type="primary" style="font-weight: 500">
+              <template #icon><n-icon v-html="biListUl" /></template>
+              Glossário
+            </n-button>
+            <n-button quaternary type="primary" style="font-weight: 500" @click="clickShowModal">
+              <template #icon><n-icon v-html="biDownload" /></template>
+              Download
+            </n-button>
+            <n-button quaternary type="primary" style="font-weight: 500" @click="copyCurrentLink">
+              <template #icon><n-icon v-html="biShareFill" /></template>
+              Compartilhar
+            </n-button>
+          </div>
+        </div>
+        <div class="main-card-footer">
+          <div style="display: flex; gap: 12px">
+            <div class="main-card-footer__legend">Apoio: </div>
+            <img :src="sbim" width="100" >
+          </div>
+          <div
+            style="background-color: #f7f7f7; padding: 6px 12px; border-radius: .23rem; display: flex; align-items: center; gap: 8px"
+          >
+            <img :src="riAlertLine">
+            Achou um erro? Escreva para
+            <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
+          </div>
+        </div>
+      </div>
+      <div class="main-card-footer-container-mobile">
+        <div class="main-card-footer main-card-footer--mobile">
+          <div class="main-card-footer__buttons main-card-footer__buttons--mobile">
+            <n-button text type="primary" style="font-weight: 500">
+              Sobre a vacina
+            </n-button>
+            <n-button text type="primary" style="font-weight: 500">
+              Glossário
+            </n-button>
+            <n-button text type="primary" style="font-weight: 500" @click="clickShowModal">
+              Download
+            </n-button>
+            <n-button text type="primary" style="font-weight: 500" @click="copyCurrentLink">
+              Compartilhar
+            </n-button>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <div class="main-card-footer__legend">Apoio: </div>
+            <img :src="sbim" width="100" >
+          </div>
+        </div>
+        <div class="main-card-footer main-card-footer--mobile">
+          <span class="main-card-footer__legend">{{ legend }}</span>
+          <div
+            style="background-color: #f7f7f7; padding: 6px 12px; border-radius: .23rem; display: flex; align-items: center; gap: 8px"
+          >
+            <img :src="riAlertLine">
+            Achou um erro? Escreva para
+            <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
+          </div>
+        </div>
       </div>
       <n-modal
         v-model:show="showModal"

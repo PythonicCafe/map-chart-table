@@ -1,4 +1,4 @@
-import { NCard, NSkeleton, useMessage } from "naive-ui";
+import { NCard, NSkeleton, useMessage, NModal, NButton } from "naive-ui";
 import { ref, computed, onBeforeMount, watch } from "vue/dist/vue.esm-bundler";
 import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
@@ -22,7 +22,9 @@ export const mainCard = {
     SubButtons,
     YearSlider,
     MapRange,
-    NSkeleton
+    NSkeleton,
+    NModal,
+    NButton
   },
   props: {
     api: {
@@ -35,6 +37,11 @@ export const mainCard = {
     const message = useMessage();
     const mapData = ref([]);
     const mapTooltip = ref([]);
+    const isMobileScreen = ref(null);
+    const getWindowWidth = () => {
+      isMobileScreen.value = window.innerWidth <= 1350;
+    }
+    window.addEventListener('resize', getWindowWidth)
     const tab = computed(() => store.state.content.tab);
     const form = computed(() => mapFields(
       {
@@ -145,6 +152,7 @@ export const mainCard = {
     )
 
     onBeforeMount(async () => {
+      getWindowWidth();
       // Set sicks options
       await store.dispatch("content/updateFormSelect", "sicks")
       // Set locals options
@@ -180,12 +188,28 @@ export const mainCard = {
       mainTitle: computed(() => store.getters[`content/mainTitle`]),
       subTitle: computed(() => store.getters[`content/subTitle`]),
       form,
-      tab
+      tab,
+      showModal: ref(false),
+      isMobileScreen
     };
   },
   template: `
     <n-card style="border: #D8D8D8 1px solid">
-      <SubSelect />
+      <template v-if="isMobileScreen">
+        <n-button type="primary" round @click="showModal = true" style="width: 100%; margin: 12px 0px">Filtrar</n-button>
+        <n-modal v-model:show="showModal" transform-origin="center" preset="card" style="width: 100%; min-height: 100vh">
+          <n-card
+            :bordered="false"
+            size="huge"
+          >
+            <SubSelect :modal="true" />
+            <n-button type="primary" round @click="showModal = false" style="width: 100%; margin: 12px 0px">Pronto</n-button>
+          </n-card>
+        </n-modal>
+      </template>
+      <template v-else>
+        <SubSelect />
+      </template>
       <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
         {{ mainTitle }}
       </h2>

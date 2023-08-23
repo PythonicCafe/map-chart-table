@@ -1,4 +1,4 @@
-import { ref, watch, computed, toRaw } from "vue/dist/vue.esm-bundler";
+import { ref, watch, computed, toRaw, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import { NSelect, NFormItem, NDatePicker, NButton } from "naive-ui";
 import { useStore } from 'vuex';
 import { computedVar } from "../utils";
@@ -9,6 +9,12 @@ export const subSelect = {
     NFormItem,
     NDatePicker,
     NButton
+  },
+  props: {
+    modal: {
+      default: false,
+      type: Boolean,
+    },
   },
   setup () {
     const store = useStore();
@@ -119,6 +125,12 @@ export const subSelect = {
       }
     );
 
+    onBeforeMount(() => {
+        sickTemp.value = store.state.content.form.sickImmunizer;
+        localTemp.value = store.state.content.form.local;
+    });
+
+    // TODO: Year selector should start from first selectable date
     return {
       selectAllLocals,
       handleLocalsUpdateShow,
@@ -148,12 +160,13 @@ export const subSelect = {
     }
   },
   template: `
-    <section style="display:flex; gap: 14px">
+    <section class="mct-selects" :class="modal ? 'mct-selects--modal' : ''">
       <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Imunizante'">
         <n-select
           v-model:value="sickTemp"
           :options="tabBy === 'sicks' ? sicks : immunizers"
-          style="width: 200px"
+          class="mct-select"
+          :class="modal ? 'mct-select--modal' : ''"
           max-tag-count="responsive"
           :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Imunizante')"
           :multiple="tab !== 'map'"
@@ -167,7 +180,8 @@ export const subSelect = {
           <n-select
             v-model:value="dose"
             :options="doses"
-            style="width: 140px"
+            class="mct-select-dose"
+            :class="modal ? 'mct-select-dose--modal' : ''"
             max-tag-count="responsive"
             placeholder="Selecione dose"
             filterable
@@ -178,7 +192,9 @@ export const subSelect = {
         <n-select
           v-model:value="type"
           :options="types"
-          style="width: 200px"
+          class="mct-select"
+          :class="modal ? 'mct-select--modal' : ''"
+          max-tag-count="responsive"
           placeholder="Selecione Tipo de dado"
           filterable
         />
@@ -187,7 +203,8 @@ export const subSelect = {
         <n-select
           v-model:value="localTemp"
           :options="locals"
-          style="width: 200px"
+          class="mct-select"
+          :class="modal ? 'mct-select--modal' : ''"
           placeholder="Selecione Estado"
           multiple
           filterable
@@ -206,6 +223,7 @@ export const subSelect = {
          :is-date-disabled="disableDate"
          @update:value="updateDatePosition"
          clearable
+         :actions="null"
         />
         <n-date-picker
          class="end-datepicker"
@@ -215,13 +233,15 @@ export const subSelect = {
          :is-date-disabled="disableDate"
          @update:value="updateDatePosition"
          clearable
+         :actions="null"
         />
       </n-form-item>
       <n-form-item label="Granularidade">
         <n-select
           v-model:value="granularity"
           :options="granularities"
-          style="width: 200px"
+          class="mct-select"
+          :class="modal ? 'mct-select--modal' : ''"
           placeholder="Selecione Granularidade"
           filterable
         />

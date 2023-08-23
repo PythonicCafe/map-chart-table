@@ -1,4 +1,5 @@
 import "./assets/css/style.css";
+import logo from "./assets/images/logo-vacinabr.svg";
 
 import { createApp, computed } from "vue/dist/vue.esm-bundler";
 import store from "./store/";
@@ -33,7 +34,8 @@ export default class MCT {
           tab,
           tabBy,
           api: self.api,
-          handleUpdateValueTabBy
+          handleUpdateValueTabBy,
+          logo
         };
       },
       template: `
@@ -41,8 +43,8 @@ export default class MCT {
           <main class="main">
             <n-message-provider>
               <section class="main-header">
-                <h1 class="page-default-title" style="margin:0px; color: #e96f5f">VacinasBR</h1>
-                <div style="display:flex; gap: 32px; overflow: auto">
+                <img :src="logo" width="150">
+                <div style="display:flex; gap: 32px; overflow: auto; max-width: 100%" class="mct-scrollbar">
                   <n-tabs type="segment" v-model:value="tabBy" @update:value="handleUpdateValueTabBy">
                     <n-tab name="sicks" tab="Por doença" />
                     <n-tab name="immunizers" tab="Imunizante" />

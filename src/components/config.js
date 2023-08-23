@@ -9,6 +9,7 @@ export const config = {
       common: {
         primaryColor: "#e96f5f",
         primaryColorHover: "#e96f5f",
+        primaryColorPressed: "#e96f5f",
       },
       DataTable: {
         thColorHover: "#e96f5f",
@@ -19,6 +20,9 @@ export const config = {
       },
       Slider: {
         indicatorColor: "#e96f5f"
+      },
+      Pagination: {
+        itemBorderRadius: "50%"
       }
     };
     return {

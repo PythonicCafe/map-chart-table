@@ -69,9 +69,17 @@ export default {
     ) {
       const api = new DataFetcher(state.apiUrl);
       if (state.tabBy && state.form.type && state.form.granularity && state.form.sickImmunizer) {
-        return await api.request(
-          "?tab=" + state.tabBy + "&type=" + state.form.type + "&granularity=" + state.form.granularity + "&sickImmunizer=" + state.form.sickImmunizer
-        );
+        let request ="?tab=" + state.tabBy + "&type=" + state.form.type + "&granularity=" +
+          state.form.granularity + "&sickImmunizer=" + state.form.sickImmunizer;
+        const doses = state.form.doses;
+        if (doses) {
+          request += "&doses=" + doses;
+        }
+        const type = state.form.type;
+        if (type) {
+          request += "&type=" + type;
+        }
+        return await api.request(request);
       }
     },
   },
@@ -81,7 +89,9 @@ export default {
         if (key === "periodStart" && value) {
           state.form.period = timestampToYear(value);
           if (!state.form.periodEnd) {
-            state.form.periodEnd = Date.now();
+            const date = new Date();
+            date.setFullYear(date.getFullYear() - 1)
+            state.form.periodEnd = Number(date);
           }
         } else if (key === "periodEnd" && value ) {
           state.form.period = state.form.periodStart ? timestampToYear(state.form.periodStart) : timestampToYear(value);

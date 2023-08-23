@@ -132,7 +132,7 @@
 
 /* MediaQuery */
 
-@media (max-width: 800px) { 
+@media (max-width: 800px) {
   .map-container {
     min-height: 337.6px !important;
   }

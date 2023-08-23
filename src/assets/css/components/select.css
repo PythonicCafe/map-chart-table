@@ -92,3 +92,31 @@
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
+
+/* Selects styles */
+
+.mct-select {
+  width: 200px;
+}
+
+.mct-select--modal {
+  width: 100%;
+}
+
+.mct-select-dose {
+  width: 140px;
+}
+
+.mct-select-dose--modal {
+  width: 100%;
+}
+
+.mct-selects {
+  display:flex;
+  gap: 14px
+}
+
+.mct-selects--modal {
+  flex-direction: column;
+}
+

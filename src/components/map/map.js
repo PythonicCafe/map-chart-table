@@ -46,29 +46,42 @@ export const map = {
       emit("mapChange", mapChart.value.datasetValues);
     }
 
+    const requestApi = async (mapElement, map, request, local, period) => {
+      try {
+        datasetStates.value = await api.request(request);
+        const states = await api.request("statesAcronym");
+        renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
+      } catch (e) {
+        renderMap({ element: mapElement, map });
+      }
+    }
+
     const setMap = async () => {
       const local = store.state.content.form.local;
       const sickImmunizer = store.state.content.form.sickImmunizer;
       const tab = store.state.content.tabBy;
       const period = store.state.content.form.period;
       const type = store.state.content.form.type;
+      const doses = store.state.content.form.doses;
       const granularity = store.state.content.form.granularity;
 
       const mapElement = document.querySelector('#map');
-
+      let request = "?tab=" + tab + "&sickImmunizer=" + sickImmunizer;
       if (!local.length || local.length > 1) {
         const map = await queryMap("BR");
-
-        if (sickImmunizer && sickImmunizer.length && type && granularity) {
-          datasetCities.value = null;
-          try {
-            datasetStates.value = await api.request("?tab=" + tab + "&sickImmunizer=" + sickImmunizer);
-            const states = await api.request("statesAcronym");
-            renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
-          } catch (e) {
-            renderMap({ element: mapElement, map });
+        datasetCities.value = null;
+        datasetStates.value = null;
+        if (store.state.tabBy === "immunizer") {
+          if (sickImmunizer && sickImmunizer.length && type && granularity && type && doses) {
+            request += "&type=" + type + "&doses=" + doses;
+            await requestApi(mapElement, map, request, local, period);
+            return;
           }
-          return;
+        } else {
+          if (sickImmunizer && sickImmunizer.length && type && granularity) {
+            await requestApi(mapElement, map, request, local, period);
+            return;
+          }
         }
 
         renderMap({ element: mapElement, map });
@@ -76,13 +89,20 @@ export const map = {
       }
 
       const map = await queryMap(local);
-      if (!sickImmunizer || !type || !granularity) {
+      if (!sickImmunizer || !granularity) {
         return renderMap({ element: mapElement, map });
       }
       try {
-        datasetCities.value = await api.requestState("?tab=" + tab + "&local=" + local + "&sickImmunizer=" + sickImmunizer);
-        const cities = await api.request("?citiesAcronym=" + local);
+        request += "&local=" + local;
+        datasetCities.value = null;
         datasetStates.value = null;
+        if (store.state.tabBy === "immunizer") {
+          request += local + "&type=" + type + "&doses=" + doses;
+          datasetCities.value = await api.requestState(request);
+        } else {
+          datasetCities.value = await api.requestState(request);
+        }
+        const cities = await api.request("?citiesAcronym=" + local);
         renderMap({ element: mapElement, map, datasetCities: datasetCities.value[period], cities });
       } catch (e) {
         renderMap({ element: mapElement, map });
