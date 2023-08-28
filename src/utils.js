@@ -90,3 +90,18 @@ export const convertObjectToArrayTable = (
 
   return result;
 }
+
+export const convertArrayToObject = (inputArray) => {
+  const result = {};
+
+  // Loop through the input array starting from the second element
+  for (let i = 1; i < inputArray.length; i++) {
+    const [year, local, value] = inputArray[i];
+    if (!result[year]) {
+      result[year] = {};
+    }
+    result[year][local] = value;
+  }
+
+  return result;
+}

@@ -1,6 +1,5 @@
-import { timestampToYear } from "../../utils";
+import { timestampToYear, formatDate , convertArrayToObject } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
-import { ufs, types, granularities } from "../../exampleData";
 
 const getDefaultState = () => {
   return {
@@ -43,43 +42,22 @@ export default {
         value.sort();
         payload[key] = value.map(x => { return { label: x, value: x } });
       }
+      // Select all in locals select
+      payload.locals.unshift({ label: "Todos", value: "Todos" });
       commit("UPDATE_FORM_SELECTS", payload);
-    },
-    updateTypes(
-      { commit }
-    ) {
-      let t = types.map(x => x.label).sort();
-      commit("UPDATE_FORM_OPTIONS", { types: t.map((x) =>  { return { label: x, value: x } }) });
-    },
-    updateGranularities(
-      { commit }
-    ) {
-      let g = granularities.map(x => x.label).sort();
-      commit("UPDATE_FORM_OPTIONS", { granularities: g.map((x) =>  { return { label: x, value: x } })});
-    },
-    updateLocals(
-      { commit }
-    ) {
-      let locals = ufs.map(x => x.label).sort();
-      locals.unshift("Selecionar todos");
-      commit("UPDATE_FORM_OPTIONS", { locals: locals.map((x) =>  { return { label: x, value: x } })});
     },
     async requestBySick(
       { state },
     ) {
       const api = new DataFetcher(state.apiUrl);
+      const form = state.form;
       if (state.tabBy && state.form.type && state.form.granularity && state.form.sickImmunizer) {
-        let request ="?tab=" + state.tabBy + "&type=" + state.form.type + "&granularity=" +
-          state.form.granularity + "&sickImmunizer=" + state.form.sickImmunizer;
-        const doses = state.form.doses;
-        if (doses) {
-          request += "&doses=" + doses;
-        }
-        const type = state.form.type;
-        if (type) {
-          request += "&type=" + type;
-        }
-        return await api.requestQs(request);
+        let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
+          "&sickImmunizer=" + form.sickImmunizer + "&dose=" + form.dose + "&periodStart=" +
+          formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local;
+        const result = convertArrayToObject(await api.requestQs(request));
+        console.log(result)
+        return result;
       }
     },
   },
@@ -101,9 +79,6 @@ export default {
     },
     UPDATE_FORM_SELECTS(state, payload) {
       state.form = { ...state.form, ...payload };
-    },
-    UPDATE_FORM_OPTIONS(state, payload) {
-      state.form[Object.keys(payload)[0]] =  Object.values(payload)[0];
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];

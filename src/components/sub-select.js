@@ -55,7 +55,7 @@ export const subSelect = {
     }
 
     const selectAllLocals = (options) => {
-      const allOptions = toRaw(options).filter((option) => option.value !== "Selecionar todos")
+      const allOptions = toRaw(options).filter((option) => option.value !== "Todos")
       const selectLength = Array.isArray(localTemp.value) ? localTemp.value.length : null
       if (selectLength == allOptions.length) {
         localTemp.value = [];
@@ -73,7 +73,7 @@ export const subSelect = {
     };
 
     const handleLocalsUpdateValue = (value) => {
-      if (toRaw(value).includes("Selecionar todos")) {
+      if (toRaw(value).includes("Todos")) {
         selectAllLocals(locals.value);
         return;
       }

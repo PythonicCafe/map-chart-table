@@ -153,15 +153,7 @@ export const mainCard = {
 
     onBeforeMount(async () => {
       getWindowWidth();
-      // Set sicks options
-      await store.dispatch("content/updateFormSelect", "sicks")
-      // Set locals options
-      store.dispatch("content/updateLocals", "sicks")
-      store.dispatch("content/updateTypes")
-      store.dispatch("content/updateGranularities")
-
-      // TODO: How years range will work
-      // TODO: Get states from API
+      await store.dispatch("content/updateFormSelect");
       setStateFromUrl()
     });
 

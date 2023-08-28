@@ -277,6 +277,7 @@ export const chart = {
         }
       }
 
+      console.log(resultChart)
       const data = [];
       for(let [key, value] of Object.entries(resultChart)) {
         const color = randomHexColor(key.replace(" ", "") + value);

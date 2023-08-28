@@ -57,12 +57,14 @@ export const mapRange = {
       for (let i = 0; i < data.length; i++) {
         const samePercentCircle = [...svg.querySelectorAll("circle")].find(x => x.dataset.value === data[i].data + "%");
         if(samePercentCircle) {
-          samePercentCircle.setAttribute("data-title", `[ ${samePercentCircle.dataset.title}, ${data[i].name} ]`);
+          samePercentCircle.setAttribute("data-title", `${samePercentCircle.dataset.title}, ${data[i].name}`);
           continue;
         }
         let y = svgHeight - (data[i].data / 100 * svgHeight);
         if (y > svgHeight) {
-          y = svgHeight
+          y = svgHeight;
+        } else if (y < 0) {
+          y = 0;
         }
         const circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
         circle.setAttribute("cx",20);

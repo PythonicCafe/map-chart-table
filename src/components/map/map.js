@@ -3,7 +3,7 @@ import { MapChart } from "../../map-chart";
 import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
-import { formatDate } from "../../utils";
+import { formatDate, convertArrayToObject } from "../../utils";
 
 export const map = {
   components: {
@@ -57,21 +57,6 @@ export const map = {
       }
     }
 
-    const convertArrayToObject = (inputArray) => {
-      const result = {};
-
-      // Loop through the input array starting from the second element
-      for (let i = 1; i < inputArray.length; i++) {
-        const [year, local, value] = inputArray[i];
-        if (!result[year]) {
-          result[year] = {};
-        }
-        result[year][local] = value;
-      }
-
-      return result;
-    }
-
     const setMap = async () => {
       const local = store.state.content.form.local;
       const sickImmunizer = store.state.content.form.sickImmunizer;
@@ -80,22 +65,17 @@ export const map = {
       const periodStart = formatDate(store.state.content.form.periodStart);
       const periodEnd = formatDate(store.state.content.form.periodEnd);
       const type = store.state.content.form.type;
-      const doses = store.state.content.form.doses;
+      const dose = store.state.content.form.dose;
       const granularity = store.state.content.form.granularity;
 
       const mapElement = document.querySelector('#map');
       let request = "?tabBy=" + tabBy
       if (sickImmunizer && sickImmunizer.length && type && granularity && periodStart && periodEnd) {
-        request += "&sickImmunizer=" + sickImmunizer + "&type=" + type + "&granularity=" + granularity;
+        request += "&sickImmunizer=" + sickImmunizer + "&type=" + type + "&granularity=" + granularity + "&dose=" + dose;
         if (Array.isArray(local) && local.length > 1) {
           datasetCities.value = null;
           datasetStates.value = null;
-          if (store.state.tabBy === "immunizer" && doses) {
-            request += "&doses=" + doses;
-            await requestApi(mapElement, map, request, local, period);
-          } else {
-            await requestApi(mapElement, map, request, local, period);
-          }
+          await requestApi(mapElement, map, request, local, period);
         }
       } else {
         const map = await queryMap("BR");
@@ -108,12 +88,9 @@ export const map = {
         return renderMap({ element: mapElement, map });
       }
       try {
-        request += "&local=" + local + "&periodStart=" + periodStart + "&periodEnd=" + periodEnd;
+        request += "&local=" + local + "&periodStart=" + periodStart + "&periodEnd=" + periodEnd + "&doses=" + dose;
         datasetCities.value = null;
         datasetStates.value = null;
-        if (store.state.tabBy === "immunizer") {
-          request += local + "&type=" + type + "&doses=" + doses;
-        }
         datasetCities.value = convertArrayToObject(await api.requestQs(request));
 
         const cities = await api.request("citiesNames");
@@ -134,6 +111,7 @@ export const map = {
         store.state.content.form.local,
         store.state.content.form.sickImmunizer,
         store.state.content.form.type,
+        store.state.content.form.dose,
         store.state.content.form.granularity
       ],
       async () => {
