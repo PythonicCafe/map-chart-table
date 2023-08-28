@@ -79,7 +79,7 @@ export default {
         if (type) {
           request += "&type=" + type;
         }
-        return await api.request(request);
+        return await api.requestQs(request);
       }
     },
   },

@@ -175,19 +175,17 @@ export const subSelect = {
           filterable
         />
       </n-form-item>
-      <template v-if="tabBy === 'immunizers'" >
-        <n-form-item label="Dose">
-          <n-select
-            v-model:value="dose"
-            :options="doses"
-            class="mct-select-dose"
-            :class="modal ? 'mct-select-dose--modal' : ''"
-            max-tag-count="responsive"
-            placeholder="Selecione dose"
-            filterable
-          />
-        </n-form-item>
-      </template>
+      <n-form-item label="Dose">
+        <n-select
+          v-model:value="dose"
+          :options="doses"
+          class="mct-select-dose"
+          :class="modal ? 'mct-select-dose--modal' : ''"
+          max-tag-count="responsive"
+          placeholder="Selecione dose"
+          filterable
+        />
+      </n-form-item>
       <n-form-item label="Tipo de dado">
         <n-select
           v-model:value="type"

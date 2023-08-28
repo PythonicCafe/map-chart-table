@@ -60,7 +60,10 @@ export const mapRange = {
           samePercentCircle.setAttribute("data-title", `[ ${samePercentCircle.dataset.title}, ${data[i].name} ]`);
           continue;
         }
-        const y = svgHeight - (data[i].data /100 *svgHeight);
+        let y = svgHeight - (data[i].data / 100 * svgHeight);
+        if (y > svgHeight) {
+          y = svgHeight
+        }
         const circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
         circle.setAttribute("cx",20);
         circle.setAttribute("cy",y);

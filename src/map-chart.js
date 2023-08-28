@@ -77,7 +77,9 @@ export class MapChart {
 
     // Querying map country states setting eventListener
     for (const path of self.element.querySelectorAll('#canvas svg path')) {
-      const content = contentData ? contentData[path.id] : [];
+      let pathId = path.id; 
+      pathId = pathId.substring(0, pathId.length -1);
+      const content = contentData ? contentData[pathId] : [];
       const dataset = self.findElement(datasetStates, content);
 
       if (!dataset || !dataset.data) {
@@ -164,10 +166,11 @@ export class MapChart {
           self.datasetCities
         ).map(([key, val]) =>
           {
+            const localName = self.cities[key].name;
             return {
-              label: key,
+              label: localName,
               data: val,
-              name: Object.values(self.cities).find(item => item.name === key).name,
+              name: localName,
               color: self.getColor(val),
             }
           }

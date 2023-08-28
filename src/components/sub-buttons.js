@@ -16,6 +16,7 @@ export const subButtons = {
   },
   setup() {
     const svg = ref(null);
+    const chart = ref(null);
     const store = useStore();
     const showModal = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
@@ -101,8 +102,15 @@ export const subButtons = {
       store.commit('message/SUCCESS', "Link copiado para o seu clipboard");
     }
     const sendMail = () => {
-      document.location.href = 
+      document.location.href =
         "mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem";
+    }
+    const downloadChartAsImage = () => {
+      const imageLink = document.createElement("a");
+      const canvas = document.getElementById("mct-chart");
+      imageLink.download = 'chart.png';
+      imageLink.href = canvas.toDataURL('image/png', 1);
+      imageLink.click();
     }
     return {
       bodyStyle: {
@@ -119,6 +127,7 @@ export const subButtons = {
       downloadCsv,
       clickShowModal,
       svg,
+      chart,
       legend,
       copyCurrentLink,
       sbim,

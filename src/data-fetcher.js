@@ -21,9 +21,9 @@ export class DataFetcher {
     return result;
   }
 
-  async requestState(endPoint) {
+  async requestQs(endPoint) {
     const self = this;
-    const result = await self.requestData("UF/" + endPoint);
+    const result = await self.requestData("data" + endPoint);
     return result;
   }
 
