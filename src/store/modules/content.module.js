@@ -1,4 +1,4 @@
-import { timestampToYear, formatDate , convertArrayToObject } from "../../utils";
+import { timestampToYear, formatDate } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
 const getDefaultState = () => {
@@ -46,19 +46,32 @@ export default {
       payload.locals.unshift({ label: "Todos", value: "Todos" });
       commit("UPDATE_FORM_SELECTS", payload);
     },
-    async requestBySick(
+    async requestData(
       { state },
+      { detail = false }
     ) {
       const api = new DataFetcher(state.apiUrl);
       const form = state.form;
-      if (state.tabBy && state.form.type && state.form.granularity && state.form.sickImmunizer) {
-        let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-          "&sickImmunizer=" + form.sickImmunizer + "&dose=" + form.dose + "&periodStart=" +
-          formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local;
-        const result = convertArrayToObject(await api.requestQs(request));
-        console.log(result)
-        return result;
+
+      if (
+        !state.tabBy && !state.form.type &&
+        !state.form.granularity &&
+        !state.form.sickImmunizer
+      ) {
+        return;
       }
+
+      let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
+        "&sickImmunizer=" + form.sickImmunizer + "&dose=" + form.dose + "&periodStart=" +
+        formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local;
+      if (detail) {
+        request += "&detail=true";
+      }
+      const [result, localNames ] = await Promise.all([
+        api.requestQs(request),
+        api.request(form.local.length > 1 ? "statesNames" : "citiesNames")
+      ]);
+      return { ...result, localNames};
     },
   },
   mutations: {

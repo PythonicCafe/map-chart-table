@@ -58,50 +58,52 @@ export const convertDateToUtc = (dateString) => {
   return utcdate;
 };
 
-export const convertObjectToArrayTable = (
-  obj,
-  locals,
-  years,
-  sicks,
-  header = ['Ano', 'Sigla', 'Nome', 'Valor']
-) => {
-  const result = [];
-  let externalObj = obj;
-  if (!externalObj[sicks[0]]) {
-    externalObj = { [sicks[0]]: externalObj };
-  }
-  result.push(header);
-
-  // Loop through each year
-  for (const sickName of sicks) {
-    for (const year of years) {
-      if (externalObj[sickName]) {
-        // Loop through each state in the year
-        for (const acronym of locals) {
-          const value = externalObj[sickName][year] &&
-            externalObj[sickName][year][acronym] ? externalObj[sickName][year][acronym] : null;
-          if (value){
-            result.push([year, acronym, sickName, value + "%"]);
-          }
-        }
+export const formatToTable = (data, localNames) => {
+  const header = [];
+  for (const column of [...data[0]]) {
+    header.push(
+      {
+        title: column.charAt(0).toUpperCase() + column.slice(1),
+        key: column,
+        sorter: 'default',
+        width: 200,
       }
-    }
+    )
   }
 
-  return result;
+  const rows = [];
+  // Loop api return value
+  for (let i = 1; i < data.length; i++) {  
+    const row = {};
+    // Setting value as key: value in row object
+    for (let j = 0; j < data[i].length; j++) {
+      const key = header[j].key;
+      const value = data[i][j];
+      if (key === "local") {
+        const localResult = localNames[value.toString()];
+        row[header[j].key] = localResult.name + " - " + localResult.uf;
+        continue;
+      }
+      row[header[j].key] = value;
+    }
+    // Pushing result row
+    rows.push(row)
+  }
+
+  return { header, rows }
 }
 
 export const convertArrayToObject = (inputArray) => {
-  const result = {};
+  const data = {};
 
   // Loop through the input array starting from the second element
   for (let i = 1; i < inputArray.length; i++) {
     const [year, local, value] = inputArray[i];
-    if (!result[year]) {
-      result[year] = {};
+    if (!data[year]) {
+      data[year] = {};
     }
-    result[year][local] = value;
+    data[year][local] = value;
   }
 
-  return result;
+  return { header:inputArray[0], data };
 }

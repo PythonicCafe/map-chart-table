@@ -1,7 +1,7 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NModal, NCard } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv } from "../icons.js";
-import { convertObjectToArrayTable, timestampToYear } from "../utils.js";
+import { formatToTable, timestampToYear } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png"
@@ -68,7 +68,6 @@ export const subButtons = {
         store.commit('message/ERROR', "Selecione conteúdo para poder gerar csv")
         return;
       }
-      const currentResult = await store.dispatch("content/requestBySick");
       const periodStart = store.state.content.form.periodStart;
       const periodEnd = store.state.content.form.periodEnd;
       let years = [];
@@ -81,14 +80,9 @@ export const subButtons = {
 
       sick = Array.isArray(store.state.content.form.sickImmunizer) ?
         store.state.content.form.sickImmunizer : [store.state.content.form.sickImmunizer];
-      const result = convertObjectToArrayTable(
-        currentResult,
-        store.state.content.form.local,
-        years,
-        sick
-      );
 
-      const csvwriter = new CsvWriterGen(result.shift(), result);
+      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      const csvwriter = new CsvWriterGen(currentResult.data.shift(), currentResult.data);
       csvwriter.anchorElement('monitor-tabela');
     }
 
@@ -97,14 +91,17 @@ export const subButtons = {
       svg.value = map?.innerHTML;
       showModal.value = true;
     }
+
     const copyCurrentLink = () => {
       navigator.clipboard.writeText(window.location.href);
       store.commit('message/SUCCESS', "Link copiado para o seu clipboard");
     }
+
     const sendMail = () => {
       document.location.href =
         "mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem";
     }
+
     const downloadChartAsImage = () => {
       const imageLink = document.createElement("a");
       const canvas = document.getElementById("mct-chart");
@@ -112,6 +109,7 @@ export const subButtons = {
       imageLink.href = canvas.toDataURL('image/png', 1);
       imageLink.click();
     }
+
     return {
       bodyStyle: {
         maxWidth: '900px',

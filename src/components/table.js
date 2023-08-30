@@ -1,6 +1,6 @@
 import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
-import { timestampToYear, convertObjectToArrayTable } from "../utils";
+import { timestampToYear, formatToTable } from "../utils";
 import { useStore } from 'vuex';
 
 export const table = {
@@ -46,29 +46,11 @@ export const table = {
         rows.value = [];
         return;
       }
-      const currentResult = await store.dispatch("content/requestBySick");
 
-      columns.value = [];
-      const tableData = convertObjectToArrayTable(currentResult, local.value, valueYears.value, sick.value);
-      for (const column of tableData[0]){
-        columns.value.push(
-          {
-            title: column.charAt(0).toUpperCase() + column.slice(1),
-            key: column,
-            sorter: 'default',
-            width: 200,
-          }
-        )
-      }
-
-      rows.value = [];
-      for (let i = 1; i < tableData.length; i++) {
-        const cells = {};
-        for (let j = 0; j < tableData[i].length; j++) {
-          cells[columns.value[j].key] = tableData[i][j];
-        }
-        rows.value.push(cells)
-      }
+      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      const tableData = formatToTable(currentResult.data, currentResult.localNames);
+      columns.value = tableData.header;
+      rows.value = tableData.rows;
       loading.value = false;
     }
 

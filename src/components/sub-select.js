@@ -165,6 +165,7 @@ export const subSelect = {
         <n-select
           v-model:value="sickTemp"
           :options="tabBy === 'sicks' ? sicks : immunizers"
+          :consistent-menu-width="false"
           class="mct-select"
           :class="modal ? 'mct-select--modal' : ''"
           max-tag-count="responsive"
@@ -189,6 +190,7 @@ export const subSelect = {
       <n-form-item label="Tipo de dado">
         <n-select
           v-model:value="type"
+          :consistent-menu-width="false"
           :options="types"
           class="mct-select"
           :class="modal ? 'mct-select--modal' : ''"

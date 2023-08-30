@@ -244,7 +244,7 @@ export const chart = {
         return;
       }
 
-      results = await store.dispatch("content/requestBySick");
+      results = await store.dispatch("content/requestData");
 
       if (!results || !years) {
         return;
