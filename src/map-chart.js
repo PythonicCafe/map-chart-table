@@ -25,6 +25,9 @@ export class MapChart {
 
   start() {
     const self = this;
+    if (!self.element) { 
+      return; 
+    }
 
     if (self.datasetCities) {
       self.render();
@@ -38,6 +41,9 @@ export class MapChart {
 
   update({ map, datasetCities, cities, datasetStates, states, statesSelected }) {
     const self = this;
+    if (!self.element) { 
+      return; 
+    }
 
     self.map = map ?? self.map;
     self.cities = cities ?? self.cities;
@@ -78,7 +84,9 @@ export class MapChart {
     // Querying map country states setting eventListener
     for (const path of self.element.querySelectorAll('#canvas svg path')) {
       let pathId = path.id; 
-      pathId = pathId.substring(0, pathId.length -1);
+      if (pathId.length > 2) {
+        pathId = pathId.substring(0, pathId.length -1);
+      }
       const content = contentData ? contentData[pathId] : [];
       const dataset = self.findElement(datasetStates, content);
 
@@ -100,7 +108,7 @@ export class MapChart {
         tooltip.innerHTML = `
           <article>
             <div class="mct-tooltip__title">${content.name}</div>
-            <div class="mct-tooltip__result">${result + " %"}</div>
+            <div class="mct-tooltip__result">${result}</div>
           </article>`;
         tooltip.style.display = "block";
         self.tooltipPosition(event, tooltip);
@@ -130,7 +138,7 @@ export class MapChart {
   }
 
   findElement(arr, name) {
-    for (let i = 0; i < arr.length; i++) {
+    for (let i=0; i < arr.length; i++) {
       const object = arr[i];
       const labelLowerCase = object.label.toLowerCase();
 
@@ -171,7 +179,7 @@ export class MapChart {
               label: localName,
               data: val,
               name: localName,
-              color: self.getColor(val),
+              color: self.getColor(parseFloat(val)),
             }
           }
         );
@@ -197,13 +205,14 @@ export class MapChart {
         ).map(([key, val]) =>
           {
             return {
-              label: key,
+              label: self.states[key].acronym,
               data: val,
-              name: Object.values(self.states).find(item => item.acronym === key).name,
-              color: self.getColor(val),
+              name: self.states[key].name,
+              color: self.getColor(parseFloat(val)),
             }
           }
         ).filter(x => self.statesSelected.includes(x.label));
+
     }
 
     self.datasetValues = result;

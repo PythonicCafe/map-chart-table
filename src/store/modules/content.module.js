@@ -1,6 +1,7 @@
 import { timestampToYear, formatDate } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
+// TODO: Detect if url is setted before set default state app to avoid unecessary API requests
 const getDefaultState = () => {
   return {
     apiUrl: "",
@@ -48,15 +49,23 @@ export default {
     },
     async requestData(
       { state },
-      { detail = false }
+      {
+        detail = false,
+        stateNameAsCode = true,
+        stateTotal = false
+      } = {}
     ) {
       const api = new DataFetcher(state.apiUrl);
       const form = state.form;
 
+      // Return null if form fields not filled
       if (
-        !state.tabBy && !state.form.type &&
-        !state.form.granularity &&
-        !state.form.sickImmunizer
+        !form.type ||
+        !form.granularity ||
+        !form.sickImmunizer ||
+        !form.periodStart ||
+        !form.periodEnd ||
+        !form.local
       ) {
         return;
       }
@@ -67,11 +76,44 @@ export default {
       if (detail) {
         request += "&detail=true";
       }
-      const [result, localNames ] = await Promise.all([
+      if (stateTotal) {
+        request += "&stateTotal=true";
+      }
+
+      const isStateData = form.local.length > 1;
+      const [result, localNames] = await Promise.all([
         api.requestQs(request),
-        api.request(form.local.length > 1 ? "statesNames" : "citiesNames")
+        api.request(isStateData ? "statesNames" : "citiesNames")
       ]);
-      return { ...result, localNames};
+
+      if (!result) {
+        return { result: {}, localNames: {} }
+      }
+
+      if (form.type !== "Doses aplicadas" && state.tab !== "chart") {
+        result.data.forEach((x, i) => x[2] = i > 0 ? (x[2] + "%") : x[2])
+      } else if (form.type === "Doses aplicadas") {
+        result.data.forEach((x, i) => {
+          let number = x[2];
+          return x[2] = i > 0 ? number.toLocaleString('pt-BR') : x[2];
+        })
+      }
+
+      // Fix data to display state names as code
+      if (result && isStateData && stateNameAsCode) {
+        const newResult = [];
+        const data = result.data;
+        for (let i=1; i < data.length; i++) {
+          const currentData = data[i];
+          const code = Object.entries(localNames).find(x => x[1].acronym === currentData[1])[0];
+          currentData[1] = code;
+          newResult.push(currentData);
+        }
+        // Add header
+        newResult.unshift(data[0]);
+        result.data = newResult;
+      }
+      return { ...result, localNames };
     },
   },
   mutations: {
@@ -95,7 +137,7 @@ export default {
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];
-      if (["table", "chart"].includes(state.tab)) {
+      if (["table", "chart"].includes(Object.values(payload)[0])) {
         if (!state.form.sickImmunizer) {
           state.form.sickImmunizer = [];
         } else if (!Array.isArray(state.form.sickImmunizer)) {

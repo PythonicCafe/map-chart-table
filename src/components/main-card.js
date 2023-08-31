@@ -35,6 +35,7 @@ export const mainCard = {
   setup() {
     const store = useStore();
     const message = useMessage();
+    const map = ref(null);
     const mapData = ref([]);
     const mapTooltip = ref([]);
     const isMobileScreen = ref(null);
@@ -81,6 +82,10 @@ export const mainCard = {
       const routeArgs = route.query;
       const routerResult = {};
 
+      if (Object.keys(route.query).length === 0) {
+        return; 
+      }
+
       for (const [key, value] of Object.entries(routeArgs)) {
         const result = new Date(String(value));
         if (key === "period") {
@@ -119,6 +124,7 @@ export const mainCard = {
     };
 
     const setUrlFromState = () => {
+      const routeArgs = route.query;
       let stateResult = formatToApi({
         form: { ...store.state.content.form },
         tab: store.state.content.tab !== "map" ? store.state.content.tab : undefined,
@@ -130,31 +136,30 @@ export const mainCard = {
       if (Array.isArray(stateResult.local) && stateResult.local.length) {
         stateResult.local = [...stateResult?.local].join(",");
       }
-      router.push({ query: stateResult })
+
+      if (!JSON.stringify(routeArgs) == JSON.stringify(stateResult)) {
+        return;
+      }
+
+      return router.push({ query: stateResult });
     }
 
-    watch(
-      () => [
-        store.state.content.form.sickImmunizer,
-        store.state.content.form.type,
-        store.state.content.form.dose,
-        store.state.content.form.local,
-        store.state.content.form.period,
-        store.state.content.form.periodStart,
-        store.state.content.form.periodEnd,
-        store.state.content.form.granularity,
-        store.state.content.tab,
-        store.state.content.tabBy
-      ],
-      () => {
-        setUrlFromState()
+    watch(() => { 
+        const content = store.state.content;
+        const form = content.form;
+        return [form.sickImmunizer, form.type, form.dose, form.local,
+          form.period, form.periodStart, form.periodEnd,
+          form.granularity, content.tab, content.tabBy]
+      },
+      async () => {
+        setUrlFromState();
       }
     )
 
     onBeforeMount(async () => {
       getWindowWidth();
       await store.dispatch("content/updateFormSelect");
-      setStateFromUrl()
+      setStateFromUrl();
     });
 
     // Show messages from state
@@ -175,6 +180,7 @@ export const mainCard = {
     return {
       handleMapChange,
       handleMapTooltip,
+      map,
       mapData,
       mapTooltip,
       mainTitle: computed(() => store.getters[`content/mainTitle`]),
@@ -218,6 +224,7 @@ export const mainCard = {
             <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
             <div style="width: 100%;">
               <Map
+                ref="map"
                 :api='api'
                 @map-change="handleMapChange"
                 @map-tooltip="handleMapTooltip"

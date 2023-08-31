@@ -130,7 +130,6 @@ export const subSelect = {
         localTemp.value = store.state.content.form.local;
     });
 
-    // TODO: Year selector should start from first selectable date
     return {
       selectAllLocals,
       handleLocalsUpdateShow,

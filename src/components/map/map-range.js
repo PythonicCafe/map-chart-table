@@ -1,5 +1,6 @@
 import { ref, onMounted, watchEffect, watch } from "vue/dist/vue.esm-bundler";
 import { NCard } from "naive-ui";
+import { useStore } from "vuex";
 
 export const mapRange = {
   components:  { NCard },
@@ -18,8 +19,11 @@ export const mapRange = {
     },
   },
   setup(props) {
+    const store = useStore();
     const datasetValues = ref([]);
     const mapRangeSVG = ref(null);
+    const maxVal = ref("---");
+    const minVal = ref("--");
 
     const drawLine = (svg) => {
       svg.setAttribute("height", 0)
@@ -54,13 +58,41 @@ export const mapRange = {
       }
 
       const svgHeight = svg.getAttribute("height");
+
+      let maxDataVal = Math.round(Math.max(...data.map(x => parseFloat(x.data))));
+      let defineMinVal = "0%";
+      const type = store.state.content.form.type;
+      if (type === "Doses aplicadas") {
+        maxDataVal = maxDataVal;
+        defineMinVal = 0;
+      } else if (type === "Cobertura") {
+        maxDataVal = "130%";
+      } else {
+        maxDataVal = "100%";
+      }
+
+      // Setting interface values
+      maxVal.value = maxDataVal;
+      minVal.value = defineMinVal;
+
+      // If maxVal bigger than parent element add styles
+      const maxValEl = svg.parentNode.querySelector(".max-val")
+      if (maxDataVal.toString().length > 5) {
+        maxValEl.style.border = "1px solid #f0f0f0";
+        maxValEl.style.boxShadow = "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px";
+      } else {
+        maxValEl.style.border = "0px";
+        maxValEl.style.boxShadow = "none";
+      }
+
       for (let i = 0; i < data.length; i++) {
-        const samePercentCircle = [...svg.querySelectorAll("circle")].find(x => x.dataset.value === data[i].data + "%");
+        const samePercentCircle = [...svg.querySelectorAll("circle")].find(x => x.dataset.value === data[i].data);
         if(samePercentCircle) {
           samePercentCircle.setAttribute("data-title", `${samePercentCircle.dataset.title}, ${data[i].name}`);
           continue;
         }
-        let y = svgHeight - (data[i].data / 100 * svgHeight);
+        let y = svgHeight - (parseFloat(data[i].data) / parseInt(maxDataVal) * svgHeight);
+        // Block to max value as full or min height
         if (y > svgHeight) {
           y = svgHeight;
         } else if (y < 0) {
@@ -72,7 +104,7 @@ export const mapRange = {
         circle.setAttribute("r",6);
         circle.setAttribute("fill", data[i].color);
         circle.setAttribute("data-title", data[i].name);
-        circle.setAttribute("data-value", data[i].data + "%");
+        circle.setAttribute("data-value", data[i].data);
         circle.setAttribute("opacity", 0.8);
         circle.setAttribute("stroke", "#aaa");
         circle.setAttribute("stroke-width", "0.4");
@@ -134,7 +166,7 @@ export const mapRange = {
           circle.setAttribute("opacity", 1);
           circle.setAttribute("stroke", "#7a7a7a");
           return;
-        } 
+        }
 
         circle.setAttribute("r",6);
         circle.setAttribute("opacity", 0.8);
@@ -149,7 +181,9 @@ export const mapRange = {
 
     return {
       mapRangeSVG,
-      mapRange
+      mapRange,
+      maxVal,
+      minVal
     }
   },
   template: `
@@ -158,9 +192,12 @@ export const mapRange = {
       style="max-width: 40px"
       content-style="padding: 0px; display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: 12px;"
     >
-      <span style="padding: 12px 0px 0px">100%</span>
+      <span
+        class="max-val"
+        style="margin: 12px 0px 0px; background-color: white; padding: 2px; white-space: nowrap; border-radius: .23rem;"
+      >{{ maxVal }}</span>
       <svg ref="mapRangeSVG" width="40" style="overflow: visible"></svg>
-      <span style="padding: 0px 0px 12px">0%</span>
+      <span style="padding: 0px 0px 12px">{{ minVal }}</span>
     </n-card>
     <div class="tooltip mct-tooltip"></div>
   `,

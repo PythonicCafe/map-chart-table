@@ -1,8 +1,7 @@
-import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
 import { randomHexColor } from "../utils";
 import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
-import { timestampToYear } from "../utils";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { useStore } from "vuex";
 
@@ -19,21 +18,6 @@ export const chart = {
     const store = useStore();
     const chartDefined = ref(true);
     const loading = ref(true);
-    const valueSick = computed(() => store.state.content.form.sickImmunizer);
-    const valueAcronym = computed(() => store.state.content.form.local);
-    const valueYears = computed(() => {
-      const periodStart = store.state.content.form.periodStart;
-      const periodEnd = store.state.content.form.periodEnd;
-      if (!periodStart) {
-        return [];
-      }
-      let y =  timestampToYear(periodStart);
-      const result = [];
-      while (y <= timestampToYear(periodEnd)) {
-        result.push(y++);
-      }
-      return result;
-    })
 
     const getOrCreateLegendList = (chart, id) => {
       const legendContainer = document.getElementById(id);
@@ -112,25 +96,49 @@ export const chart = {
       }
     };
 
+    const formatter = (value, context, signal) => {
+      const dataset = context.dataset.data;
+      // Get last populated year data index from dataset
+      let count = 1;
+      while(
+        dataset[dataset.length - count] === null) {
+        count++
+      }
+      if (context.dataIndex === dataset.length - count) {
+        const labelSplited = context.dataset.label.split(" ");
+        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1]} ${value} ${signal}`;
+      }
+
+      return null;
+    }
+
     let chart = null;
     const renderChart = (labels, datasets) => {
       if (!labels && !datasets) {
         const legend = document.querySelector("#legend-container");
-        legend.innerHTML = "";
+        if(legend) {
+          legend.innerHTML = "";
+        }
         chartDefined.value = false;
         return;
       }
       chartDefined.value = true;
 
+      let signal = store.state.content.form.type !== "Doses aplicadas" ? "%" : "";
       if (chart) {
         chart.data.labels = labels;
         chart.data.datasets = datasets;
+        chart.options.scales.y.ticks.callback = function(value) {
+          return value + signal;
+        };
+        chart.options.plugins.datalabels.formatter = (value, context, signal) => formatter(value, context, signal);
         chart.update();
         return;
       }
 
       try {
         const ctx = document.querySelector("#chart").getContext('2d');
+
         chart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -171,7 +179,7 @@ export const chart = {
                 },
                 ticks: {
                   callback: function(value) {
-                    return value + " %";
+                    return value + signal;
                   },
                   color: "rgba(127,127,127, 1)",
                   padding: 20,
@@ -201,21 +209,7 @@ export const chart = {
                   weight: 'bold'
                 },
                 display: 'auto',
-                formatter: function(value, context) {
-                  const dataset = context.dataset.data;
-                  // Get last populated year data index from dataset
-                  let count = 1;
-                  while(
-                    dataset[dataset.length - count] === null) {
-                    count++
-                  }
-                  if (context.dataIndex === dataset.length - count) {
-                    const labelSplited = context.dataset.label.split(" ");
-                    return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1]} ${value}%`;
-                  }
-
-                  return null;
-                },
+                formatter: (value, context, signal) => formatter(value, context, signal),
               }
             },
             layout: {
@@ -234,54 +228,62 @@ export const chart = {
     const setChartData = async () => {
       loading.value = false;
 
-      let results = [];
-      let sicks = valueSick.value;
-      let years = valueYears.value;
-      let locals = valueAcronym.value;
+      const result = await store.dispatch("content/requestData", {
+        detail: true,
+        stateNameAsCode: false,
+        stateTotal: true
+      });
 
-      if(!sicks || (sicks && !sicks.length) || !locals.length || !years.length) {
+      if (!result) {
         renderChart();
-        return;
+        return {};
       }
 
-      results = await store.dispatch("content/requestData");
+      const dataArray = result.data;
+      const data = {};
+      let years = [];
+      let locals = [];
 
-      if (!results || !years) {
-        return;
+      // Loop through the dataArray starting from the second element to not get header
+      for (let i = 1; i < dataArray.length; i++) {
+        const [year, local, value, sickImmunizer] = dataArray[i];
+        if (!data[sickImmunizer]) {
+          data[sickImmunizer] = {};
+        }
+        if (!data[sickImmunizer][year]) {
+          data[sickImmunizer][year] = {};
+        }
+        data[sickImmunizer][year][local] = value;
+        years.push(year);
+        locals.push(local);
       }
 
-      // TODO: API shoud send correct data fomated and we will not need this fix here
-      if (!Object.keys(results).find(x => x === sicks[0])) {
-        results = { [sicks[0]]: results }
-      };
+      // Extract unique years and locals
+      years = [...new Set(years)].sort();
+      locals = [...new Set(locals)];
 
-      const resultChart = {};
-      for(let sick of sicks) {
-        for(let local of locals) {
-          const legend = sick + " " + local;
+      // Formating data to chartResult
+      const chartResult = {};
+      for (let local of locals) {
+        for (let [key, val] of Object.entries(data)) {
+          const legend = `${key} ${local}`;
           for (let year of years) {
-            if (resultChart[legend]) {
-              if (results[sick] && results[sick][year]) {
-                resultChart[legend].push(results[sick][year][local]);
-              } else {
-                resultChart[legend].push(null);
-              }
+            if (!chartResult[legend]) {
+              chartResult[legend] = [];
+            }
+            if (val[year][local]) {
+              chartResult[legend].push(val[year][local]);
             } else {
-              if (results[sick] && results[sick][year]) {
-                resultChart[legend] = [results[sick][year][local]];
-              } else {
-                resultChart[legend] = [null];
-              }
+              chartResult[legend].push(null);
             }
           }
         }
       }
 
-      console.log(resultChart)
-      const data = [];
-      for(let [key, value] of Object.entries(resultChart)) {
+      const dataChart = [];
+      for(let [key, value] of Object.entries(chartResult)) {
         const color = randomHexColor(key.replace(" ", "") + value);
-        data.push({
+        dataChart.push({
           label: key,
           data: value,
           backgroundColor: color,
@@ -291,27 +293,23 @@ export const chart = {
       }
       renderChart(
         years,
-        data
+        dataChart
       )
 
     }
 
-    onMounted(async () => {
-      await setChartData();
-    });
+    onMounted(async () => await setChartData());
 
     watch(
-      () => [
-        store.state.content.form.granularity,
-        store.state.content.form.dose,
-        store.state.content.form.local,
-        store.state.content.form.periodEnd,
-        store.state.content.form.periodStart,
-        store.state.content.form.sickImmunizer,
-        store.state.content.form.type,
-      ],
+      () =>  {
+        const form = store.state.content.form;
+        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
+      },
       async () => {
-        await setChartData();
+        // Avoid render before change tab
+        if (Array.isArray(store.state.content.form.sickImmunizer)) {
+          await setChartData();
+        }
       }
     )
 

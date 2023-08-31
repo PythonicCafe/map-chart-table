@@ -36,9 +36,6 @@ export const table = {
       return result;
     })
 
-    onMounted(async () => {
-      await setTableData();
-    });
 
     const setTableData = async () => {
       if (!sick.value || (sick.value && !sick.value.length) || !local.value.length || !valueYears.value.length){
@@ -54,20 +51,20 @@ export const table = {
       loading.value = false;
     }
 
+    onMounted(async () => await setTableData());
+
     watch(
-      () => [
-        store.state.content.form.granularity,
-        store.state.content.form.dose,
-        store.state.content.form.local,
-        store.state.content.form.periodEnd,
-        store.state.content.form.periodStart,
-        store.state.content.form.sickImmunizer,
-        store.state.content.form.type,
-      ],
+      () =>  {
+        const form = store.state.content.form;
+        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
+      },
       async () => {
-        await setTableData();
+        // Avoid render before change tab
+        if (Array.isArray(store.state.content.form.sickImmunizer)) {
+          await setTableData();
+        }
       }
-    )
+    );
 
     return {
       columns,

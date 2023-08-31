@@ -1,9 +1,8 @@
-import { DataFetcher } from "../../data-fetcher";
 import { MapChart } from "../../map-chart";
 import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
-import { formatDate, convertArrayToObject } from "../../utils";
+import { convertArrayToObject, createDebounce } from "../../utils";
 
 export const map = {
   components: {
@@ -12,14 +11,7 @@ export const map = {
     NButton,
     NFormItem,
   },
-  props: {
-    api: {
-      type: String,
-      required: true
-    }
-  },
   setup(props, { emit }) {
-    const api = new DataFetcher(props.api);
     const loading = ref(true);
     const yearMapElement = ref(null);
     const mapChart = ref(null);
@@ -32,7 +24,7 @@ export const map = {
       const file = await import(`../../assets/images/maps/${map}.svg`);
       const response = await fetch(file.default);
       return await response.text();
-    };
+    }
 
     const renderMap = (args) => {
       if (!mapChart.value) {
@@ -48,94 +40,79 @@ export const map = {
       emit("mapChange", mapChart.value.datasetValues);
     }
 
-    const requestApiRender = async (mapElement, map, request, local, period) => {
-      try {
-        const result = await api.requestQs(request);
-        datasetStates.value = result.data;
-        const states = await api.request("statesNames");
-        renderMap({ element: mapElement, map, datasetStates: datasetStates.value[period], states, statesSelected: local });
-      } catch (e) {
-        renderMap({ element: mapElement, map });
-      }
-    }
-
     const setMap = async () => {
-      const local = store.state.content.form.local;
-      const sickImmunizer = store.state.content.form.sickImmunizer;
-      const tabBy = store.state.content.tabBy;
-      const period = store.state.content.form.period;
-      const periodStart = formatDate(store.state.content.form.periodStart);
-      const periodEnd = formatDate(store.state.content.form.periodEnd);
-      const type = store.state.content.form.type;
-      const dose = store.state.content.form.dose;
-      const granularity = store.state.content.form.granularity;
-
       const mapElement = document.querySelector('#map');
-      let request = "?tabBy=" + tabBy
-      if (sickImmunizer && sickImmunizer.length && type && granularity && periodStart && periodEnd && local) {
-        request += "&sickImmunizer=" + sickImmunizer + "&type=" + type + "&granularity=" + granularity;
-        if (dose) {
-          request += "&dose=" + dose;
-        }
-        if (Array.isArray(local) && local.length > 1) {
-          datasetCities.value = null;
-          datasetStates.value = null;
-          const map = await queryMap("BR");
-          await requestApiRender(mapElement, map, request, local, period);
-        }
-      } else {
-        const map = await queryMap("BR");
+      const local = store.state.content.form.local;
+      const period = store.state.content.form.period;
+      datasetCities.value = null;
+      datasetStates.value = null;
+      let map = await queryMap("BR");
+      if (!local) {
         renderMap({ element: mapElement, map });
         return;
+      } else if (local.length === 1) {
+        map = await queryMap(local);
       }
-
-      const map = await queryMap(local);
-      if (!sickImmunizer || !granularity) {
-        return renderMap({ element: mapElement, map });
-      }
+      const results = await store.dispatch("content/requestData");
       try {
-        request += "&local=" + local + "&periodStart=" + periodStart + "&periodEnd=" + periodEnd;
-        if (dose) {
-          request += "&dose=" + dose;
+        let mapSetup = {
+          element: mapElement,
+          map
+        };
+        if (local.length === 1) {
+          datasetCities.value = convertArrayToObject(results.data).data;
+          datasetStates.value = null;
+          mapSetup = {
+            ...mapSetup,
+            datasetCities: datasetCities.value[period],
+            cities: results.localNames,
+          }
+        } else {
+          datasetCities.value = null;
+          datasetStates.value = convertArrayToObject(results.data).data;
+          mapSetup = {
+            ...mapSetup,
+            datasetStates: datasetStates.value[period],
+            states: results.localNames,
+            statesSelected: local
+          }
         }
-        datasetCities.value = null;
-        datasetStates.value = null;
-        const result = await api.requestQs(request);
-        datasetCities.value = convertArrayToObject(result.data).data;
-
-        const cities = await api.request("citiesNames");
-        renderMap({ element: mapElement, map, datasetCities: datasetCities.value[period], cities });
+        renderMap(mapSetup);
       } catch (e) {
         renderMap({ element: mapElement, map });
       }
     }
+
+    // Using debounce to load most recent setMap call
+    // Fix url already setted values causing multiple setMap calls
+    const debounce = createDebounce();
 
     onMounted(async () => {
       loading.value = true;
-      await setMap();
+      debounce(async () => await setMap(), 100);
       loading.value = false;
     });
 
     watch(
-      () => [
-        store.state.content.form.local,
-        store.state.content.form.sickImmunizer,
-        store.state.content.form.type,
-        store.state.content.form.dose,
-        store.state.content.form.granularity
-      ],
+      () => { 
+        const form = store.state.content.form;
+        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity];
+      },
       async () => {
-        await setMap();
+        // Avoid render before change tab
+        if (!Array.isArray(store.state.content.form.sickImmunizer)) {
+          debounce(async () => await setMap(), 100);
+        }
       }
     )
 
     watch(
       () => [store.state.content.form.period],
-      async (period) => {
+      (period) => {
         if (datasetStates.value) {
-          renderMap({ datasetCities: null, datasetStates: datasetStates.value[period] });
+          renderMap({ datasetStates: datasetStates.value[period] });
         } else if (datasetCities.value) {
-          renderMap({ datasetStates: null, datasetCities: datasetCities.value[period] });
+          renderMap({ datasetCities: datasetCities.value[period] });
         }
       }
     )

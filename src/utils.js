@@ -81,7 +81,11 @@ export const formatToTable = (data, localNames) => {
       const value = data[i][j];
       if (key === "local") {
         const localResult = localNames[value.toString()];
-        row[header[j].key] = localResult.name + " - " + localResult.uf;
+        let name = localResult.name;
+        if (localResult.uf) {
+          name += " - " + localResult.uf
+        }
+        row[header[j].key] = name;
         continue;
       }
       row[header[j].key] = value;
@@ -107,3 +111,15 @@ export const convertArrayToObject = (inputArray) => {
 
   return { header:inputArray[0], data };
 }
+
+export const createDebounce = () => {
+  let timer;
+  return (fn, wait = 300) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (typeof fn === "function") {
+        fn();
+      }
+    }, wait);
+  };
+};
