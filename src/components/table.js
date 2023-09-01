@@ -47,6 +47,9 @@ export const table = {
       const currentResult = await store.dispatch("content/requestData", { detail: true });
       const tableData = formatToTable(currentResult.data, currentResult.localNames);
       columns.value = tableData.header;
+      columns.value[2].sorter = (row1, row2) => {
+        return row1.valor.replace(/[.%]|,/g, "") - row2.valor.replace(/[.%]|,/g, "");
+      };
       rows.value = tableData.rows;
       loading.value = false;
     }

@@ -71,8 +71,8 @@ export default {
       }
 
       let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-        "&sickImmunizer=" + form.sickImmunizer + "&dose=" + form.dose + "&periodStart=" +
-        formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local;
+        "&sickImmunizer=" + form.sickImmunizer.join("|") + "&dose=" + form.dose + "&periodStart=" +
+        formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local.join("|");
       if (detail) {
         request += "&detail=true";
       }
