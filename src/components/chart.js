@@ -124,14 +124,14 @@ export const chart = {
       }
       chartDefined.value = true;
 
-      let signal = store.state.content.form.type !== "Doses aplicadas" ? "%" : "";
+      const signal = store.state.content.form.type !== "Doses aplicadas" ? "%" : "";
       if (chart) {
         chart.data.labels = labels;
         chart.data.datasets = datasets;
         chart.options.scales.y.ticks.callback = function(value) {
           return value + signal;
         };
-        chart.options.plugins.datalabels.formatter = (value, context, signal) => formatter(value, context, signal);
+        chart.options.plugins.datalabels.formatter = (value, context) => formatter(value, context, signal);
         chart.update();
         return;
       }
@@ -209,7 +209,7 @@ export const chart = {
                   weight: 'bold'
                 },
                 display: 'auto',
-                formatter: (value, context, signal) => formatter(value, context, signal),
+                formatter: (value, context) => formatter(value, context, signal),
               }
             },
             layout: {

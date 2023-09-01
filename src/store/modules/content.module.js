@@ -70,9 +70,11 @@ export default {
         return;
       }
 
+      const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
+      const l = Array.isArray(form.local) ? form.local.join("|") : form.local;
       let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-        "&sickImmunizer=" + form.sickImmunizer.join("|") + "&dose=" + form.dose + "&periodStart=" +
-        formatDate(form.periodStart) + "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + form.local.join("|");
+        "&sickImmunizer=" + sI + "&dose=" + form.dose + "&periodStart=" + formatDate(form.periodStart) +
+        "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + l;
       if (detail) {
         request += "&detail=true";
       }
