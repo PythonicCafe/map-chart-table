@@ -34,6 +34,14 @@ export default {
     return getDefaultState();
   },
   actions: {
+    async requestMap(
+      { state },
+      { map } = {}
+    ) {
+      const api = new DataFetcher(state.apiUrl);
+      const result = await api.request(`map/${map}`);
+      return result;
+    },
     async updateFormSelect(
       { commit, state }
     ) {
@@ -84,7 +92,7 @@ export default {
 
       const isStateData = form.local.length > 1;
       const [result, localNames] = await Promise.all([
-        api.requestQs(request),
+        api.request(`data/${request}`),
         api.request(isStateData ? "statesNames" : "citiesNames")
       ]);
 

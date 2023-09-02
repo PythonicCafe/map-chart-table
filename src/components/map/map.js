@@ -21,9 +21,9 @@ export const map = {
 
     const queryMap = async (local) => {
       const map = Array.isArray(local) && local.length > 1 ? "BR" : local;
-      const file = await import(`../../assets/images/maps/${map}.svg`);
-      const response = await fetch(file.default);
-      return await response.text();
+
+      const file = await store.dispatch(`content/requestMap`, { map });
+      return file;
     }
 
     const renderMap = (args) => {

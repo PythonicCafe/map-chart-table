@@ -21,11 +21,5 @@ export class DataFetcher {
     return result;
   }
 
-  async requestQs(endPoint) {
-    const self = this;
-    const result = await self.requestData("data" + endPoint);
-    return result;
-  }
-
 }
 
