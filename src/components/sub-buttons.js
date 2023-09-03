@@ -16,6 +16,7 @@ export const subButtons = {
   },
   setup() {
     const svg = ref(null);
+    const chartPNG = ref(null);
     const chart = ref(null);
     const store = useStore();
     const showModal = ref(false);
@@ -89,6 +90,8 @@ export const subButtons = {
     const clickShowModal = () => {
       const map = document.querySelector("#canvas");
       svg.value = map?.innerHTML;
+      const canvas = document.getElementById("chart");
+      chartPNG.value = canvas?.toDataURL('image/png', 1);
       showModal.value = true;
     }
 
@@ -104,15 +107,16 @@ export const subButtons = {
 
     const downloadChartAsImage = () => {
       const imageLink = document.createElement("a");
-      const canvas = document.getElementById("mct-chart");
       imageLink.download = 'chart.png';
-      imageLink.href = canvas.toDataURL('image/png', 1);
+      imageLink.href = chartPNG.value;
       imageLink.click();
     }
 
     return {
       bodyStyle: {
         maxWidth: '900px',
+        maxHeight: '90vh',
+        overflowY: 'scroll',
       },
       showModal,
       biBook,
@@ -130,7 +134,9 @@ export const subButtons = {
       copyCurrentLink,
       sbim,
       sendMail,
-      riAlertLine
+      riAlertLine,
+      downloadChartAsImage,
+      chartPNG
     };
   },
   template: `
@@ -214,9 +220,9 @@ export const subButtons = {
       >
         Faça o download de conteúdos<br><br>
 
-        <div v-if="svg" style="display: flex; flex-direction: column; gap: 12px">
+        <div v-if="svg || chartPNG" style="display: flex; flex-direction: column; gap: 12px">
           <div style="padding: 0px 0px 12px;">Gráficos</div>
-          <n-card embedded :bordered="false">
+          <n-card v-if="svg" embedded :bordered="false">
             <div style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px">
                 <div v-html="svg" style="max-width: 100px"></div>
@@ -231,7 +237,7 @@ export const subButtons = {
               </n-button>
             </div>
           </n-card>
-          <n-card embedded :bordered="false">
+          <n-card v-if="svg" embedded :bordered="false">
             <div style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px">
                 <div v-html="svg" style="max-width: 100px"></div>
@@ -241,6 +247,21 @@ export const subButtons = {
                 </div>
               </div>
               <n-button quaternary type="primary" style="font-weight: 500" @click="downloadSvg">
+                <template #icon><n-icon v-html="biDownload" /></template>
+                &nbsp;&nbsp;Baixar
+              </n-button>
+            </div>
+          </n-card>
+          <n-card v-if="chartPNG" embedded :bordered="false">
+            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+              <div style="display: flex; gap: 12px">
+                <img :src="chartPNG" style="max-width: 100px; background-color: white; box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;" />
+                <div>
+                  <h3>Gráfico PNG</h3>
+                  <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
+                </div>
+              </div>
+              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadChartAsImage">
                 <template #icon><n-icon v-html="biDownload" /></template>
                 &nbsp;&nbsp;Baixar
               </n-button>
