@@ -94,9 +94,9 @@ export const map = {
     });
 
     watch(
-      () => { 
+      () => {
         const form = store.state.content.form;
-        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity];
+        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
       },
       async () => {
         // Avoid render before change tab
@@ -108,7 +108,7 @@ export const map = {
 
     watch(
       () => [store.state.content.form.period],
-      (period) => {
+      async (period) => {
         if (datasetStates.value) {
           renderMap({ datasetStates: datasetStates.value[period] });
         } else if (datasetCities.value) {

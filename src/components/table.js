@@ -20,31 +20,15 @@ export const table = {
     const loading = ref(true);
     const rows =  ref([]);
     const columns = ref([]);
-    const sick = computed(() => store.state.content.form.sickImmunizer);
-    const local = computed(() => store.state.content.form.local);
-    const valueYears = computed(() => {
-      const periodStart = store.state.content.form.periodStart;
-      const periodEnd = store.state.content.form.periodEnd;
-      if (!periodStart) {
-        return [];
-      }
-      let y =  timestampToYear(periodStart);
-      const result = [];
-      while (y <= timestampToYear(periodEnd)) {
-        result.push(y++);
-      }
-      return result;
-    })
 
 
     const setTableData = async () => {
-      if (!sick.value || (sick.value && !sick.value.length) || !local.value.length || !valueYears.value.length){
-        loading.value = false;
+
+      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      if (!currentResult) {
         rows.value = [];
         return;
       }
-
-      const currentResult = await store.dispatch("content/requestData", { detail: true });
       const tableData = formatToTable(currentResult.data, currentResult.localNames);
       columns.value = tableData.header;
       columns.value[2].sorter = (row1, row2) => {

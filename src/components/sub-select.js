@@ -36,6 +36,7 @@ export const subSelect = {
     const granularities = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "granularities" }));
     const periodStart = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "periodStart" }));
     const periodEnd = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "periodEnd" }))
+    const years = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "years" }))
 
     const showingLocalsOptions = ref(null);
     const showingSicksOptions = ref(null);
@@ -43,8 +44,8 @@ export const subSelect = {
     const updateDatePosition = () => {
       const endDate = periodEnd.value
       const startDate = periodStart.value
-      const tsEndDate = endDate ? new Date(endDate) : null
-      const tsStartDate = startDate ? new Date(startDate) : null
+      const tsEndDate = endDate
+      const tsStartDate = startDate
       if (!tsStartDate || !tsEndDate) {
         return
       }
@@ -99,18 +100,6 @@ export const subSelect = {
       }
     };
 
-    const disableDate = (ts) => {
-      const timestamp = Date.now()
-      const dateNow = new Date(timestamp)
-      dateNow.setHours(23)
-      dateNow.setMinutes(59)
-      dateNow.setSeconds(59)
-      dateNow.setMilliseconds(1000)
-      const tsDate = new Date(ts)
-      let minYear = Math.min(...store.state.content.form.years.map(x => parseInt(Object.values(x)[0])));
-      return dateNow.getFullYear() <= tsDate.getFullYear() || minYear > tsDate.getFullYear();
-    };
-
     watch(
       () => store.state.content.form.local,
       (loc) => {
@@ -136,7 +125,6 @@ export const subSelect = {
       handleLocalsUpdateValue,
       handleSicksUpdateShow,
       handleSicksUpdateValue,
-      disableDate,
       type,
       types,
       local,
@@ -148,6 +136,7 @@ export const subSelect = {
       periodStart,
       periodEnd,
       period,
+      years,
       granularity,
       granularities,
       localTemp,
@@ -214,25 +203,25 @@ export const subSelect = {
         </n-select>
       </n-form-item>
       <n-form-item label="Abrangência temporal" style="width: 200px">
-        <n-date-picker
+        <n-select
          class="start-datepicker"
          v-model:value="periodStart"
+         :options="years"
          type="year"
          placeholder="Início"
-         :is-date-disabled="disableDate"
+         filterable
          @update:value="updateDatePosition"
          clearable
-         :actions="null"
         />
-        <n-date-picker
+        <n-select
          class="end-datepicker"
          v-model:value="periodEnd"
+         :options="years"
          type="year"
          placeholder="Final"
-         :is-date-disabled="disableDate"
+         filterable
          @update:value="updateDatePosition"
          clearable
-         :actions="null"
         />
       </n-form-item>
       <n-form-item label="Granularidade">

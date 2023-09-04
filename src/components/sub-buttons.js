@@ -1,6 +1,6 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NModal, NCard } from "naive-ui";
-import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv } from "../icons.js";
+import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
 import { formatToTable, timestampToYear } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
@@ -64,34 +64,30 @@ export const subButtons = {
     }
 
     const downloadCsv = async () => {
-      let sick = store.state.content.form.sickImmunizer;
-      if (!sick || !sick.length) {
-        store.commit('message/ERROR', "Selecione conteúdo para poder gerar csv")
-        return;
-      }
       const periodStart = store.state.content.form.periodStart;
       const periodEnd = store.state.content.form.periodEnd;
       let years = [];
       if (periodStart) {
-        let y =  timestampToYear(periodStart);
-        while (y <= timestampToYear(periodEnd)) {
+        let y =  periodStart;
+        while (y <= periodEnd) {
           years.push(y++);
         }
       }
 
-      sick = Array.isArray(store.state.content.form.sickImmunizer) ?
-        store.state.content.form.sickImmunizer : [store.state.content.form.sickImmunizer];
-
       const currentResult = await store.dispatch("content/requestData", { detail: true });
+      if (!currentResult) {
+        store.commit('message/ERROR', "Preencha os seletores para gerar csv")
+        return;
+      }
       const csvwriter = new CsvWriterGen(currentResult.data.shift(), currentResult.data);
-      csvwriter.anchorElement('monitor-tabela');
+      csvwriter.anchorElement('tabela');
     }
 
     const clickShowModal = () => {
       const map = document.querySelector("#canvas");
       svg.value = map?.innerHTML;
       const canvas = document.getElementById("chart");
-      chartPNG.value = canvas?.toDataURL('image/png', 1);
+      chartPNG.value = ![...canvas.classList].includes("element-hidden") ? canvas?.toDataURL('image/png', 1) : null; 
       showModal.value = true;
     }
 
@@ -108,6 +104,10 @@ export const subButtons = {
     const downloadChartAsImage = () => {
       const imageLink = document.createElement("a");
       imageLink.download = 'chart.png';
+      if (!chartPNG.value) {
+        store.commit('message/ERROR', "Preencha os seletores para gerar imagem")
+        return;
+      }  
       imageLink.href = chartPNG.value;
       imageLink.click();
     }
@@ -124,6 +124,7 @@ export const subButtons = {
       biDownload,
       biShareFill,
       biFiletypeCsv,
+      biGraphUp,
       downloadSvg,
       downloadPng,
       downloadCsv,
@@ -220,7 +221,7 @@ export const subButtons = {
       >
         Faça o download de conteúdos<br><br>
 
-        <div v-if="svg || chartPNG" style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
           <div style="padding: 0px 0px 12px;">Gráficos</div>
           <n-card v-if="svg" embedded :bordered="false">
             <div style="display: flex; align-items: center; justify; justify-content: space-between;">
@@ -252,10 +253,19 @@ export const subButtons = {
               </n-button>
             </div>
           </n-card>
-          <n-card v-if="chartPNG" embedded :bordered="false">
+          <n-card embedded :bordered="false">
             <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-              <div style="display: flex; gap: 12px">
-                <img :src="chartPNG" style="max-width: 100px; background-color: white; box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;" />
+              <div style="display: flex; gap: 12px; align-items: center">
+                <img
+                  v-if="chartPNG"
+                  :src="chartPNG"
+                  style="max-width: 100px;
+                  background-color: white;
+                  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"
+                />
+                <div v-else style="padding: 0px 24px">
+                  <n-icon v-html="biGraphUp" size="50" />
+                </div>
                 <div>
                   <h3>Gráfico PNG</h3>
                   <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
@@ -268,7 +278,24 @@ export const subButtons = {
             </div>
           </n-card>
         </div>
-        <div style="padding: 14px 0px 12px;">Dados</div>
+        <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
+        <n-card embedded :bordered="false">
+          <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+            <div style="display: flex; gap: 12px; align-items: center">
+              <div style="padding: 0px 24px">
+                <n-icon v-html="biFiletypeCsv" size="50" />
+              </div>
+              <div>
+                <h3>Dados utilizados na interface em CSV</h3>
+                <p>Os dados que estão sendo utilizados nesta interface</p>
+              </div>
+            </div>
+            <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+              <template #icon><n-icon v-html="biDownload" /></template>
+              &nbsp;&nbsp;Baixar
+            </n-button>
+          </div>
+        </n-card>
         <n-card embedded :bordered="false">
           <div style="display: flex; align-items: center; justify; justify-content: space-between;">
             <div style="display: flex; gap: 12px; align-items: center">

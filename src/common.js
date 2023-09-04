@@ -17,7 +17,7 @@ export const formatToApi = ({
         case "periodEnd":
         case "periodStart":
           if (form[formField]) {
-            routerResult[formField] = formatDate(form[formField]);
+            routerResult[formField] = form[formField];
           }
           break;
         case "doses":

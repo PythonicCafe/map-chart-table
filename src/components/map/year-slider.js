@@ -20,11 +20,11 @@ export const yearSlider = {
     const mapPlaying = ref(false);
     const stopPlayMap = ref(false);
     const setSliderValue = (period) => {
+      const form = store.state.content.form;
+      showSlider.value = form.periodStart && form.periodEnd ? true : false;
       if (period) {
-        showSlider.value = true;
-        return timestampToYear(period)
+        return Number(period);
       }
-      showSlider.value = false;
       return;
     }
 

@@ -75,11 +75,11 @@
 
 */
 
-.start-datepicker .n-input .n-input__border {
+.start-datepicker .n-base-selection__border {
   border-right-color: transparent;
 }
 
-.end-datepicker .n-input .n-input__border {
+.end-datepicker .n-base-selection__border {
   border-left-color: transparent;
 }
 

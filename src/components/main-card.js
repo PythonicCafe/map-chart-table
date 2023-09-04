@@ -87,18 +87,8 @@ export const mainCard = {
       }
 
       for (const [key, value] of Object.entries(routeArgs)) {
-        const result = new Date(String(value));
-        if (key === "period") {
+        if (["period", "periodStart", "periodEnd"].includes(key)) {
           routerResult[key] = Number(value);
-          continue;
-        }
-        if (result instanceof Date && !isNaN(result.getTime())) {
-          const currentYear = new Date().getFullYear();
-          if (Number(value) <= currentYear) {
-            routerResult[key] = convertDateToUtc(String(value));
-          } else {
-            routerResult[key] = convertDateToUtc(String(currentYear));
-          }
           continue;
         }
         if (value.includes(",")){

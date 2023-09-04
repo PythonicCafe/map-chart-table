@@ -231,7 +231,7 @@ export const chart = {
       const result = await store.dispatch("content/requestData", {
         detail: true,
         stateNameAsCode: false,
-        stateTotal: true
+        stateTotal: true,
       });
 
       if (!result) {

@@ -19,7 +19,7 @@ const getDefaultState = () => {
       dose: null,
       doses: [],
       period: null,
-      periods: null,
+      years: null,
       periodStart: null,
       periodEnd: null,
       granularity: null,
@@ -66,13 +66,19 @@ export default {
       const api = new DataFetcher(state.apiUrl);
       const form = state.form;
 
-      // Return null if form fields not filled
+      if (
+        form.sickImmunizer &&
+        Array.isArray(form.sickImmunizer) &&
+        !form.sickImmunizer.length
+      ) {
+        return;
+      }
+      // Return if form fields not filled
       if (
         !form.type ||
         !form.granularity ||
         !form.sickImmunizer ||
-        !form.periodStart ||
-        !form.periodEnd ||
+        (!form.periodStart && !form.periodEnd) ||
         !form.local
       ) {
         return;
@@ -81,8 +87,11 @@ export default {
       const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
       const l = Array.isArray(form.local) ? form.local.join("|") : form.local;
       let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-        "&sickImmunizer=" + sI + "&dose=" + form.dose + "&periodStart=" + formatDate(form.periodStart) +
-        "&periodEnd=" + formatDate(form.periodEnd) + "&local=" + l;
+        "&sickImmunizer=" + sI + "&dose=" + form.dose + "&local=" + l;
+
+      request += form.periodStart ? "&periodStart=" + form.periodStart : "";
+      request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";
+
       if (detail) {
         request += "&detail=true";
       }
@@ -129,15 +138,10 @@ export default {
   mutations: {
     UPDATE_FORM(state, payload) {
       for (let [key, value] of Object.entries(payload)){
-        if (key === "periodStart" && value) {
-          state.form.period = timestampToYear(value);
-          if (!state.form.periodEnd) {
-            const date = new Date();
-            date.setFullYear(date.getFullYear() - 1)
-            state.form.periodEnd = Number(date);
-          }
-        } else if (key === "periodEnd" && value ) {
-          state.form.period = state.form.periodStart ? timestampToYear(state.form.periodStart) : timestampToYear(value);
+        if (key === "periodStart") {
+          state.form.period = !value && state.form.period ? state.form.periodEnd : value;
+        } else if (key === "periodEnd") {
+          state.form.period = state.form.periodStart ? state.form.periodStart : value;
         }
         state.form[key] = value;
       }
@@ -201,7 +205,7 @@ export default {
       const local = state.form.local?.length > 1 ? "Brasil" : state.form.local;
       const period = state.form.period;
       if (sick && (local && local.length) && period) {
-        return `${main} ${sick}, ${local}, de ${period}`;
+        return `${main} ${sick}, ${local}, em ${period}`;
       }
       return;
     },
