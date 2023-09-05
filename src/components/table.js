@@ -31,6 +31,9 @@ export const table = {
       }
       const tableData = formatToTable(currentResult.data, currentResult.localNames);
       columns.value = tableData.header;
+      rows.value = tableData.rows;
+
+      // Column value sort different based on type of data
       if (store.state.content.form.type === "Doses aplicadas") {
         columns.value[2].sorter = (a, b) => {
           return a.valor.replace(/[.]|,/g, "") - b.valor.replace(/[.]|,/g, "");
@@ -43,7 +46,6 @@ export const table = {
           return nA - nB;
         });
       }
-      rows.value = tableData.rows;
       loading.value = false;
     }
 

@@ -53,7 +53,7 @@ export const formatDate = (timestamp) => {
   return `${year}`;
 };
 
-export const convertDateToUtc = (dateString) => { 
+export const convertDateToUtc = (dateString) => {
   const utcdate = Date.UTC(dateString, 1, 1);
   return utcdate;
 };
@@ -61,17 +61,23 @@ export const convertDateToUtc = (dateString) => {
 export const formatToTable = (data, localNames) => {
   const header = [];
   for (const column of [...data[0]]) {
+    // Setting width and behaveours of table column
     let width = null;
     let align = 0;
     let minWidth = 200;
     if (["ano", "valor"].includes(column)) {
       align = "right";
-      width = 90;
+      width = 100;
       minWidth = null;
+    }
+    // Formating table title
+    let title = column.charAt(0).toUpperCase() + column.slice(1);
+    if (title === "Doenca") {
+      title = "Doença";
     }
     header.push(
       {
-        title: column.charAt(0).toUpperCase() + column.slice(1),
+        title,
         key: column,
         sorter: 'default',
         width,
@@ -84,7 +90,7 @@ export const formatToTable = (data, localNames) => {
 
   const rows = [];
   // Loop api return value
-  for (let i = 1; i < data.length; i++) {  
+  for (let i = 1; i < data.length; i++) {
     const row = {};
     // Setting value as key: value in row object
     for (let j = 0; j < data[i].length; j++) {
