@@ -110,7 +110,7 @@ export default {
       }
 
       if (form.type !== "Doses aplicadas" && state.tab !== "chart") {
-        result.data.forEach((x, i) => x[2] = i > 0 ? (x[2] + "%") : x[2])
+        result.data.slice(1).forEach((x, i) => x[2] = (Number(x[2]).toFixed(2) + "%"))
       } else if (form.type === "Doses aplicadas") {
         result.data.forEach((x, i) => {
           let number = x[2];

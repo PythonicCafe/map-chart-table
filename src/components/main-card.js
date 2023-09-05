@@ -201,12 +201,12 @@ export const mainCard = {
       <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
         {{ mainTitle }}
       </h2>
-      <n-skeleton v-else height="40px" width="40%" :animated="false" />
+      <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
       <div style="margin-top: 0px; margin-bottom: 16px">
         <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
          {{ subTitle }}
         </h3>
-        <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 5px;" />
+        <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
       </div>
       <section>
         <template v-if="tab === 'map'">

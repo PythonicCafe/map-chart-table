@@ -61,12 +61,23 @@ export const convertDateToUtc = (dateString) => {
 export const formatToTable = (data, localNames) => {
   const header = [];
   for (const column of [...data[0]]) {
+    let width = null;
+    let align = 0;
+    let minWidth = 200;
+    if (["ano", "valor"].includes(column)) {
+      align = "right";
+      width = 90;
+      minWidth = null;
+    }
     header.push(
       {
         title: column.charAt(0).toUpperCase() + column.slice(1),
         key: column,
         sorter: 'default',
-        width: 200,
+        width,
+        titleAlign: "left",
+        align,
+        minWidth,
       }
     )
   }

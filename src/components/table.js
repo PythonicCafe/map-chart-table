@@ -25,15 +25,24 @@ export const table = {
     const setTableData = async () => {
 
       const currentResult = await store.dispatch("content/requestData", { detail: true });
-      if (!currentResult) {
+      if (!currentResult || !currentResult.data ) {
         rows.value = [];
         return;
       }
       const tableData = formatToTable(currentResult.data, currentResult.localNames);
       columns.value = tableData.header;
-      columns.value[2].sorter = (row1, row2) => {
-        return row1.valor.replace(/[.%]|,/g, "") - row2.valor.replace(/[.%]|,/g, "");
-      };
+      if (store.state.content.form.type === "Doses aplicadas") {
+        columns.value[2].sorter = (a, b) => {
+          return a.valor.replace(/[.]|,/g, "") - b.valor.replace(/[.]|,/g, "");
+        };
+      } else {
+        columns.value[2].sorter = ((a, b) => {
+          const nA = parseFloat(a.valor.replace("%", ""));
+          const nB = parseFloat(b.valor.replace("%", ""));
+
+          return nA - nB;
+        });
+      }
       rows.value = tableData.rows;
       loading.value = false;
     }
@@ -74,10 +83,9 @@ export const table = {
       />
       <div
         v-else
-        class="mct-canva"
       >
         <n-empty
-          style="justify-content: center; border: 1px dashed gray; width: 100%; height: 100%; border-radius: .25rem"
+          style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px; border-radius: .25rem"
           description="Selecione valores para serem exibidos"
         />
       </div>
