@@ -238,7 +238,7 @@ export class MapChart {
             const name = self.states[key].name;
             const label = self.states[key].acronym;
             return {
-              label: acronym,
+              label: label,
               data: val,
               name,
               color: self.getColor(color, self.getMaxColorVal()),

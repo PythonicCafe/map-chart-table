@@ -87,7 +87,7 @@ export const subButtons = {
       const map = document.querySelector("#canvas");
       svg.value = map?.innerHTML;
       const canvas = document.getElementById("chart");
-      chartPNG.value = ![...canvas.classList].includes("element-hidden") ? canvas?.toDataURL('image/png', 1) : null; 
+      chartPNG.value = canvas && ![...canvas.classList].includes("element-hidden") ? canvas?.toDataURL('image/png', 1) : null; 
       showModal.value = true;
     }
 
@@ -253,7 +253,7 @@ export const subButtons = {
               </n-button>
             </div>
           </n-card>
-          <n-card embedded :bordered="false">
+          <n-card v-if="!svg" embedded :bordered="false">
             <div style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px; align-items: center">
                 <img

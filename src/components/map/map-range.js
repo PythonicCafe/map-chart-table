@@ -80,7 +80,7 @@ export const mapRange = {
 
       // If maxVal bigger than parent element add styles
       const maxValEl = svg.parentNode.querySelector(".max-val")
-      if (maxDataVal.toString().length > 5) {
+      if (maxDataVal.toString().length > 4) {
         maxValEl.style.border = "1px solid #f0f0f0";
         maxValEl.style.boxShadow = "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px";
       } else {
