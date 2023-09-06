@@ -36,7 +36,7 @@ export const table = {
       // Column value sort different based on type of data
       if (store.state.content.form.type === "Doses aplicadas") {
         columns.value[2].sorter = (a, b) => {
-          return a.valor.replace(/[.]|,/g, "") - b.valor.replace(/[.]|,/g, "");
+          return a.valor.replace(/[,.]/g, "") - b.valor.replace(/[,.]/g, "");
         };
       } else {
         columns.value[2].sorter = ((a, b) => {

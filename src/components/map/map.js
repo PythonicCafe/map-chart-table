@@ -27,15 +27,17 @@ export const map = {
     }
 
     const renderMap = (args) => {
+      const type = store.state.content.form.type;
       if (!mapChart.value) {
         mapChart.value = new MapChart({
           ...args,
+          type,
           tooltipAction: (opened, name) => {
             emit("mapTooltip", { opened, name });
           }
         });
       } else {
-        mapChart.value.update({ ...args });
+        mapChart.value.update({ ...args, type });
       }
       emit("mapChange", mapChart.value.datasetValues);
     }

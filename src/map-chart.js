@@ -8,7 +8,8 @@ export class MapChart {
     datasetStates,
     states,
     statesSelected,
-    tooltipAction
+    tooltipAction,
+    type
   }) {
     this.element = typeof element === "string" ?
       element.querySelector(element) : element;
@@ -19,14 +20,15 @@ export class MapChart {
     this.states = states;
     this.statesSelected = statesSelected;
     this.tooltipAction = tooltipAction;
+    this.type = type;
 
     this.start();
   }
 
   start() {
     const self = this;
-    if (!self.element) { 
-      return; 
+    if (!self.element) {
+      return;
     }
 
     if (self.datasetCities) {
@@ -41,8 +43,8 @@ export class MapChart {
 
   update({ map, datasetCities, cities, datasetStates, states, statesSelected }) {
     const self = this;
-    if (!self.element) { 
-      return; 
+    if (!self.element) {
+      return;
     }
 
     self.map = map ?? self.map;
@@ -83,7 +85,7 @@ export class MapChart {
 
     // Querying map country states setting eventListener
     for (const path of self.element.querySelectorAll('#canvas svg path')) {
-      let pathId = path.id; 
+      let pathId = path.id;
       if (pathId.length > 2) {
         pathId = pathId.substring(0, pathId.length -1);
       }
@@ -164,22 +166,49 @@ export class MapChart {
     return;
   }
 
+  getPercentage(maxVal, minVal, val) {
+    return ((val - minVal) / (maxVal - minVal)) * 100;
+  }
+
+  getMaxAndMinValues(dataset) {
+    if (Object.values(dataset)[0].includes("%")) {
+      return;
+    }
+
+    const values = Object.values(dataset).map((val) => val.replace(/[,.]/g, ""));
+    const maxVal = Math.max(...values);
+    const minVal = Math.min(...values);
+    return { maxVal, minVal };
+  }
+
+  getMaxColorVal() {
+    const self = this;
+    if (self.type === "Cobertura") {
+      return 130;
+    }
+
+    return 100;
+  }
+
+
   loadMapState () {
     const self = this;
     let result = [];
 
     if (self.datasetCities) {
+      const resultValues = self.getMaxAndMinValues(self.datasetCities);
       result =
         Object.entries(
           self.datasetCities
         ).map(([key, val]) =>
           {
-            const localName = self.cities[key].name;
+            let color = resultValues ? self.getPercentage(resultValues.maxVal, resultValues.minVal, val.replace(/[,.]/g, "")) : parseFloat(val);
+            const name = self.cities[key].name;
             return {
-              label: localName,
+              label: name,
               data: val,
-              name: localName,
-              color: self.getColor(parseFloat(val)),
+              name,
+              color: self.getColor(color, self.getMaxColorVal()),
             }
           }
         );
@@ -199,16 +228,20 @@ export class MapChart {
     let result = [];
 
     if (self.datasetStates) {
+      const resultValues = self.getMaxAndMinValues(self.datasetStates);
       result =
         Object.entries(
           self.datasetStates
         ).map(([key, val]) =>
           {
+            let color = resultValues ? self.getPercentage(resultValues.maxVal, resultValues.minVal, val.replace(/[,.]/g, "")) : parseFloat(val);
+            const name = self.states[key].name;
+            const label = self.states[key].acronym;
             return {
-              label: self.states[key].acronym,
+              label: acronym,
               data: val,
-              name: self.states[key].name,
-              color: self.getColor(parseFloat(val)),
+              name,
+              color: self.getColor(color, self.getMaxColorVal()),
             }
           }
         ).filter(x => self.statesSelected.includes(x.label));
@@ -224,25 +257,33 @@ export class MapChart {
     })
   }
 
-  getColor(percentage) {
+  getColor(percentage, maxVal = 100) {
     const colors = [
-      { r: 231, g: 94, b: 34 },
+      { r: 156, g: 63, b: 51 },
+      { r: 207, g: 84, b: 67 },
+      { r: 231, g: 94, b: 75 },
+      { r: 234, g: 114, b: 98 },
+      { r: 237, g: 134, b: 120 },
       { r: 243, g: 174, b: 165 },
-      { r: 209, g: 218, b: 246 },
-      { r: 22, g: 45, b: 102 }
+      { r: 246, g: 194, b: 188 },
+      { r: 160, g: 209, b: 242 },
+      { r: 50, g: 161, b: 230 },
+      { r: 1, g: 121, b: 218 },
+      { r: 1, g: 111, b: 196 },
+      { r: 0, g: 92, b: 161 }
     ];
 
     if (percentage < 0) {
-      percentage = 0;
-    } else if (percentage > 100) {
-      percentage = 100;
+      return "rgb(105, 42, 34)";
+    } else if (percentage > maxVal) {
+      return "rgb(0, 69, 124)";
     }
 
-    const index = Math.floor((percentage / 100) * (colors.length - 1));
+    const index = Math.floor((percentage / maxVal) * (colors.length - 1));
 
     const lowerColor = colors[index];
-    const upperColor = index < 3 ? colors[index + 1] : colors[index];
-    const factor = (percentage / 100) * (colors.length - 1) - index;
+    const upperColor = index < (colors.length - 1) ? colors[index + 1] : colors[index];
+    const factor = (percentage / maxVal) * (colors.length - 1) - index;
     const interpolatedColor = {
       r: Math.round(lowerColor.r + (upperColor.r - lowerColor.r) * factor),
       g: Math.round(lowerColor.g + (upperColor.g - lowerColor.g) * factor),
@@ -251,14 +292,6 @@ export class MapChart {
 
     return `rgb(${interpolatedColor.r}, ${interpolatedColor.g}, ${interpolatedColor.b})`;
   }
-
-  interpolateColors(initialColor, finalColor, intervalPercentage) {
-    const r = Math.round(initialColor[0] + (finalColor[0] - initialColor[0]) * intervalPercentage);
-    const g = Math.round(initialColor[1] + (finalColor[1] - initialColor[1]) * intervalPercentage);
-    const b = Math.round(initialColor[2] + (finalColor[2] - initialColor[2]) * intervalPercentage);
-    return `rgb(${r}, ${g}, ${b})`;
-  }
-
 
   render () {
     const self = this;
@@ -282,10 +315,20 @@ export class MapChart {
               </div>
               <div class="mct-legend__box-gradient">
                 <div class="mct-legend__gradient">
+                  <div class="mct-legend-box-text">
+                    <span class="mct-legend-box-text__line mct-legend-box-text__line"></span>
+                    <span class="mct-legend-box-text__content">Menos que 0%</span>
+                  </div>
                   <div class="mct-legend__gradient-box">
-                    ${ Array(10).fill(0).map((x, i) =>
+                    <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
+                    ${ Array(12).fill(0).map((x, i) =>
                       "<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>" ).join("")
                      }
+                    <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
+                  </div>
+                  <div class="mct-legend-box-text mct-legend-box-text--end">
+                    <span class="mct-legend-box-text__line mct-legend-box-text__line--end"></span>
+                    <span class="mct-legend-box-text__content mct-legend-box-text__content--end">Mais que 120%</span>
                   </div>
                 </div>
               </div>

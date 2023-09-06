@@ -54,16 +54,19 @@ export const mapRange = {
       drawLine(svg);
       clearCircles();
       if(!data || !data.length) {
+        // Reset interface max/min values
+        maxVal.value = "---";
+        minVal.value = "---";
         return;
       }
 
       const svgHeight = svg.getAttribute("height");
 
-      let maxDataVal = Math.round(Math.max(...data.map(x => parseFloat(x.data))));
+      let maxDataVal = Math.max(...data.map(x => parseFloat(x.data)));
       let defineMinVal = "0%";
       const type = store.state.content.form.type;
       if (type === "Doses aplicadas") {
-        maxDataVal = maxDataVal;
+        maxDataVal = Math.max(...data.map(x => x.data.replace(/[.,]/g, "")));
         defineMinVal = 0;
       } else if (type === "Cobertura") {
         maxDataVal = "130%";
@@ -72,7 +75,7 @@ export const mapRange = {
       }
 
       // Setting interface values
-      maxVal.value = maxDataVal;
+      maxVal.value = maxDataVal.toLocaleString('pt-BR');
       minVal.value = defineMinVal;
 
       // If maxVal bigger than parent element add styles
@@ -91,7 +94,13 @@ export const mapRange = {
           samePercentCircle.setAttribute("data-title", `${samePercentCircle.dataset.title}, ${data[i].name}`);
           continue;
         }
-        let y = svgHeight - (parseFloat(data[i].data) / parseInt(maxDataVal) * svgHeight);
+
+        let dataVal = data[i].data.replace(/[.,]/g, "");
+        if (data[i].data && data[i].data.includes("%")) {
+          dataVal = parseFloat(data[i].data);
+        }
+
+        let y = svgHeight - (dataVal / parseInt(maxDataVal) * svgHeight);
         // Block to max value as full or min height
         if (y > svgHeight) {
           y = svgHeight;
@@ -142,14 +151,13 @@ export const mapRange = {
       tooltip.style.display = "none";
     }
 
-    onMounted(() => {
-      handleMapChange(datasetValues.value);
-    });
-
-    watchEffect(() => {
-      datasetValues.value = props.mapData;
-      handleMapChange(datasetValues.value);
-    });
+    watch(
+      () => props.mapData,
+      () => {
+        datasetValues.value = props.mapData;
+        handleMapChange(props.mapData);
+      }
+    );
 
     watch(
       () => props.mapTooltip,
