@@ -1,4 +1,4 @@
-import { timestampToYear, formatDate } from "../../utils";
+import { timestampToYear, formatDate, sickImmunizerAsText } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
 // TODO: Detect if url is setted before set default state app to avoid unecessary API requests
@@ -200,28 +200,78 @@ export default {
   },
   getters: {
     mainTitle: state => {
-      const main = state.tabBy === 'sicks' ? 'Contaminações por' : 'Imunização para';
-      const sick = Array.isArray(state.form.sickImmunizer) ? state.form.sickImmunizer.join(", ") : state.form.sickImmunizer;
-      const local = state.form.local?.length > 1 ? "Brasil" : state.form.local;
-      const period = state.form.period;
-      if (sick && (local && local.length) && period) {
-        return `${main} ${sick}, ${local}, em ${period}`;
+      const form = state.form;
+
+      let [sickImmunizer, multipleSickImmunizer] = sickImmunizerAsText(form);
+
+      const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
+      let period = form.period ? `em ${form.period}` : null;
+      if (
+          form.periodStart && form.periodEnd && form.periodStart < form.periodEnd
+      ) {
+        period = `de ${form.periodStart} a ${form.periodEnd}`;
       }
+      if (sickImmunizer && sickImmunizer.length && period && granularity) {
+        if (state.tab === "map") {
+          if (state.tabBy === "sicks") {
+            return `Cobertura de ${sickImmunizer} por ${granularity}, ${period}`;
+          } else {
+            // TODO: add FX_ETARIA
+            return `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`;
+          }
+        } else if (["chart", "table"].includes(state.tab)) {
+          if (state.tabBy === "sicks") {
+            if (multipleSickImmunizer) {
+              sickImmunizer = `para as doenças ${sickImmunizer}`;
+            } else {
+              sickImmunizer = `para ${sickImmunizer}`;
+            }
+            return `Cobertura vacinal ${sickImmunizer} por ${granularity}, ${period}`;
+          } else {
+            if (multipleSickImmunizer) {
+              sickImmunizer = `para as vacinas ${sickImmunizer}`;
+            } else {
+              sickImmunizer = `de ${sickImmunizer}`;
+            }
+            return `Cobertura ${sickImmunizer} por ${granularity}, ${period}`;
+          }
+        }
+      }
+
       return;
     },
     subTitle: state => {
+      const form = state.form;
       let main = "Imunizações";
       let complement = ", considerando população-alvo";
       if (state.tabBy === 'sicks') {
         main = "Contaminações";
         complement = "";
       }
-      const sick = Array.isArray(state.form.sickImmunizer) ? state.form.sickImmunizer.join(", ") : state.form.sickImmunizer;
-      const local = state.form.local;
-      const period = state.form.period;
+      let [sickImmunizer, multipleSickImmunizer] = sickImmunizerAsText(form);
+      const local = form.local;
+      const period = form.period;
+      const dose = form.dose;
 
-      if (sick && (local && local.length) && period) {
-        return `${main} estimadas de ${sick} ${complement}`;
+      const genericSickIm = `Inclui todas as ${dose}s das vacinas de calnedario vacinal neste grupo alvo com componente ${sickImmunizer}`;
+      if (sickImmunizer && sickImmunizer.length && dose) {
+        if (state.tab === "map") {
+          // TODO: add fxEtaria;
+          if (state.tabBy === "sicks") {
+            return genericSickIm;
+          } else {
+            // Subtítulo: [NUMERO_DOSE] [CLASSE_DOSE] para [FX_ETARIA]
+            return `${dose} para [fxEtaria]`;
+          }
+        } else if (["chart", "table"].includes(state.tab)) {
+          // TODO: add fxEtaria;
+          if (state.tabBy === "sicks") {
+            return genericSickIm;
+          } else {
+            // TODO: multiple dose types?
+            return `${sickImmunizer} (${dose}, [fxEtaria])`;
+          }
+        };
       }
       return;
     }

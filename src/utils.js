@@ -140,3 +140,23 @@ export const createDebounce = () => {
     }, wait);
   };
 };
+
+export const sickImmunizerAsText = (form) => {
+  let sickImmunizer = null;
+  let multipleSickImmunizer = false;
+  if (Array.isArray(form.sickImmunizer) && form.sickImmunizer.length > 1) {
+    if(form.sickImmunizer.length > 2) {
+      sickImmunizer = form.sickImmunizer.slice(0, -1).join(', ').toLowerCase() + " e " +
+        form.sickImmunizer[form.sickImmunizer.length - 1].toLowerCase();
+    } else {
+      sickImmunizer = form.sickImmunizer.join(" e ").toLowerCase();
+    }
+    multipleSickImmunizer = true;
+  } else if (form.sickImmunizer && !Array.isArray(form.sickImmunizer)) {
+    sickImmunizer = form.sickImmunizer.toLowerCase();
+  } else if (Array.isArray(form.sickImmunizer) && form.sickImmunizer.length)  {
+    sickImmunizer = form.sickImmunizer.map(x => x.toLowerCase());
+  }
+
+  return [ sickImmunizer, multipleSickImmunizer ];
+}
