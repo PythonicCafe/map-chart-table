@@ -33,7 +33,7 @@ export const map = {
           ...args,
           type,
           tooltipAction: (opened, name) => {
-            emit("mapTooltip", { opened, name });
+            emit("mapTooltip", { opened, name, type });
           }
         });
       } else {

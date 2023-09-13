@@ -1,0 +1,25 @@
+.custom-card-body.n-scrollbar {
+  padding: 0px;
+  font-size: 1rem;
+}
+
+.custom-card.n-card .n-scrollbar-content {
+  padding: 12px 32px;
+}
+
+.custom-card.n-card > .n-card__content {
+  padding: 0px;
+}
+
+.custom-card .n-card-header {
+  border-bottom: 1px solid #eee;
+}
+
+.custom-card-body {
+  max-height: calc(100vh - 170px);
+  overflow-y: auto;
+}
+
+.custom-card-body h3 {
+  font-size: 1.3rem;
+}

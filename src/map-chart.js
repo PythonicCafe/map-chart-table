@@ -41,7 +41,7 @@ export class MapChart {
     self.loadMapNation();
   }
 
-  update({ map, datasetCities, cities, datasetStates, states, statesSelected }) {
+  update({ map, datasetCities, cities, datasetStates, states, statesSelected, type }) {
     const self = this;
     if (!self.element) {
       return;
@@ -54,6 +54,7 @@ export class MapChart {
 
     self.datasetCities = datasetCities;
     self.datasetStates = datasetStates;
+    self.type = type;
 
     self.start();
   }
@@ -90,10 +91,10 @@ export class MapChart {
         pathId = pathId.substring(0, pathId.length -1);
       }
       const content = contentData ? contentData[pathId] : [];
-      const dataset = self.findElement(datasetStates, content);
+      let dataset = self.findElement(datasetStates, content) ??  { data: "---", color: "#e9e9e9" };
 
-      if (!dataset || !dataset.data) {
-        path.style.fill = "#e9e9e9";
+      if (!content.name) {
+        path.style.fill = dataset.color;
         continue;
       }
       const result = dataset.data;
@@ -113,6 +114,7 @@ export class MapChart {
             <div class="mct-tooltip__result">${result}</div>
           </article>`;
         tooltip.style.display = "block";
+        tooltip.style.backgroundColor = result.includes("---") ? "grey" : "var(--primary-color)";
         self.tooltipPosition(event, tooltip);
         self.runTooltipAction(true, content.name);
       });
@@ -184,7 +186,7 @@ export class MapChart {
   getMaxColorVal() {
     const self = this;
     if (self.type === "Cobertura") {
-      return 130;
+      return 120;
     }
 
     return 100;
@@ -208,7 +210,7 @@ export class MapChart {
               label: name,
               data: val,
               name,
-              color: self.getColor(color, self.getMaxColorVal()),
+              color: self.getColor(color, self.getMaxColorVal(), self.type === "Abandono"),
             }
           }
         );
@@ -241,11 +243,10 @@ export class MapChart {
               label: label,
               data: val,
               name,
-              color: self.getColor(color, self.getMaxColorVal()),
+              color: self.getColor(color, self.getMaxColorVal(), self.type === "Abandono"),
             }
           }
         ).filter(x => self.statesSelected.includes(x.label));
-
     }
 
     self.datasetValues = result;
@@ -257,8 +258,8 @@ export class MapChart {
     })
   }
 
-  getColor(percentage, maxVal = 100) {
-    const colors = [
+  getColor(percentage, maxVal = 100, reverse = false) {
+    const cPalette = [
       { r: 156, g: 63, b: 51 },
       { r: 207, g: 84, b: 67 },
       { r: 231, g: 94, b: 75 },
@@ -273,10 +274,12 @@ export class MapChart {
       { r: 0, g: 92, b: 161 }
     ];
 
+    const colors = reverse ? cPalette.reverse() : cPalette;
+
     if (percentage < 0) {
-      return "rgb(105, 42, 34)";
+      return reverse ? "rgb(0, 69, 124)" : "rgb(105, 42, 34)";
     } else if (percentage > maxVal) {
-      return "rgb(0, 69, 124)";
+      return reverse ? "rgb(0, 69, 124)" : "rgb(0, 69, 124)";
     }
 
     const index = Math.floor((percentage / maxVal) * (colors.length - 1));
@@ -296,6 +299,31 @@ export class MapChart {
   render () {
     const self = this;
 
+    let legend = "";
+    if (self.type != "Abandono") {
+       legend = `
+          <div class="mct-legend__gradient-box">
+            <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
+            ${ Array(12).fill(0).map((x, i) =>
+              "<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>" ).join("")
+            }
+            <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
+          </div>
+        `;
+    } else {
+      const arr = [];
+      for (let i = 11; i >= 0; i--){
+        arr.push("<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>");
+      }
+      legend = `
+        <div class="mct-legend__gradient-box">
+          <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
+          ${arr.join("")}
+          <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
+        </div>
+      `;
+    }
+
     const map = `
       <section>
         <div class="mct__canva-section">
@@ -305,7 +333,7 @@ export class MapChart {
             </div>
           </div>
           <div class="mct-legend">
-            <div>
+            <div ${self.type === 'Doses aplicadas' ? "style='display: none'" : ""}>
               <div class="mct-legend__content-box">
                 <div class="mct-legend__content">
                   <div class="mct-legend-base">0%</div>
@@ -319,13 +347,7 @@ export class MapChart {
                     <span class="mct-legend-box-text__line mct-legend-box-text__line"></span>
                     <span class="mct-legend-box-text__content">Menos que 0%</span>
                   </div>
-                  <div class="mct-legend__gradient-box">
-                    <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
-                    ${ Array(12).fill(0).map((x, i) =>
-                      "<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>" ).join("")
-                     }
-                    <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
-                  </div>
+                  ${legend}
                   <div class="mct-legend-box-text mct-legend-box-text--end">
                     <span class="mct-legend-box-text__line mct-legend-box-text__line--end"></span>
                     <span class="mct-legend-box-text__content mct-legend-box-text__content--end">Mais que 120%</span>

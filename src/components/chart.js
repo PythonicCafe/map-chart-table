@@ -135,10 +135,19 @@ export const chart = {
         chart.update();
         return;
       }
-
+      const plugin = {
+        id: 'customCanvasBackgroundColor',
+        beforeDraw: (chart, args, options) => {
+          const {ctx} = chart;
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-over';
+          ctx.fillStyle = options.color || 'white';
+          ctx.fillRect(0, 0, chart.width, chart.height);
+          ctx.restore();
+        }
+      };
       try {
         const ctx = document.querySelector("#chart").getContext('2d');
-
         chart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -201,16 +210,19 @@ export const chart = {
                 align: function(context) {
                   return 5;
                 },
+                borderRadius: '50',
+                padding: '3',
+                backgroundColor: 'rgba(255,255,255, 0.95)',
                 color: function(context) {
                   return context.dataset.borderColor;
                 },
                 font: {
                   size: 10,
-                  weight: 'bold'
+                  weight: 'bold',
                 },
                 display: 'auto',
                 formatter: (value, context) => formatter(value, context, signal),
-              }
+              },
             },
             layout: {
               padding: {
@@ -218,7 +230,7 @@ export const chart = {
               }
             },
           },
-          plugins: [htmlLegendPlugin],
+          plugins: [htmlLegendPlugin, plugin],
         });
       } catch (e) {
         // Do nothing
@@ -271,7 +283,7 @@ export const chart = {
             if (!chartResult[legend]) {
               chartResult[legend] = [];
             }
-            if (val[year][local]) {
+            if (val[year] && val[year][local]) {
               chartResult[legend].push(val[year][local]);
             } else {
               chartResult[legend].push(null);

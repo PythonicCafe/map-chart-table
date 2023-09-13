@@ -24,7 +24,8 @@ const getDefaultState = () => {
       periodEnd: null,
       granularity: null,
       granularities: [],
-    }
+    },
+    about: null
   }
 }
 
@@ -134,6 +135,14 @@ export default {
       }
       return { ...result, localNames };
     },
+    async requestAbout(
+      { state, commit },
+      { map } = {}
+    ) {
+      const api = new DataFetcher(state.apiUrl);
+      const payload = await api.request(`about`);
+      commit("UPDATE_ABOUT", payload);
+    },
   },
   mutations: {
     UPDATE_FORM(state, payload) {
@@ -148,6 +157,9 @@ export default {
     },
     UPDATE_FORM_SELECTS(state, payload) {
       state.form = { ...state.form, ...payload };
+    },
+    UPDATE_ABOUT(state, payload) {
+      state.about = payload;
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];
@@ -202,6 +214,7 @@ export default {
     mainTitle: state => {
       const form = state.form;
 
+      const type = form.type;
       let [sickImmunizer, multipleSickImmunizer] = sickImmunizerAsText(form);
 
       const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
@@ -214,10 +227,10 @@ export default {
       if (sickImmunizer && sickImmunizer.length && period && granularity) {
         if (state.tab === "map") {
           if (state.tabBy === "sicks") {
-            return `Cobertura de ${sickImmunizer} por ${granularity}, ${period}`;
+            return `${type} ${sickImmunizer} por ${granularity}, ${period}`;
           } else {
-            // TODO: add FX_ETARIA
-            return `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`;
+            // TODO: add FX_ETARIA `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`
+            return `${type} vacinal para ${sickImmunizer}, por ${granularity} em ${period}`;
           }
         } else if (["chart", "table"].includes(state.tab)) {
           if (state.tabBy === "sicks") {
@@ -226,14 +239,12 @@ export default {
             } else {
               sickImmunizer = `para ${sickImmunizer}`;
             }
-            return `Cobertura vacinal ${sickImmunizer} por ${granularity}, ${period}`;
+            return `${type} vacinal ${sickImmunizer} por ${granularity}, ${period}`;
           } else {
             if (multipleSickImmunizer) {
               sickImmunizer = `para as vacinas ${sickImmunizer}`;
-            } else {
-              sickImmunizer = `de ${sickImmunizer}`;
             }
-            return `Cobertura ${sickImmunizer} por ${granularity}, ${period}`;
+            return `${type} ${sickImmunizer} por ${granularity}, ${period}`;
           }
         }
       }
@@ -252,16 +263,16 @@ export default {
       const local = form.local;
       const period = form.period;
       const dose = form.dose;
-
-      const genericSickIm = `Inclui todas as ${dose}s das vacinas de calnedario vacinal neste grupo alvo com componente ${sickImmunizer}`;
-      if (sickImmunizer && sickImmunizer.length && dose) {
+      const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
+      const genericSickIm = `Inclui todas as ${dose}s das vacinas de calendário vacinal neste grupo alvo com componente ${sickImmunizer}`;
+      if (sickImmunizer && sickImmunizer.length && period && granularity) {
         if (state.tab === "map") {
           // TODO: add fxEtaria;
           if (state.tabBy === "sicks") {
             return genericSickIm;
           } else {
-            // Subtítulo: [NUMERO_DOSE] [CLASSE_DOSE] para [FX_ETARIA]
-            return `${dose} para [fxEtaria]`;
+            // TODO: Subtítulo: [DOSE] [CLASSE_DOSE] para [FX_ETARIA]
+            return `${dose}`;
           }
         } else if (["chart", "table"].includes(state.tab)) {
           // TODO: add fxEtaria;
@@ -269,7 +280,8 @@ export default {
             return genericSickIm;
           } else {
             // TODO: multiple dose types?
-            return `${sickImmunizer} (${dose}, [fxEtaria])`;
+            // TODO: Subtítulo: [SICK_IMMUNIZER] ([DOSE] [CLASSE_DOSE], [FX_ETARIA])
+            return `${sickImmunizer} (${dose})`;
           }
         };
       }

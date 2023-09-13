@@ -1,10 +1,11 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NButton, NIcon, NModal, NCard } from "naive-ui";
+import { NButton, NIcon, NModal, NCard, NScrollbar } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
 import { formatToTable, timestampToYear } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png"
+import cc from "../assets/images/cc.png"
 import riAlertLine from "../assets/images/ri-alert-line.svg"
 
 export const subButtons = {
@@ -12,7 +13,8 @@ export const subButtons = {
     NButton,
     NIcon,
     NModal,
-    NCard
+    NCard,
+    NScrollbar
   },
   setup() {
     const svg = ref(null);
@@ -112,11 +114,15 @@ export const subButtons = {
       imageLink.click();
     }
 
+    const goToCCLink = () => {
+      window.open('https://creativecommons.org/licenses/by/4.0/');
+    }
+
     return {
       bodyStyle: {
         maxWidth: '900px',
         maxHeight: '90vh',
-        overflowY: 'scroll',
+        overflowY: 'auto',
       },
       showModal,
       biBook,
@@ -134,15 +140,18 @@ export const subButtons = {
       legend,
       copyCurrentLink,
       sbim,
+      cc,
       sendMail,
       riAlertLine,
       downloadChartAsImage,
-      chartPNG
+      chartPNG,
+      tab: computed(() => store.state.content.tab),
+      goToCCLink
     };
   },
   template: `
     <section>
-      <div class="main-card-footer-container">
+      <div class="main-card-footer-container">  
         <div class="main-card-footer">
           <span class="main-card-footer__legend">{{ legend }}</span>
           <div class="main-card-footer__buttons">
@@ -219,100 +228,112 @@ export const subButtons = {
         :bordered="false"
         size="huge"
       >
-        Faça o download de conteúdos<br><br>
-
-        <div style="display: flex; flex-direction: column; gap: 12px">
-          <div style="padding: 0px 0px 12px;">Gráficos</div>
-          <n-card v-if="svg" embedded :bordered="false">
-            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-              <div style="display: flex; gap: 12px">
-                <div v-html="svg" style="max-width: 100px"></div>
-                <div>
-                  <h3>Imagem PNG</h3>
-                  <p>Adequado para a maioria dos usos, amplamente compatível</p>
+        <n-scrollbar class="custom-card-body">
+          <div style="margin: 0px 0px 12px"> Faça o download de conteúdos</div>
+            <div style="display: flex; flex-direction: column; gap: 12px">
+              <template v-if="tab === 'map'">
+                <div style="padding: 0px 0px 12px;">Mapas</div>
+                <n-card  embedded :bordered="false">
+                  <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+                    <div style="display: flex; gap: 12px">
+                      <div v-html="svg" style="max-width: 100px"></div>
+                      <div style="font-size: 1rem">
+                        <h3>Imagem PNG</h3>
+                        <p>Adequado para a maioria dos usos, amplamente compatível</p>
+                      </div>
+                    </div>
+                    <n-button quaternary type="primary" style="font-weight: 500" @click="downloadPng">
+                      <template #icon><n-icon v-html="biDownload" /></template>
+                      &nbsp;&nbsp;Baixar
+                    </n-button>
+                  </div>
+                </n-card>
+                <n-card v-if="tab === 'map'" embedded :bordered="false">
+                  <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+                    <div style="display: flex; gap: 12px">
+                      <div v-html="svg" style="max-width: 100px"></div>
+                      <div style="font-size: 1rem">
+                        <h3>Imagem SVG</h3>
+                        <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
+                      </div>
+                    </div>
+                    <n-button quaternary type="primary" style="font-weight: 500" @click="downloadSvg">
+                      <template #icon><n-icon v-html="biDownload" /></template>
+                      &nbsp;&nbsp;Baixar
+                    </n-button>
+                  </div>
+                </n-card>
+              </template>
+              <template v-if="tab === 'chart'">
+                <div style="padding: 0px 0px 12px;">Gráficos</div>
+                <n-card embedded :bordered="false">
+                  <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+                    <div style="display: flex; gap: 12px; align-items: center">
+                      <img
+                        v-if="chartPNG"
+                        :src="chartPNG"
+                        style="max-width: 100px;
+                        background-color: white;
+                        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"
+                      />
+                      <div v-else style="padding: 0px 24px">
+                        <n-icon v-html="biGraphUp" size="50" />
+                      </div>
+                      <div style="font-size: 1rem">
+                        <h3>Gráfico PNG</h3>
+                        <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
+                      </div>
+                    </div>
+                    <n-button quaternary type="primary" style="font-weight: 500" @click="downloadChartAsImage">
+                      <template #icon><n-icon v-html="biDownload" /></template>
+                      &nbsp;&nbsp;Baixar
+                    </n-button>
+                  </div>
+                </n-card>
+              </template>
+            </div>
+            <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
+            <n-card embedded :bordered="false">
+              <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+                <div style="display: flex; gap: 12px; align-items: center">
+                  <div style="padding: 0px 24px">
+                    <n-icon v-html="biFiletypeCsv" size="50" />
+                  </div>
+                  <div>
+                    <h3>Dados utilizados na interface em CSV</h3>
+                    <p>Os dados que estão sendo utilizados nesta interface</p>
+                  </div>
                 </div>
+                <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+                  <template #icon><n-icon v-html="biDownload" /></template>
+                  &nbsp;&nbsp;Baixar
+                </n-button>
               </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadPng">
-                <template #icon><n-icon v-html="biDownload" /></template>
-                &nbsp;&nbsp;Baixar
-              </n-button>
-            </div>
-          </n-card>
-          <n-card v-if="svg" embedded :bordered="false">
-            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-              <div style="display: flex; gap: 12px">
-                <div v-html="svg" style="max-width: 100px"></div>
-                <div>
-                  <h3>Imagem SVG</h3>
-                  <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
+            </n-card>
+            <n-card embedded :bordered="false">
+              <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+                <div style="display: flex; gap: 12px; align-items: center">
+                  <div style="padding: 0px 24px">
+                    <n-icon v-html="biFiletypeCsv" size="50" />
+                  </div>
+                  <div>
+                    <h3>Dados completos em CSV</h3>
+                    <p>Todos os dados por município da plataforma vacinaBR</p>
+                  </div>
                 </div>
+                <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+                  <template #icon><n-icon v-html="biDownload" /></template>
+                  &nbsp;&nbsp;Baixar
+                </n-button>
               </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadSvg">
-                <template #icon><n-icon v-html="biDownload" /></template>
-                &nbsp;&nbsp;Baixar
-              </n-button>
-            </div>
-          </n-card>
-          <n-card v-if="!svg" embedded :bordered="false">
-            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-              <div style="display: flex; gap: 12px; align-items: center">
-                <img
-                  v-if="chartPNG"
-                  :src="chartPNG"
-                  style="max-width: 100px;
-                  background-color: white;
-                  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;"
-                />
-                <div v-else style="padding: 0px 24px">
-                  <n-icon v-html="biGraphUp" size="50" />
-                </div>
-                <div>
-                  <h3>Gráfico PNG</h3>
-                  <p>Para impressões de alta qualidade e editável em softwares gráficos</p>
-                </div>
-              </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadChartAsImage">
-                <template #icon><n-icon v-html="biDownload" /></template>
-                &nbsp;&nbsp;Baixar
-              </n-button>
-            </div>
-          </n-card>
-        </div>
-        <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
-        <n-card embedded :bordered="false">
-          <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-            <div style="display: flex; gap: 12px; align-items: center">
-              <div style="padding: 0px 24px">
-                <n-icon v-html="biFiletypeCsv" size="50" />
-              </div>
-              <div>
-                <h3>Dados utilizados na interface em CSV</h3>
-                <p>Os dados que estão sendo utilizados nesta interface</p>
+            </n-card>
+            <div style="display: flex; justify-content: end; margin-top: 12px">
+              <div>Licença:</div>
+              <div style="margin: 4px 12px 0px; cursor: pointer" :onClick="goToCCLink" title="Atribuição 4.0 Internacional (CC BY 4.0)">
+                <img :src="cc" width="100" >
               </div>
             </div>
-            <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
-              <template #icon><n-icon v-html="biDownload" /></template>
-              &nbsp;&nbsp;Baixar
-            </n-button>
-          </div>
-        </n-card>
-        <n-card embedded :bordered="false">
-          <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-            <div style="display: flex; gap: 12px; align-items: center">
-              <div style="padding: 0px 24px">
-                <n-icon v-html="biFiletypeCsv" size="50" />
-              </div>
-              <div>
-                <h3>Dados completos em CSV</h3>
-                <p>Os dados completos para você usar nos seus gráficos</p>
-              </div>
-            </div>
-            <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
-              <template #icon><n-icon v-html="biDownload" /></template>
-              &nbsp;&nbsp;Baixar
-            </n-button>
-          </div>
-        </n-card>
+        </n-scrollbar>
       </n-modal>
     </section>
   `,

@@ -83,6 +83,10 @@ export const subSelect = {
       if (!showingLocalsOptions.value && localTemp.value){
         local.value = localTemp.value;
       }
+      const nPopover = document.querySelector(".n-popover");
+      if (nPopover) {
+       nPopover.innerHTML = "<!---->";
+      }
     };
 
     const handleSicksUpdateShow = (show) => {
@@ -97,6 +101,10 @@ export const subSelect = {
       sickTemp.value = value;
       if (!showingSicksOptions.value && sickTemp.value) {
         sick.value = value;
+      }
+      const nPopover = document.querySelector(".n-popover");
+      if (nPopover) {
+       nPopover.innerHTML = "<!---->";
       }
     };
 

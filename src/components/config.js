@@ -10,6 +10,7 @@ export const config = {
         primaryColor: "#e96f5f",
         primaryColorHover: "#e96f5f",
         primaryColorPressed: "#e96f5f",
+        fontSizeMedium: ".95rem",
       },
       DataTable: {
         thColorHover: "#e96f5f",
@@ -23,7 +24,16 @@ export const config = {
       },
       Pagination: {
         itemBorderRadius: "50%"
-      }
+      },
+      Button: {
+        fontSizeMedium: ".95rem",
+      },
+      Tabs: {
+        tabFontSizeMedium: ".95rem",
+      },
+      DataTable: {
+        fontSizeMedium: ".95rem",
+      },
     };
     return {
       // Config-provider setup

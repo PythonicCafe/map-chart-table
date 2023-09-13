@@ -69,7 +69,7 @@ export const mapRange = {
         maxDataVal = Math.max(...data.map(x => x.data.replace(/[.,]/g, "")));
         defineMinVal = 0;
       } else if (type === "Cobertura") {
-        maxDataVal = "130%";
+        maxDataVal = "120%";
       } else {
         maxDataVal = "100%";
       }
@@ -90,8 +90,9 @@ export const mapRange = {
 
       for (let i = 0; i < data.length; i++) {
         const samePercentCircle = [...svg.querySelectorAll("circle")].find(x => x.dataset.value === data[i].data);
-        if(samePercentCircle) {
-          samePercentCircle.setAttribute("data-title", `${samePercentCircle.dataset.title}, ${data[i].name}`);
+        if(samePercentCircle) { 
+          const newTitle = samePercentCircle.dataset.title.replace(/\se\s/, ", ") + " e " + data[i].name;
+          samePercentCircle.setAttribute("data-title", newTitle);
           continue;
         }
 
@@ -202,7 +203,7 @@ export const mapRange = {
     >
       <span
         class="max-val"
-        style="margin: 12px 0px 0px; background-color: white; padding: 2px; white-space: nowrap; border-radius: .23rem;"
+        style="margin: 12px 0px 0px; background-color: white; padding: 2px 8px; white-space: nowrap; border-radius: .23rem;"
       >{{ maxVal }}</span>
       <svg ref="mapRangeSVG" width="40" style="overflow: visible"></svg>
       <span style="padding: 0px 0px 12px">{{ minVal }}</span>
