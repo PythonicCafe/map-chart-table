@@ -283,7 +283,7 @@ export const chart = {
             if (!chartResult[legend]) {
               chartResult[legend] = [];
             }
-            if (val[year] && val[year][local]) {
+            if (val[year] && val[year][local] != null) {
               chartResult[legend].push(val[year][local]);
             } else {
               chartResult[legend].push(null);

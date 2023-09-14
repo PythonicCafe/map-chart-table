@@ -157,7 +157,7 @@ export const subSelect = {
   },
   template: `
     <section class="mct-selects" :class="modal ? 'mct-selects--modal' : ''">
-      <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Imunizante'">
+      <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Vacina'">
         <n-select
           v-model:value="sickTemp"
           :options="tabBy === 'sicks' ? sicks : immunizers"
@@ -165,7 +165,7 @@ export const subSelect = {
           class="mct-select"
           :class="modal ? 'mct-select--modal' : ''"
           max-tag-count="responsive"
-          :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Imunizante')"
+          :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
           :multiple="tab !== 'map'"
           :on-update:show="handleSicksUpdateShow"
           :on-update:value="handleSicksUpdateValue"

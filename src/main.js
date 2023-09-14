@@ -10,6 +10,7 @@ import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
 import { biInfoCircle } from "./icons.js";
+import { modal as Modal } from "./components/modal";
 
 export default class MCT {
   constructor(api, baseAddress = "") {
@@ -21,7 +22,7 @@ export default class MCT {
   render() {
     const self = this;
     const App = {
-      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, NModal, NScrollbar },
+      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar },
       setup() {
         const store = useStore();
         const showModal = ref(false);
@@ -81,7 +82,7 @@ export default class MCT {
                   </n-button>
                   <n-tabs type="segment" v-model:value="tabBy" @update:value="handleUpdateValueTabBy">
                     <n-tab name="sicks" tab="Por doença" />
-                    <n-tab name="immunizers" tab="Imunizante" />
+                    <n-tab name="immunizers" tab="Vacina" />
                   </n-tabs>
                   <n-tabs v-model:value="tab" type="segment">
                     <n-tab name="map" tab="Mapa" />
@@ -93,20 +94,9 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <n-modal
-                v-model:show="showModal"
-                class="custom-card"
-                preset="card"
-                :style="bodyStyle"
-                title="VacinaBR"
-                :bordered="false"
-                size="medium"
-                transform-origin="center"
-              >
-              <n-scrollbar class="custom-card-body">
+              <modal v-model:show="showModal" title="Sobre o projeto">
                 <div v-html="modalContent"></div>
-              </n-scrollbar>
-              </n-modal>
+              </modal>
             </n-message-provider>
           </main>
         </Config>

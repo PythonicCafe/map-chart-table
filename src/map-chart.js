@@ -93,7 +93,7 @@ export class MapChart {
       const content = contentData ? contentData[pathId] : [];
       let dataset = self.findElement(datasetStates, content) ??  { data: "---", color: "#e9e9e9" };
 
-      if (!content.name) {
+      if (!content || !content.name) {
         path.style.fill = dataset.color;
         continue;
       }
