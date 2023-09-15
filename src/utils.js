@@ -141,21 +141,40 @@ export const createDebounce = () => {
   };
 };
 
+export const convertToLowerCaseExceptInParentheses = (input) => {
+  let result = '';
+  let insideParentheses = false;
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+    if (char === '(') {
+      insideParentheses = true;
+    } else if (char === ')') {
+      insideParentheses = false;
+    }
+    if (insideParentheses) {
+      result += char;
+    } else {
+      result += char.toLowerCase();
+    }
+  }
+  return result;
+}
+
 export const sickImmunizerAsText = (form) => {
   let sickImmunizer = null;
   let multipleSickImmunizer = false;
   if (Array.isArray(form.sickImmunizer) && form.sickImmunizer.length > 1) {
     if(form.sickImmunizer.length > 2) {
-      sickImmunizer = form.sickImmunizer.slice(0, -1).join(', ').toLowerCase() + " e " +
-        form.sickImmunizer[form.sickImmunizer.length - 1].toLowerCase();
+      sickImmunizer = convertToLowerCaseExceptInParentheses(form.sickImmunizer.slice(0, -1).join(', ')) + " e " +
+        convertToLowerCaseExceptInParentheses(form.sickImmunizer[form.sickImmunizer.length - 1]);
     } else {
-      sickImmunizer = form.sickImmunizer.join(" e ").toLowerCase();
+      sickImmunizer =  convertToLowerCaseExceptInParentheses(form.sickImmunizer.join(" e "));
     }
     multipleSickImmunizer = true;
   } else if (form.sickImmunizer && !Array.isArray(form.sickImmunizer)) {
-    sickImmunizer = form.sickImmunizer.toLowerCase();
+    sickImmunizer =  convertToLowerCaseExceptInParentheses(form.sickImmunizer);
   } else if (Array.isArray(form.sickImmunizer) && form.sickImmunizer.length)  {
-    sickImmunizer = form.sickImmunizer.map(x => x.toLowerCase());
+    sickImmunizer = form.sickImmunizer.map(x => convertToLowerCaseExceptInParentheses(x.toLowerCase));
   }
 
   return [ sickImmunizer, multipleSickImmunizer ];

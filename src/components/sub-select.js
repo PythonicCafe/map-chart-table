@@ -240,6 +240,7 @@ export const subSelect = {
           :class="modal ? 'mct-select--modal' : ''"
           placeholder="Selecione Granularidade"
           filterable
+          disabled
         />
       </n-form-item>
     </section>

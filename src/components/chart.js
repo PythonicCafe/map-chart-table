@@ -106,7 +106,7 @@ export const chart = {
       }
       if (context.dataIndex === dataset.length - count) {
         const labelSplited = context.dataset.label.split(" ");
-        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1]} ${value} ${signal}`;
+        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1].substr(0, 1)}. ${value} ${signal}`;
       }
 
       return null;
@@ -246,7 +246,7 @@ export const chart = {
         stateTotal: true,
       });
 
-      if (!result) {
+      if (!result || !result.data) {
         renderChart();
         return {};
       }
@@ -315,7 +315,16 @@ export const chart = {
     watch(
       () =>  {
         const form = store.state.content.form;
-        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
+        return [
+          store.state.content.tabBy,
+          form.sickImmunizer,
+          form.dose,
+          form.type,
+          form.local,
+          form.granularity,
+          form.periodStart,
+          form.periodEnd
+        ];
       },
       async () => {
         // Avoid render before change tab

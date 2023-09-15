@@ -22,7 +22,7 @@ const getDefaultState = () => {
       years: null,
       periodStart: null,
       periodEnd: null,
-      granularity: null,
+      granularity: "Municípios",
       granularities: [],
     },
     about: null
@@ -185,7 +185,8 @@ export default {
     },
     UPDATE_TABBY(state, payload) {
       state.tabBy = Object.values(payload)[0];
-      state.form.sickImmunizer = null;
+
+      state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
     },
     SET_API(state, payload) {
       state.apiUrl = payload;
@@ -219,32 +220,26 @@ export default {
 
       const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
       let period = form.period ? `em ${form.period}` : null;
-      if (
-          form.periodStart && form.periodEnd && form.periodStart < form.periodEnd
-      ) {
-        period = `de ${form.periodStart} a ${form.periodEnd}`;
-      }
       if (sickImmunizer && sickImmunizer.length && period && granularity) {
         if (state.tab === "map") {
           if (state.tabBy === "sicks") {
-            return `${type} ${sickImmunizer} por ${granularity}, ${period}`;
+            // TODO: add FX_ETARIA `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`
+            return `Cobertura vacinal para ${sickImmunizer} por ${granularity} ${period}`;
           } else {
             // TODO: add FX_ETARIA `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`
-            return `${type} vacinal para ${sickImmunizer}, por ${granularity} em ${period}`;
+            return `Cobertura de ${sickImmunizer}, por ${granularity} ${period}`;
           }
         } else if (["chart", "table"].includes(state.tab)) {
           if (state.tabBy === "sicks") {
-            if (multipleSickImmunizer) {
-              sickImmunizer = `para as doenças ${sickImmunizer}`;
-            } else {
-              sickImmunizer = `para ${sickImmunizer}`;
-            }
-            return `${type} vacinal ${sickImmunizer} por ${granularity}, ${period}`;
+            sickImmunizer = `de vacinas para ${sickImmunizer}`;
+            return `${type} ${sickImmunizer} por ${granularity} ${period}`;
           } else {
             if (multipleSickImmunizer) {
-              sickImmunizer = `para as vacinas ${sickImmunizer}`;
+              sickImmunizer = `das vacinas ${sickImmunizer}`;
+            } else {
+              sickImmunizer = `de ${sickImmunizer}`;
             }
-            return `${type} ${sickImmunizer} por ${granularity}, ${period}`;
+            return `${type} ${sickImmunizer} por ${granularity} ${period}`;
           }
         }
       }
