@@ -3,17 +3,15 @@
 .mct-legend {
   width: 195px;
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   right: 10px;
-  display: flex;
-  flex-direction: column;
   user-select: none;
   pointer-events: none;
+  height: 52px;
 }
 
 .mct-legend__gradient {
   position: relative;
-  margin: auto;
   box-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 2px white;
 }
 
@@ -129,7 +127,7 @@
 .mct-legend-box-text__content--end {
   left: auto;
   top: 0;
-  right: 0;
+  right: 9px;
   background-color: white;
 }
 

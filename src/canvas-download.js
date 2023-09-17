@@ -26,14 +26,15 @@ class CanvasDownload {
     self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
 
     const promises = [];
-    self.images.forEach(async img => {
-      promises.push(self.addImage(img.image, img.height ?? null, img.width ?? null, img.posX ?? null, img.posY ?? null));
+    self.images.forEach(img => {
+      promises.push(self.addImage(img.image, img.height, img.width, img.posX, img.posY));
     });
 
-    await Promise.all(promises)
+    await Promise.all(promises);
 
     self.addText(self.title, self.subTitle);
   }
+
   reduceProportion(height, width, factor) {
     const nHeight = height * factor;
     const nWidth = width * factor;
@@ -136,7 +137,7 @@ class CanvasDownload {
     await self.setCanvas();
     const link = document.createElement("a");
     link.href = self.canvas.toDataURL('image/png');
-    link.download = "canvas_content";
+    link.download = "image";
     link.click();
   }
 }

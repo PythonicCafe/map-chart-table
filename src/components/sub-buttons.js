@@ -41,6 +41,12 @@ export const subButtons = {
       downloadLink.click();
       document.body.removeChild(downloadLink);
     }
+
+    const timer = (seconds) =>  {
+      let time = seconds * 1000
+      return new Promise(res => setTimeout(res, time))
+    }
+
     const downloadPng = async () => {
       const svgElement = document.querySelector("#canvas>svg");
       const svgContent = new XMLSerializer().serializeToString(svgElement);
@@ -49,16 +55,17 @@ export const subButtons = {
       const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
       const svgUrl = URL.createObjectURL(svgBlob);
 
+      const images = [
+        { image: svgUrl, height: 650, width: 650 },
+        { image: logo, posX: 5, posY: 642 },
+      ]
       const canvasDownload = new CanvasDownload(
-        [
-          { image: svgUrl, height: 500, width: 1400 },
-          { image: logo, height: 100, width: 200, posX: 10, posY: 620 }
-        ],
+        images,
         {
           title: store.getters['content/mainTitle'],
           subTitle: store.getters['content/subTitle'],
+          message: "Em elaboração: versão beta para testes.",
           source: store.state.content.legend + ".",
-          message: "Em elaboração: versão beta para testes."
         }
       );
       await canvasDownload.download();
@@ -121,7 +128,7 @@ export const subButtons = {
       const canvasDownload = new CanvasDownload(
         [
           { image: chartPNG.value },
-          { image: logo, height: 100, width: 200, posX: 10, posY: 620 }
+          { image: logo, posX: 5, posY: 642 }
         ],
         {
           title: store.getters['content/mainTitle'],
