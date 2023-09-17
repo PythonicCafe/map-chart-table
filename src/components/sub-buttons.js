@@ -8,6 +8,8 @@ import sbim from "../assets/images/sbim.png";
 import cc from "../assets/images/cc.png";
 import riAlertLine from "../assets/images/ri-alert-line.svg";
 import { modal as Modal } from "./modal.js";
+import CanvasDownload from "../canvas-download.js";
+import logo from "../assets/images/logo-vacinabr.svg";
 
 export const subButtons = {
   components:  {
@@ -39,35 +41,27 @@ export const subButtons = {
       downloadLink.click();
       document.body.removeChild(downloadLink);
     }
-    const downloadPng = () => {
-      const svgData = document.querySelector("#canvas>svg");
-      const serializedSVG = new XMLSerializer().serializeToString(svgData);
-      const svgDataBase64 = "data:image/svg+xml;base64," + window.btoa(serializedSVG);
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      const width = 600;
-      const height = 600;
+    const downloadPng = async () => {
+      const svgElement = document.querySelector("#canvas>svg");
+      const svgContent = new XMLSerializer().serializeToString(svgElement);
 
-      canvas.width = width;
-      canvas.height = height;
+      // Convert SVG content to a data URL
+      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const svgUrl = URL.createObjectURL(svgBlob);
 
-      const image = new Image();
-
-      image.addEventListener('load', () => {
-        context.clearRect(0, 0, width, height);
-        context.drawImage(image, 0, 0, width, height);
-        const pngData = canvas.toDataURL('image/png');
-
-        // Generating download link and clicking
-        const anchorElement = document.createElement('a');
-        anchorElement.href = pngData;
-        anchorElement.download = "map.png";
-        document.body.appendChild(anchorElement);
-        anchorElement.click();
-        document.body.removeChild(anchorElement);
-      })
-
-      image.src = svgDataBase64;
+      const canvasDownload = new CanvasDownload(
+        [
+          { image: svgUrl, height: 500, width: 1400 },
+          { image: logo, height: 100, width: 200, posX: 10, posY: 620 }
+        ],
+        {
+          title: store.getters['content/mainTitle'],
+          subTitle: store.getters['content/subTitle'],
+          source: store.state.content.legend + ".",
+          message: "Em elaboração: versão beta para testes."
+        }
+      );
+      await canvasDownload.download();
     }
 
     const downloadCsv = async () => {
@@ -116,15 +110,27 @@ export const subButtons = {
         "mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem";
     }
 
-    const downloadChartAsImage = () => {
+    const downloadChartAsImage = async () => {
       const imageLink = document.createElement("a");
       imageLink.download = 'chart.png';
       if (!chartPNG.value) {
         store.commit('message/ERROR', "Preencha os seletores para gerar imagem")
         return;
       }
-      imageLink.href = chartPNG.value;
-      imageLink.click();
+
+      const canvasDownload = new CanvasDownload(
+        [
+          { image: chartPNG.value },
+          { image: logo, height: 100, width: 200, posX: 10, posY: 620 }
+        ],
+        {
+          title: store.getters['content/mainTitle'],
+          subTitle: store.getters['content/subTitle'],
+          source: store.state.content.legend + ".",
+          message: "Em elaboração: versão beta para testes."
+        }
+      );
+      await canvasDownload.download();
     }
 
     const goToCCLink = () => {
@@ -327,40 +333,42 @@ A erat nam at lectus urna duis convallis convallis tellus. Cursus risus at ultri
           </template>
         </div>
         <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
-        <n-card embedded :bordered="false">
-          <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-            <div style="display: flex; gap: 12px; align-items: center">
-              <div style="padding: 0px 24px">
-                <n-icon v-html="biFiletypeCsv" size="50" />
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <n-card embedded :bordered="false">
+            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+              <div style="display: flex; gap: 12px; align-items: center">
+                <div style="padding: 0px 24px">
+                  <n-icon v-html="biFiletypeCsv" size="50" />
+                </div>
+                <div>
+                  <h3>Dados utilizados na interface em CSV</h3>
+                  <p>Os dados que estão sendo utilizados nesta interface</p>
+                </div>
               </div>
-              <div>
-                <h3>Dados utilizados na interface em CSV</h3>
-                <p>Os dados que estão sendo utilizados nesta interface</p>
-              </div>
+              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+                <template #icon><n-icon v-html="biDownload" /></template>
+                &nbsp;&nbsp;Baixar
+              </n-button>
             </div>
-            <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
-              <template #icon><n-icon v-html="biDownload" /></template>
-              &nbsp;&nbsp;Baixar
-            </n-button>
-          </div>
-        </n-card>
-        <n-card embedded :bordered="false">
-          <div style="display: flex; align-items: center; justify; justify-content: space-between;">
-            <div style="display: flex; gap: 12px; align-items: center">
-              <div style="padding: 0px 24px">
-                <n-icon v-html="biFiletypeCsv" size="50" />
+          </n-card>
+          <n-card embedded :bordered="false">
+            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+              <div style="display: flex; gap: 12px; align-items: center">
+                <div style="padding: 0px 24px">
+                  <n-icon v-html="biFiletypeCsv" size="50" />
+                </div>
+                <div>
+                  <h3>Dados completos em CSV</h3>
+                  <p>Todos os dados por município da plataforma vacinaBR</p>
+                </div>
               </div>
-              <div>
-                <h3>Dados completos em CSV</h3>
-                <p>Todos os dados por município da plataforma vacinaBR</p>
-              </div>
+              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+                <template #icon><n-icon v-html="biDownload" /></template>
+                &nbsp;&nbsp;Baixar
+              </n-button>
             </div>
-            <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
-              <template #icon><n-icon v-html="biDownload" /></template>
-              &nbsp;&nbsp;Baixar
-            </n-button>
-          </div>
-        </n-card>
+          </n-card>
+        </div>
         <div style="display: flex; justify-content: end; margin-top: 12px">
           <div>Licença:</div>
           <div style="margin: 4px 12px 0px; cursor: pointer" :onClick="goToCCLink" title="Atribuição 4.0 Internacional (CC BY 4.0)">

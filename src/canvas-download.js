@@ -1,0 +1,145 @@
+class CanvasDownload {
+  constructor(images, { title, subTitle, message, source } = {}) {
+    const self = this;
+    this.images = images;
+    this.title = title;
+    this.subTitle = subTitle;
+    this.source = source;
+    this.message = message;
+
+    this.canvasWidth = 1400;
+    this.canvasHeight = 720;
+  }
+
+  async setCanvas() {
+    const self = this;
+    const canvas = document.createElement("canvas");
+    canvas.id = "canvas-generator";
+    canvas.width = self.canvasWidth;
+    canvas.height = self.canvasHeight;
+    canvas.style.backgroundColor = "white";
+    self.canvas = canvas;
+    self.ctx = canvas.getContext("2d");
+
+    // Set canvas color
+    self.ctx.fillStyle = "white";
+    self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
+
+    const promises = [];
+    self.images.forEach(async img => {
+      promises.push(self.addImage(img.image, img.height ?? null, img.width ?? null, img.posX ?? null, img.posY ?? null));
+    });
+
+    await Promise.all(promises)
+
+    self.addText(self.title, self.subTitle);
+  }
+  reduceProportion(height, width, factor) {
+    const nHeight = height * factor;
+    const nWidth = width * factor;
+
+    return { nHeight, nWidth };
+  }
+
+  addImage(image, height, width, posX, posY) {
+    const self = this;
+    const canvas = this.canvas;
+    const ctx = this.ctx;
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = function() {
+        const x = posX ? posX : canvas.width / 2 - img.width / 2;
+        const y = posY ? posY : canvas.height / 2 - img.height / 2;
+        // Assuming 'ctx' is a 2D rendering context of the canvas
+        ctx.drawImage(img, x, y, img.width, img.height);
+        resolve();
+      };
+      img.onerror = (e) => reject(new Error('Image load failed'));
+
+      img.src = image;
+      let factor = 1;
+      let result = self.reduceProportion(img.naturalHeight, img.naturalWidth, factor)
+      while (result.nWidth > self.canvasWidth) {
+        factor -= 0.01;
+        result = self.reduceProportion(img.naturalHeight, img.naturalWidth, factor)
+      }
+      img.height = height ?? result.nHeight;
+      img.width = width ?? result.nWidth;
+    });
+  }
+
+  drawTextWithLineBreaks(text, x, y, maxWidth = 1390, lineHeight = 30) {
+    const self = this;
+    let lineBreakedTimes = 0;
+    const words = text.split(' ');
+    let line = '';
+
+    for (const word of words) {
+      const testLine = line + word + ' ';
+      const { width } = self.ctx.measureText(testLine);
+
+      if (width > maxWidth) {
+        self.ctx.fillText(line, x, y);
+        line = word + ' ';
+        y += lineHeight;
+        lineBreakedTimes++;
+      } else {
+        line = testLine;
+      }
+    }
+
+    self.ctx.fillText(line, x, y);
+
+    return lineBreakedTimes;
+  }
+
+  addText() {
+    const self = this;
+
+    if (!self.title) {
+      return;
+    }
+
+    self.ctx.font = "bold 25px Arial";
+    self.ctx.fillStyle = "#222";
+    let xText = 10;
+    let yText = 30;
+    const lineBreakedTimes = self.drawTextWithLineBreaks(self.title, xText, yText);
+
+    if (self.subTitle) {
+      self.ctx.font = "17px Arial";
+      self.ctx.fillStyle = "#222";
+      yText = lineBreakedTimes ? (lineBreakedTimes + 1) * 45 : 55;
+      xText = 12;
+      self.drawTextWithLineBreaks(self.subTitle, xText, yText);
+    }
+
+    if (self.source) {
+      self.ctx.font = "12px Arial";
+      self.ctx.fillStyle = "#222";
+      yText = 678;
+      xText = 230;
+      self.drawTextWithLineBreaks(self.source, xText, yText);
+    }
+
+    if (self.message) {
+      self.ctx.font = "10px Arial";
+      self.ctx.fillStyle = "#222";
+      yText = 698;
+      xText = 230;
+      self.drawTextWithLineBreaks(self.message, xText, yText);
+    }
+  }
+
+  async download() {
+    const self = this;
+    await self.setCanvas();
+    const link = document.createElement("a");
+    link.href = self.canvas.toDataURL('image/png');
+    link.download = "canvas_content";
+    link.click();
+  }
+}
+
+export default CanvasDownload;
+
