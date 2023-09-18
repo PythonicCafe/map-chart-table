@@ -21,7 +21,6 @@ export const table = {
     const rows =  ref([]);
     const columns = ref([]);
 
-
     const setTableData = async () => {
 
       const currentResult = await store.dispatch("content/requestData", { detail: true });
@@ -59,6 +58,7 @@ export const table = {
       async () => {
         // Avoid render before change tab
         if (Array.isArray(store.state.content.form.sickImmunizer)) {
+          loading.value = true;
           await setTableData();
         }
       }

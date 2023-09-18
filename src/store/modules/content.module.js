@@ -25,7 +25,8 @@ const getDefaultState = () => {
       granularity: "Municípios",
       granularities: [],
     },
-    about: null
+    about: null,
+    titles: null,
   }
 }
 
@@ -57,7 +58,7 @@ export default {
       commit("UPDATE_FORM_SELECTS", payload);
     },
     async requestData(
-      { state },
+      { state, commit },
       {
         detail = false,
         stateNameAsCode = true,
@@ -80,18 +81,19 @@ export default {
         !form.granularity ||
         !form.sickImmunizer ||
         (!form.periodStart && !form.periodEnd) ||
-        !form.local
+        !form.local.length
       ) {
         return;
       }
 
       const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
-      const l = Array.isArray(form.local) ? form.local.join("|") : form.local;
+      const loc = Array.isArray(form.local) ? form.local.join("|") : form.local;
       let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-        "&sickImmunizer=" + sI + "&dose=" + form.dose + "&local=" + l;
+        "&sickImmunizer=" + sI + "&local=" + loc;
 
       request += form.periodStart ? "&periodStart=" + form.periodStart : "";
       request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";
+      request += form.dose ? "&dose=" + form.dose : "";
 
       if (detail) {
         request += "&detail=true";
@@ -107,9 +109,11 @@ export default {
       ]);
 
       if (!result) {
+        commit("UPDATE_TITLES", null);
         return { result: {}, localNames: {} }
       }
 
+      commit("UPDATE_TITLES", result.metadata.titles);
       if (form.type !== "Doses aplicadas" && state.tab !== "chart") {
         result.data.slice(1).forEach((x, i) => x[2] = (Number(x[2]).toFixed(2) + "%"))
       } else if (form.type === "Doses aplicadas") {
@@ -154,6 +158,9 @@ export default {
         }
         state.form[key] = value;
       }
+    },
+    UPDATE_TITLES(state, payload) {
+      state.titles = payload;
     },
     UPDATE_FORM_SELECTS(state, payload) {
       state.form = { ...state.form, ...payload };
@@ -213,74 +220,60 @@ export default {
   },
   getters: {
     mainTitle: state => {
+      let title = null;
       const form = state.form;
+      if (
+        form.sickImmunizer &&
+        Array.isArray(form.sickImmunizer) &&
+        !form.sickImmunizer.length
+      ) {
+        return;
+      }
+      // Return if form fields not filled
+      if (
+        !form.type ||
+        !form.granularity ||
+        !form.sickImmunizer ||
+        !form.period ||
+        !form.local.length
+      ) {
+        return;
+      }
 
-      const type = form.type;
-      let [sickImmunizer, multipleSickImmunizer] = sickImmunizerAsText(form);
-
-      const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
-      let period = form.period ? `em ${form.period}` : null;
-      if (sickImmunizer && sickImmunizer.length && period && granularity) {
-        if (state.tab === "map") {
-          if (state.tabBy === "sicks") {
-            // TODO: add FX_ETARIA `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`
-            return `Cobertura vacinal para ${sickImmunizer} por ${granularity} ${period}`;
-          } else {
-            // TODO: add FX_ETARIA `Cobertura vacinal para ${sickImmunizer} em [faixaEtaria], por ${granularity} em ${period}`
-            return `Cobertura de ${sickImmunizer}, por ${granularity} ${period}`;
-          }
-        } else if (["chart", "table"].includes(state.tab)) {
-          if (state.tabBy === "sicks") {
-            sickImmunizer = `de vacinas para ${sickImmunizer}`;
-            return `${type} ${sickImmunizer} por ${granularity} ${period}`;
-          } else {
-            if (multipleSickImmunizer) {
-              sickImmunizer = `das vacinas ${sickImmunizer}`;
-            } else {
-              sickImmunizer = `de ${sickImmunizer}`;
-            }
-            return `${type} ${sickImmunizer} por ${granularity} ${period}`;
-          }
+      if (state.titles) {
+        if (state.tab === 'map' && state.titles.map) {
+          title = state.titles.map?.title + " em " + form.period;
+        } else {
+          title = state.titles.table.title;
         }
       }
-
-      return;
+      return title;
     },
     subTitle: state => {
+      let subtitle = null;
       const form = state.form;
-      let main = "Imunizações";
-      let complement = ", considerando população-alvo";
-      if (state.tabBy === 'sicks') {
-        main = "Contaminações";
-        complement = "";
+      if (
+        form.sickImmunizer &&
+        Array.isArray(form.sickImmunizer) &&
+        !form.sickImmunizer.length
+      ) {
+        return;
       }
-      let [sickImmunizer, multipleSickImmunizer] = sickImmunizerAsText(form);
-      const local = form.local;
-      const period = form.period;
-      const dose = form.dose;
-      const granularity = form.granularity ? form.granularity.toLowerCase() : form.granularity;
-      const genericSickIm = `Inclui todas as ${dose}s das vacinas de calendário vacinal neste grupo alvo com componente ${sickImmunizer}`;
-      if (sickImmunizer && sickImmunizer.length && period && granularity) {
-        if (state.tab === "map") {
-          // TODO: add fxEtaria;
-          if (state.tabBy === "sicks") {
-            return genericSickIm;
-          } else {
-            // TODO: Subtítulo: [DOSE] [CLASSE_DOSE] para [FX_ETARIA]
-            return `${dose}`;
-          }
-        } else if (["chart", "table"].includes(state.tab)) {
-          // TODO: add fxEtaria;
-          if (state.tabBy === "sicks") {
-            return genericSickIm;
-          } else {
-            // TODO: multiple dose types?
-            // TODO: Subtítulo: [SICK_IMMUNIZER] ([DOSE] [CLASSE_DOSE], [FX_ETARIA])
-            return `${sickImmunizer} (${dose})`;
-          }
-        };
+      // Return if form fields not filled
+      if (
+        !form.type ||
+        !form.granularity ||
+        !form.sickImmunizer ||
+        !form.period ||
+        !form.local.length
+      ) {
+        return;
       }
-      return;
+
+      if (state.titles) {
+        subtitle = state.tab === 'map' ? state.titles.map?.subtitle : state.titles.table.subtitle;
+      }
+      return subtitle;
     }
   }
 }

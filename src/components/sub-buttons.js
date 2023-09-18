@@ -10,6 +10,7 @@ import riAlertLine from "../assets/images/ri-alert-line.svg";
 import { modal as Modal } from "./modal.js";
 import CanvasDownload from "../canvas-download.js";
 import logo from "../assets/images/logo-vacinabr.svg";
+import legendImage from "../assets/images/legend.png";
 
 export const subButtons = {
   components:  {
@@ -59,6 +60,9 @@ export const subButtons = {
         { image: svgUrl, height: 650, width: 650 },
         { image: logo, posX: 5, posY: 642 },
       ]
+      if (["Abandono", "Cobertura"].includes(store.state.content.form.type) && store.state.content.tab === "map") {
+        images.push({ image: legendImage, width: 293, height: 88, posX: 1080, posY: 622 });
+      }
       const canvasDownload = new CanvasDownload(
         images,
         {
