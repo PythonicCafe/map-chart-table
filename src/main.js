@@ -35,6 +35,8 @@ export default class MCT {
         onBeforeMount(async () => {
           store.commit("content/SET_API", self.api);
           await store.dispatch("content/requestAbout");
+          await store.dispatch("content/requestAboutVaccines");
+          await store.dispatch("content/requestLinkCsv");
         });
         return {
           tab,

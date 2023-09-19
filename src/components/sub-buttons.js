@@ -1,7 +1,7 @@
-import { ref, computed } from "vue/dist/vue.esm-bundler";
+import { ref, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
-import { formatToTable, timestampToYear } from "../utils.js";
+import { formatToTable, timestampToYear, fetchCSV, csvToObject } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png";
@@ -31,6 +31,19 @@ export const subButtons = {
     const showModalGloss = ref(false);
     const showModalVac = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
+    const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
+
+    const aboutVaccines = ref(computed(() => {
+      const text = store.state.content.aboutVaccines;
+      let result = [];
+      // TODO: Links inside text should be clickable
+      for (let [header, rows] of Object.entries(text["rows"])){
+        let rowFomated = rows["Texto"].replace(/\n/gi, "<br>").replace(/\*\*(.*?)\*\*/gi, '<b>$1</b>') ;
+        result.push({ header: rows["ABA"], content: rowFomated })
+      }
+      return result;
+    }))
+
     const downloadSvg = () => {
       const svgData = document.querySelector("#canvas").innerHTML;
       const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
@@ -93,6 +106,10 @@ export const subButtons = {
       }
       const csvwriter = new CsvWriterGen(currentResult.data.shift(), currentResult.data);
       csvwriter.anchorElement('tabela');
+    }
+
+    const openInNewTab = () => {
+      window.open(csvAllDataLink.value["url"], '_blank');
     }
 
     const clickShowVac = () => {
@@ -164,10 +181,12 @@ export const subButtons = {
       downloadSvg,
       downloadPng,
       downloadCsv,
+      downloadCsvAll: openInNewTab,
       clickShowModal,
       svg,
       chart,
       legend,
+      aboutVaccines,
       copyCurrentLink,
       sbim,
       cc,
@@ -258,14 +277,8 @@ export const subButtons = {
         title="Sobre as Vacinas"
       >
         <n-tabs type="line">
-          <n-tab-pane name="oasis" tab="Lorem ipsum">
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dui faucibus in ornare quam viverra. Pulvinar pellentesque habitant morbi tristique senectus et netus et malesuada. Euismod lacinia at quis risus sed vulputate odio. Tortor vitae purus faucibus ornare suspendisse. Sit amet mauris commodo quis. Tempor nec feugiat nisl pretium. Amet consectetur adipiscing elit ut aliquam purus. Natoque penatibus et magnis dis parturient montes nascetur ridiculus. Elementum eu facilisis sed odio morbi quis. Maecenas accumsan lacus vel facilisis volutpat est velit. Sit amet mattis vulputate enim nulla aliquet porttitor lacus luctus. Mi sit amet mauris commodo quis imperdiet massa. Rhoncus est pellentesque elit ullamcorper dignissim cras. Sagittis id consectetur purus ut. Augue mauris augue neque gravida. Vitae suscipit tellus mauris a. Maecenas sed enim ut sem viverra aliquet eget. Lectus nulla at volutpat diam ut.
-          </n-tab-pane>
-          <n-tab-pane name="the beatles" tab="Sed ullamcorper">
-Sed ullamcorper morbi tincidunt ornare massa eget. A erat nam at lectus urna duis convallis convallis. Justo laoreet sit amet cursus sit amet. Sodales ut etiam sit amet nisl purus in. Bibendum neque egestas congue quisque egestas diam in. Metus dictum at tempor commodo ullamcorper a. Eget sit amet tellus cras adipiscing enim eu turpis. In metus vulputate eu scelerisque felis imperdiet proin fermentum. Neque laoreet suspendisse interdum consectetur. Lacus viverra vitae congue eu consequat ac felis donec. Ante metus dictum at tempor commodo ullamcorper a. Faucibus purus in massa tempor. Nulla pellentesque dignissim enim sit amet venenatis urna cursus. Mauris cursus mattis molestie a iaculis at erat pellentesque. At ultrices mi tempus imperdiet.
-          </n-tab-pane>
-          <n-tab-pane name="jay chou" tab="A erat nam">
-A erat nam at lectus urna duis convallis convallis tellus. Cursus risus at ultrices mi. Morbi leo urna molestie at elementum eu facilisis. Imperdiet sed euismod nisi porta lorem mollis aliquam ut. Porttitor rhoncus dolor purus non enim. Placerat in egestas erat imperdiet sed. Egestas erat imperdiet sed euismod. Neque ornare aenean euismod elementum nisi quis eleifend quam. Eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque. Felis eget nunc lobortis mattis aliquam faucibus purus in massa. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Auctor urna nunc id cursus metus aliquam eleifend.
+          <n-tab-pane v-for="item in aboutVaccines" :name="item.header" :tab="item.header">
+            <div style="margin: 24px 0px; height: 55vh; overflowY: auto; line-height: 26px" v-html="item.content"></div>
           </n-tab-pane>
         </n-tabs>
       </modal>
@@ -373,7 +386,7 @@ A erat nam at lectus urna duis convallis convallis tellus. Cursus risus at ultri
                   <p>Todos os dados por município da plataforma vacinaBR</p>
                 </div>
               </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsvAll">
                 <template #icon><n-icon v-html="biDownload" /></template>
                 &nbsp;&nbsp;Baixar
               </n-button>

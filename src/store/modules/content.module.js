@@ -26,7 +26,9 @@ const getDefaultState = () => {
       granularities: [],
     },
     about: null,
+    aboutVaccines: null,
     titles: null,
+    csvAllDataLink: null,
   }
 }
 
@@ -142,17 +144,28 @@ export default {
     },
     async requestAbout(
       { state, commit },
-      { map } = {}
     ) {
       const api = new DataFetcher(state.apiUrl);
       const payload = await api.request(`about`);
       commit("UPDATE_ABOUT", payload);
     },
+    async requestAboutVaccines(
+      { state, commit },
+    ) {
+      const api = new DataFetcher(state.apiUrl);
+      const payload = await api.request(`about-vaccines`);
+      commit("UPDATE_ABOUT_VACCINES", payload);
+    },
+    async requestLinkCsv(
+      { state, commit },
+    ) {
+      const api = new DataFetcher(state.apiUrl);
+      const payload = await api.request(`link-csv`);
+      commit("UPDATE_LINK_CSV", payload);
+    },
   },
   mutations: {
     UPDATE_FORM(state, payload, commit) {
-      // Update titles to avoid interface old state titles glitches
-      state.titles = null;
       for (let [key, value] of Object.entries(payload)){
         if (key === "periodStart") {
           state.form.period = !value && state.form.period ? state.form.periodEnd : value;
@@ -170,6 +183,12 @@ export default {
     },
     UPDATE_ABOUT(state, payload) {
       state.about = payload;
+    },
+    UPDATE_ABOUT_VACCINES(state, payload) {
+      state.aboutVaccines = payload;
+    },
+    UPDATE_LINK_CSV(state, payload) {
+      state.csvAllDataLink = payload;
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];
