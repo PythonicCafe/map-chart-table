@@ -108,8 +108,9 @@ export default {
         api.request(isStateData ? "statesNames" : "citiesNames")
       ]);
 
-      if (!result) {
+      if (!result || result.data.length <= 1) {
         commit("UPDATE_TITLES", null);
+        this.commit("message/WARNING", "Não há dados disponíveis para os parâmetros selecionados.", { root: true });
         return { result: {}, localNames: {} }
       }
 
@@ -149,7 +150,9 @@ export default {
     },
   },
   mutations: {
-    UPDATE_FORM(state, payload) {
+    UPDATE_FORM(state, payload, commit) {
+      // Update titles to avoid interface old state titles glitches
+      state.titles = null;
       for (let [key, value] of Object.entries(payload)){
         if (key === "periodStart") {
           state.form.period = !value && state.form.period ? state.form.periodEnd : value;

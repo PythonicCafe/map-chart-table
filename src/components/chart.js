@@ -106,7 +106,7 @@ export const chart = {
       }
       if (context.dataIndex === dataset.length - count) {
         const labelSplited = context.dataset.label.split(" ");
-        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[1].substr(0, 1)}. ${value} ${signal}`;
+        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[labelSplited.length -1]} ${value} ${signal}`;
       }
 
       return null;
