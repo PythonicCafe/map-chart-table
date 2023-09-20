@@ -28,6 +28,7 @@ const getDefaultState = () => {
     about: null,
     aboutVaccines: null,
     titles: null,
+    glossary: null,
     csvAllDataLink: null,
   }
 }
@@ -163,6 +164,13 @@ export default {
       const payload = await api.request(`link-csv`);
       commit("UPDATE_LINK_CSV", payload);
     },
+    async requestGlossary(
+      { state, commit },
+    ) {
+      const api = new DataFetcher(state.apiUrl);
+      const payload = await api.request(`glossary`);
+      commit("UPDATE_GLOSSARY", payload);
+    }
   },
   mutations: {
     UPDATE_FORM(state, payload, commit) {
@@ -189,6 +197,9 @@ export default {
     },
     UPDATE_LINK_CSV(state, payload) {
       state.csvAllDataLink = payload;
+    },
+    UPDATE_GLOSSARY(state, payload) {
+      state.glossary = payload;
     },
     UPDATE_TAB(state, payload) {
       state.tab = Object.values(payload)[0];

@@ -152,7 +152,27 @@ export const subSelect = {
       updateDatePosition,
       tab,
       tabBy,
-      immunizers
+      immunizers,
+      modalContentGlossary: computed(() => {
+        const text = store.state.content.about;
+        let result = "";
+        // TODO: Links inside text should be clickable
+        for (let [key, val] of Object.entries(text)){
+          let validUrl = null;
+          let valFomated = val.replace(/\n/gi, "<br><br>");
+          try {
+            validUrl = new URL(val);
+          }
+          catch (e) {
+            //Do nothing
+          }
+          if (validUrl) {
+            valFomated = `<a href="${valFomated}" target="about:blank" style="color: #e96f5f">Acessar arquivo</a>`
+          }
+          result += `<h2 style="margin-bottom: 12px">${key}</h2><p>${valFomated}</p>`;
+        }
+        return result;
+      }),
     }
   },
   template: `

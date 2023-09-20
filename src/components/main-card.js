@@ -83,7 +83,7 @@ export const mainCard = {
       const routerResult = {};
 
       if (Object.keys(route.query).length === 0) {
-        return; 
+        return;
       }
 
       for (const [key, value] of Object.entries(routeArgs)) {
@@ -134,7 +134,7 @@ export const mainCard = {
       return router.push({ query: stateResult });
     }
 
-    watch(() => { 
+    watch(() => {
         const content = store.state.content;
         const form = content.form;
         return [form.sickImmunizer, form.type, form.dose, form.local,

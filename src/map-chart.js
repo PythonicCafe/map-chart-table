@@ -63,7 +63,7 @@ export class MapChart {
     const self = this;
 
     const svgContainer = self.element.querySelector("#canvas");
-    svgContainer.innerHTML = map;
+    svgContainer.innerHTML = map ?? "";
     for (const path of svgContainer.querySelectorAll('path')) {
       path.style.stroke = "white";
       path.setAttribute("stroke-width", "1px");

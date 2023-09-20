@@ -34,9 +34,14 @@ export default class MCT {
         // Define apiUrl in store state
         onBeforeMount(async () => {
           store.commit("content/SET_API", self.api);
-          await store.dispatch("content/requestAbout");
-          await store.dispatch("content/requestAboutVaccines");
-          await store.dispatch("content/requestLinkCsv");
+          await Promise.all(
+            [
+              store.dispatch("content/requestAbout"),
+              store.dispatch("content/requestAboutVaccines"),
+              store.dispatch("content/requestLinkCsv"),
+              store.dispatch("content/requestGlossary")
+             ]
+          );
         });
         return {
           tab,
@@ -81,7 +86,7 @@ export default class MCT {
                   <div>
                     <img :src="logo" width="150">
                   </div>
-                  <n-tag size="small" round :bordered="false" type="info">
+                  <n-tag round :bordered="false" type="info">
                     Em elaboração: versão beta para testes
                     <template #icon>
                       <n-icon v-html="biConeStriped" />

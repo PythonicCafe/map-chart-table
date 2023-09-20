@@ -199,7 +199,16 @@ export const subButtons = {
       showModalGloss,
       clickShowGloss,
       showModalVac,
-      clickShowVac
+      clickShowVac,
+      modalGlossary: computed(() => {
+        const text = store.state.content.glossary["rows"];
+        let result = "";
+        // TODO: Links inside text should be clickable
+        for (let val of text) {
+          result += `<h2 style="margin-bottom: 12px">${val['ABA']}</h2><p>${val['Texto']}</p>`;
+        }
+        return result;
+      })
     };
   },
   template: `
@@ -278,7 +287,9 @@ export const subButtons = {
       >
         <n-tabs type="line">
           <n-tab-pane v-for="item in aboutVaccines" :name="item.header" :tab="item.header">
-            <div style="margin: 24px 0px; height: 55vh; overflowY: auto; line-height: 26px" v-html="item.content"></div>
+            <n-scrollbar style="height: 55vh; line-height: 26px">
+              <div style="padding: 12px 0px" v-html="item.content"></div>
+            </n-scrollbar>
           </n-tab-pane>
         </n-tabs>
       </modal>
@@ -286,8 +297,7 @@ export const subButtons = {
         v-model:show="showModalGloss"
         title="Glossário"
       >
-        <h2>Lorem ipsum dolor sit amet</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dui faucibus in ornare quam viverra. Pulvinar pellentesque habitant morbi tristique senectus et netus et malesuada. Euismod lacinia at quis risus sed vulputate odio. Tortor vitae purus faucibus ornare suspendisse. Sit amet mauris commodo quis. Tempor nec feugiat nisl pretium. Amet consectetur adipiscing elit ut aliquam purus. Natoque penatibus et magnis dis parturient montes nascetur ridiculus. Elementum eu facilisis sed odio morbi quis. Maecenas accumsan lacus vel facilisis volutpat est velit. Sit amet mattis vulputate enim nulla aliquet porttitor lacus luctus. Mi sit amet mauris commodo quis imperdiet massa. Rhoncus est pellentesque elit ullamcorper dignissim cras. Sagittis id consectetur purus ut. Augue mauris augue neque gravida. Vitae suscipit tellus mauris a. Maecenas sed enim ut sem viverra aliquet eget. Lectus nulla at volutpat diam ut.</p>
+        <div v-html="modalGlossary"></div>
       </modal>
       <modal
         v-model:show="showModal"
