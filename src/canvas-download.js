@@ -118,16 +118,17 @@ class CanvasDownload {
     if (self.source) {
       self.ctx.font = "12px Arial";
       self.ctx.fillStyle = "#222";
-      yText = 678;
+      yText = 694;
       xText = 230;
       self.drawTextWithLineBreaks(self.source, xText, yText);
     }
 
     if (self.message) {
-      self.ctx.font = "10px Arial";
-      self.ctx.fillStyle = "#222";
-      yText = 698;
-      xText = 230;
+      self.ctx.font = "700 70px Arial";
+      self.ctx.fillStyle = "rgba(100, 100, 100, 0.5)";
+      yText = 560;
+      xText = -130;
+      self.ctx.rotate(-20 * Math.PI / 180)
       self.drawTextWithLineBreaks(self.message, xText, yText);
     }
   }
