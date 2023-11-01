@@ -89,10 +89,11 @@ export default {
         return;
       }
 
+      // TODO: Add encodeURI to another fields
       const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
       const loc = Array.isArray(form.local) ? form.local.join("|") : form.local;
       let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-        "&sickImmunizer=" + sI + "&local=" + loc;
+        "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc;
 
       request += form.periodStart ? "&periodStart=" + form.periodStart : "";
       request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";
