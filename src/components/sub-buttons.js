@@ -1,7 +1,7 @@
 import { ref, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
-import { formatToTable, timestampToYear, fetchCSV, csvToObject } from "../utils.js";
+import { formatToTable, timestampToYear } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png";
@@ -10,7 +10,10 @@ import riAlertLine from "../assets/images/ri-alert-line.svg";
 import { modal as Modal } from "./modal.js";
 import CanvasDownload from "../canvas-download.js";
 import logo from "../assets/images/logo-vacinabr.svg";
-import legendImage from "../assets/images/legend.png";
+import Abandono from "../assets/images/abandono.svg"
+import Cobertura from "../assets/images/cobertura.svg"
+import HomGeo from "../assets/images/hom_geo.svg"
+import HomVac from "../assets/images/hom_vac.svg"
 
 export const subButtons = {
   components:  {
@@ -73,8 +76,22 @@ export const subButtons = {
         { image: svgUrl, height: 650, width: 650 },
         { image: logo, posX: 5, posY: 642 },
       ]
-      if (["Abandono", "Cobertura"].includes(store.state.content.form.type) && store.state.content.tab === "map") {
-        images.push({ image: legendImage, width: 293, height: 88, posX: 1080, posY: 622 });
+
+      const type = store.state.content.form.type;
+      let legendSvg; 
+
+      if (type === "Abandono") {
+        legendSvg = Abandono;
+      } else if (type === "Cobertura") {
+        legendSvg = Cobertura;
+      } else if (type === "Homogeneidade geográfica") {
+        legendSvg = HomGeo;
+      } else if (type === "Homogeneidade entre vacinas") {
+        legendSvg = HomVac;
+      }
+
+      if (legendSvg && store.state.content.tab === "map") {
+        images.push({ image: legendSvg, width: 293, height: 88, posX: 1080, posY: 622 });
       }
       const canvasDownload = new CanvasDownload(
         images,

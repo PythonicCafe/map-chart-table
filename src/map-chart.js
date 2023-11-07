@@ -1,3 +1,8 @@
+import Abandono from "./assets/images/abandono.svg"
+import Cobertura from "./assets/images/cobertura.svg"
+import HomGeo from "./assets/images/hom_geo.svg"
+import HomVac from "./assets/images/hom_vac.svg"
+
 export class MapChart {
 
   constructor({
@@ -210,7 +215,7 @@ export class MapChart {
               label: name,
               data: val,
               name,
-              color: self.getColor(color, self.getMaxColorVal(), self.type === "Abandono"),
+              color: self.getColor(color, self.getMaxColorVal(), self.type),
             }
           }
         );
@@ -243,7 +248,7 @@ export class MapChart {
               label: label,
               data: val,
               name,
-              color: self.getColor(color, self.getMaxColorVal(), self.type === "Abandono"),
+              color: self.getColor(color, self.getMaxColorVal(), self.type),
             }
           }
         ).filter(x => self.statesSelected.includes(x.label));
@@ -258,7 +263,70 @@ export class MapChart {
     })
   }
 
-  getColor(percentage, maxVal = 100, reverse = false) {
+  getColor(percentage, maxVal = 100, type, reverse = false) {
+    const cPalette0 = [
+      "rgb(0, 69, 124)",
+      "rgb(0, 92, 161)",
+      "rgb(50, 161, 230)",
+      "rgb(246, 194, 188)",
+      "rgb(207, 84, 67)",
+      "rgb(105, 42, 34)"
+    ];
+
+    if (type === "Abandono") {
+      if (percentage <= -5) {
+        return cPalette0[0];
+      } else if (percentage > -5 && percentage <= 0) {
+        return  cPalette0[1];
+      } else if (percentage > 0 && percentage <= 5) {
+        return cPalette0[2];
+      } else if (percentage > 5 && percentage <= 10) {
+        return cPalette0[3];
+      } else if (percentage > 10 && percentage <= 50) {
+        return cPalette0[4];
+      } else { // percentage > 50
+        return cPalette0[5];
+      }
+    } else if (type === "Cobertura") {
+      if (percentage <= 50) {
+        return cPalette0[5];
+      } else if (percentage > 50 && percentage <= 80) {
+        return cPalette0[4];
+      } else if (percentage > 80 && percentage <= 95) {
+        return cPalette0[3];
+      } else if (percentage > 95 && percentage <= 100) {
+        return cPalette0[2];
+      } else if (percentage > 100 && percentage <= 120) {
+        return cPalette0[1];
+      } else { // percentage > 120
+        return cPalette0[0];
+      }
+    } else if (type === "Homogeneidade geográfica") {
+      if (percentage <= 20) {
+        return cPalette0[4];
+      } else if (percentage > 20 && percentage <= 50) {
+        return cPalette0[3];
+      } else if (percentage > 50 && percentage <= 70) {
+        return cPalette0[2];
+      } else if (percentage > 70 && percentage <= 95) {
+        return  cPalette0[1];
+      } else { // percentage > 95
+        return cPalette0[0];
+      }
+    } else if (type === "Homogeneidade entre vacinas") {
+      if (percentage <= 20) {
+        return cPalette0[0];
+      } else if (percentage > 20 && percentage <= 40) {
+        return cPalette0[1];
+      } else if (percentage > 40 && percentage <= 60) {
+        return cPalette0[2];
+      } else if (percentage > 60 && percentage <= 80) {
+        return cPalette0[3];
+      } else { // percentage > 80
+        return cPalette0[4];
+      }
+    }
+
     const cPalette = [
       { r: 156, g: 63, b: 51 },
       { r: 207, g: 84, b: 67 },
@@ -300,28 +368,20 @@ export class MapChart {
     const self = this;
 
     let legend = "";
-    if (self.type != "Abandono") {
-       legend = `
-          <div class="mct-legend__gradient-box">
-            <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
-            ${ Array(12).fill(0).map((x, i) =>
-              "<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>" ).join("")
-            }
-            <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
-          </div>
-        `;
-    } else {
-      const arr = [];
-      for (let i = 11; i >= 0; i--){
-        arr.push("<div class='mct-legend__gradient-box-content " + "mct-legend-box-"+ i +"'></div>");
-      }
-      legend = `
-        <div class="mct-legend__gradient-box">
-          <div class="mct-legend__gradient-box-content mct-legend-box-end"></div>
-          ${arr.join("")}
-          <div class="mct-legend__gradient-box-content mct-legend-box-start"></div>
-        </div>
-      `;
+    let legendSvg = "";
+
+    if (self.type === "Abandono") {
+      legendSvg = Abandono;
+    } else if (self.type === "Cobertura") {
+      legendSvg = Cobertura;
+    } else if (self.type === "Homogeneidade geográfica") {
+      legendSvg = HomGeo;
+    } else if (self.type === "Homogeneidade entre vacinas") {
+      legendSvg = HomVac;
+    }
+
+    if (legendSvg) {
+      legend =`<img class="mct-legend-svg" src=${legendSvg} alt="some file" />`;
     }
 
     const map = `
@@ -333,28 +393,7 @@ export class MapChart {
             </div>
           </div>
           <div class="mct-legend">
-            <div ${self.type === 'Doses aplicadas' ? "style='display: none'" : ""}>
-              <div class="mct-legend__content-box">
-                <div class="mct-legend__content">
-                  <div class="mct-legend-base">0%</div>
-                  <div class="mct-legend-middle">50%</div>
-                  <div class="mct-legend-top">100%</div>
-                </div>
-              </div>
-              <div class="mct-legend__box-gradient">
-                <div class="mct-legend__gradient">
-                  <div class="mct-legend-box-text">
-                    <span class="mct-legend-box-text__line mct-legend-box-text__line"></span>
-                    <span class="mct-legend-box-text__content">Menos que 0%</span>
-                  </div>
-                  ${legend}
-                  <div class="mct-legend-box-text mct-legend-box-text--end">
-                    <span class="mct-legend-box-text__line mct-legend-box-text__line--end"></span>
-                    <span class="mct-legend-box-text__content mct-legend-box-text__content--end">Mais que 120%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ${legend}
           </div>
         </div>
         <div class="mct-tooltip"></div>
