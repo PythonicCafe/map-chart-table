@@ -65,9 +65,9 @@ export const formatToTable = (data, localNames) => {
     let width = null;
     let align = 0;
     let minWidth = 200;
-    if (["ano", "valor"].includes(column)) {
+    if (["ano", "valor", "população", "doses"].includes(column)) {
       align = "right";
-      width = 100;
+      width = 120;
       minWidth = null;
     }
     // Formating table title
