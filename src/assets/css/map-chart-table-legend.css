@@ -51,8 +51,25 @@
   margin-bottom: 4px;
 }
 
+.mct-tooltip__title--sub {
+  font-size: x-small;
+  font-weight: 600;
+  color: white;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 .mct-tooltip__result {
   font-weight: 600;
   color: white;
   font-size: 12px;
+  margin: -3px 0px;
+}
+
+.mct-tooltip__result--sub {
+  font-size: 11px;
+}
+
+.mct-tooltip__result--sub:last-child {
+  margin-bottom: 1px;
 }

@@ -258,7 +258,7 @@ export const chart = {
 
       // Loop through the dataArray starting from the second element to not get header
       for (let i = 1; i < dataArray.length; i++) {
-        const [year, local, value, sickImmunizer] = dataArray[i];
+        const [year, local, value, population, doses, sickImmunizer] = dataArray[i];
         if (!data[sickImmunizer]) {
           data[sickImmunizer] = {};
         }

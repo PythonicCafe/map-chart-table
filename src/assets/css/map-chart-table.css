@@ -199,34 +199,6 @@
   width: 19px;
 }
 
-/* Tooltip map */
-
-.mct-tooltip {
-  display: none;
-  position: fixed;
-  opacity: 95%;
-  background-color: var(--primary-color);
-  border-radius: 5px;
-  padding: 12px 12px;
-  font-size: 14px;
-  z-index: 1;
-  user-select: none;
-  pointer-events: none;
-  max-width: 400px;
-}
-
-.mct-tooltip__title {
-  font-weight: 600;
-  color: white;
-  margin-bottom: 4px;
-}
-
-.mct-tooltip__result {
-  font-weight: 600;
-  color: white;
-  font-size: 12px;
-}
-
 /* MediaQuery */
 
 @media (max-width: 800px) {

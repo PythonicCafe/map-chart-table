@@ -84,7 +84,8 @@ export class MapChart {
   setData(
     {
       datasetStates,
-      contentData
+      contentData,
+      type
     } = {}
   ) {
     const self = this;
@@ -96,7 +97,7 @@ export class MapChart {
         pathId = pathId.substring(0, pathId.length -1);
       }
       const content = contentData ? contentData[pathId] : [];
-      let dataset = self.findElement(datasetStates, content) ??  { data: "---", color: "#e9e9e9" };
+      let dataset = self.findElement(datasetStates, content) ??  { data: { value: "---" }, color: "#e9e9e9" };
 
       if (!content || !content.name) {
         path.style.fill = dataset.color;
@@ -113,13 +114,28 @@ export class MapChart {
         const parentElement = path.parentNode;
         parentElement.appendChild(path);
         path.style.stroke = "blue";
+        let tooltipExtra = "";
+        if (result && result.population) {
+          tooltipExtra = `
+            <span class="mct-tooltip__title mct-tooltip__title--sub">População alvo</span>
+            <div class="mct-tooltip__result mct-tooltip__result--sub">${result.population.toLocaleString('pt-BR')}</div>
+          `;
+
+          if (type !== "Doses aplicadas" && result.doses) {
+            tooltipExtra += `
+              <span class="mct-tooltip__title mct-tooltip__title--sub">Doses aplicadas</span>
+              <div class="mct-tooltip__result mct-tooltip__result--sub">${result.doses.toLocaleString('pt-BR')}</div>
+            `;
+          }
+        }
         tooltip.innerHTML = `
           <article>
             <div class="mct-tooltip__title">${content.name}</div>
-            <div class="mct-tooltip__result">${result}</div>
+            <div class="mct-tooltip__result">${result.value}</div>
+            ${tooltipExtra}
           </article>`;
         tooltip.style.display = "block";
-        tooltip.style.backgroundColor = result.includes("---") ? "grey" : "var(--primary-color)";
+        tooltip.style.backgroundColor = result.value.includes("---") ? "grey" : "var(--primary-color)";
         self.tooltipPosition(event, tooltip);
         self.runTooltipAction(true, content.name);
       });
@@ -178,11 +194,11 @@ export class MapChart {
   }
 
   getMaxAndMinValues(dataset) {
-    if (Object.values(dataset)[0].includes("%")) {
+    if (Object.values(dataset)[0].value.includes("%")) {
       return;
     }
 
-    const values = Object.values(dataset).map((val) => val.replace(/[,.]/g, ""));
+    const values = Object.values(dataset).map((val) => val.value.replace(/[,.]/g, ""));
     const maxVal = Math.max(...values);
     const minVal = Math.min(...values);
     return { maxVal, minVal };
@@ -209,7 +225,11 @@ export class MapChart {
           self.datasetCities
         ).map(([key, val]) =>
           {
-            let color = resultValues ? self.getPercentage(resultValues.maxVal, resultValues.minVal, val.replace(/[,.]/g, "")) : parseFloat(val);
+            let color = resultValues ? self.getPercentage(
+              resultValues.maxVal,
+              resultValues.minVal,
+              val.value.replace(/[,.]/g, "")
+            ) : parseFloat(val);
             const name = self.cities[key].name;
             return {
               label: name,
@@ -226,7 +246,8 @@ export class MapChart {
 
     self.setData({
       datasetStates: result,
-      contentData: self.cities
+      contentData: self.cities,
+      type: self.type
     })
   }
 
@@ -241,7 +262,9 @@ export class MapChart {
           self.datasetStates
         ).map(([key, val]) =>
           {
-            let color = resultValues ? self.getPercentage(resultValues.maxVal, resultValues.minVal, val.replace(/[,.]/g, "")) : parseFloat(val);
+            let color = resultValues ? self.getPercentage(
+              resultValues.maxVal, resultValues.minVal, val.value.replace(/[,.]/g, "")
+            ) : parseFloat(val.value);
             const name = self.states[key].name;
             const label = self.states[key].acronym;
             return {
@@ -259,7 +282,8 @@ export class MapChart {
     self.applyMap(self.map);
     self.setData({
       datasetStates: result,
-      contentData: self.states
+      contentData: self.states,
+      type: self.type
     })
   }
 

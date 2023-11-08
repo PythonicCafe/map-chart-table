@@ -66,7 +66,7 @@ export const mapRange = {
       let defineMinVal = "0%";
       const type = store.state.content.form.type;
       if (type === "Doses aplicadas") {
-        maxDataVal = Math.max(...data.map(x => x.data.replace(/[.,]/g, "")));
+        maxDataVal = Math.max(...data.map(x => x.data.value.replace(/[.,]/g, "")));
         defineMinVal = 0;
       } else if (type === "Cobertura") {
         maxDataVal = "120%";
@@ -89,16 +89,18 @@ export const mapRange = {
       }
 
       for (let i = 0; i < data.length; i++) {
-        const samePercentCircle = [...svg.querySelectorAll("circle")].find(x => x.dataset.value === data[i].data);
+        const samePercentCircle = [...svg.querySelectorAll("circle")].find(
+          x => JSON.parse(x.dataset.value).value === data[i].data.value
+        );
         if(samePercentCircle) { 
           const newTitle = samePercentCircle.dataset.title.replace(/\se\s/, ", ") + " e " + data[i].name;
           samePercentCircle.setAttribute("data-title", newTitle);
           continue;
         }
 
-        let dataVal = data[i].data.replace(/[.,]/g, "");
-        if (data[i].data && data[i].data.includes("%")) {
-          dataVal = parseFloat(data[i].data);
+        let dataVal = data[i].data.value.replace(/[.,]/g, "");
+        if (data[i].data.value && data[i].data.value.includes("%")) {
+          dataVal = parseFloat(data[i].data.value);
         }
 
         let y = svgHeight - (dataVal / parseInt(maxDataVal) * svgHeight);
@@ -114,7 +116,7 @@ export const mapRange = {
         circle.setAttribute("r",6);
         circle.setAttribute("fill", data[i].color);
         circle.setAttribute("data-title", data[i].name);
-        circle.setAttribute("data-value", data[i].data);
+        circle.setAttribute("data-value", JSON.stringify(data[i].data));
         circle.setAttribute("opacity", 0.8);
         circle.setAttribute("stroke", "#aaa");
         circle.setAttribute("stroke-width", "0.4");
@@ -126,7 +128,7 @@ export const mapRange = {
         if (target.tagName === 'circle') {
           const parentElement = target.parentNode;
           parentElement.appendChild(target);
-          showTooltip(e, target.getAttribute('data-title'), target.getAttribute('data-value') );
+          showTooltip(e, target.getAttribute('data-title'), JSON.parse(target.getAttribute('data-value')) );
           return;
         }
         hideTooltip();
@@ -140,8 +142,11 @@ export const mapRange = {
 
     const showTooltip = (evt, text, value) => {
       const tooltip = document.querySelector(".tooltip");
-      tooltip.innerHTML = `<span class="mct-tooltip__title">${text}</span> <br>
-          <span class="mct-tooltip__result">${value}</span>`;
+      tooltip.innerHTML = `
+          <article>
+            <div class="mct-tooltip__title">${text}</div>
+            <div class="mct-tooltip__result">${value.value}</div>
+          </article>`;
       tooltip.style.display = "block";
       tooltip.style.left = (evt.clientX + 20) + 'px';
       tooltip.style.top = (evt.clientY - 30) + 'px';

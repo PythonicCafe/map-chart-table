@@ -32,21 +32,12 @@ export const table = {
       columns.value = tableData.header;
       rows.value = tableData.rows;
 
-      // Column value sort different based on type of data
-      if (store.state.content.form.type === "Doses aplicadas") {
-        columns.value[2].sorter = (a, b) => {
-          return a.valor.replace(/[,.]/g, "") - b.valor.replace(/[,.]/g, "");
-        };
-      } else {
-        columns.value[2].sorter = ((a, b) => {
-          const nA = parseFloat(a.valor.replace("%", ""));
-          const nB = parseFloat(b.valor.replace("%", ""));
-
-          return nA - nB;
-        });
-      }
+      [2, 3, 4].forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
       loading.value = false;
     }
+
+    const sortNumericValue = (column) => (a, b) =>
+       parseFloat(a[column.key].replace(/[%,.]/g, "")) - parseFloat(b[column.key].replace(/[%,.]/g, ""));
 
     onMounted(async () => await setTableData());
 

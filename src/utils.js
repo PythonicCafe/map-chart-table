@@ -104,6 +104,9 @@ export const formatToTable = (data, localNames) => {
         }
         row[header[j].key] = name;
         continue;
+      } else if (["população", "doses"].includes(key)) {
+        row[header[j].key] = value.toLocaleString("pt-BR");
+        continue
       }
       row[header[j].key] = value;
     }
@@ -119,11 +122,12 @@ export const convertArrayToObject = (inputArray) => {
 
   // Loop through the input array starting from the second element
   for (let i = 1; i < inputArray.length; i++) {
-    const [year, local, value] = inputArray[i];
+    const [year, local, value, population, doses] = inputArray[i];
     if (!data[year]) {
       data[year] = {};
     }
-    data[year][local] = value;
+
+    data[year][local] = { value, population, doses };
   }
 
   return { header:inputArray[0], data };
