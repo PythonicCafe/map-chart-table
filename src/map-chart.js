@@ -229,7 +229,7 @@ export class MapChart {
               resultValues.maxVal,
               resultValues.minVal,
               val.value.replace(/[,.]/g, "")
-            ) : parseFloat(val);
+            ) : parseFloat(val.value);
             const name = self.cities[key].name;
             return {
               label: name,
