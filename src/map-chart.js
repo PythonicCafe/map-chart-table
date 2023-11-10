@@ -91,29 +91,35 @@ export class MapChart {
     const self = this;
 
     // Querying map country states setting eventListener
-    for (const path of self.element.querySelectorAll('#canvas svg path')) {
-      let pathId = path.id;
-      if (pathId.length > 2) {
-        pathId = pathId.substring(0, pathId.length -1);
+    for (const element of self.element.querySelectorAll('#canvas path, #canvas g')) {
+      let datasetLabel = element.dataset.label;
+      let elementId = element.id;
+
+      if (datasetLabel) {
+        elementId = datasetLabel;
+      } else if (elementId.length > 2) {
+        elementId = element.id.substring(0, elementId.length -1);
       }
-      const content = contentData ? contentData[pathId] : [];
+
+      const content = contentData ? contentData[elementId] : [];
       let dataset = self.findElement(datasetStates, content) ??  { data: { value: "---" }, color: "#e9e9e9" };
 
       if (!content || !content.name) {
-        path.style.fill = dataset.color;
+        // To work with maps that color comes from groups/regions
+        if (!element.parentNode.style.fill) {
+          element.style.fill = dataset.color;
+        }
         continue;
       }
       const result = dataset.data;
       const resultColor = dataset.color;
       const tooltip = self.element.querySelector(".mct-tooltip")
 
-      path.addEventListener("mousemove", (event) => {
+      element.addEventListener("mousemove", (event) => {
         self.tooltipPosition(event, tooltip);
       });
-      path.addEventListener("mouseover", (event) => {
-        const parentElement = path.parentNode;
-        parentElement.appendChild(path);
-        path.style.stroke = "blue";
+      element.addEventListener("mouseover", (event) => {
+        element.style.stroke = "blue";
         let tooltipExtra = "";
         if (result && result.population) {
           tooltipExtra = `
@@ -137,24 +143,24 @@ export class MapChart {
         tooltip.style.display = "block";
         tooltip.style.backgroundColor = result.value.includes("---") ? "grey" : "var(--primary-color)";
         self.tooltipPosition(event, tooltip);
-        self.runTooltipAction(true, content.name);
+        self.runTooltipAction(true, content.name, content.id);
       });
-      path.addEventListener("mouseleave", () => {
-        path.style.fill = resultColor;
-        path.style.stroke = "white";
+      element.addEventListener("mouseleave", () => {
+        element.style.fill = resultColor;
+        element.style.stroke = "white";
         tooltip.style.display = "none";
-        self.runTooltipAction(false, content.name);
+        self.runTooltipAction(false, content.name, content.id);
       });
 
-      path.style.fill = resultColor;
+      element.style.fill = resultColor;
     };
   }
 
-  runTooltipAction(opened, name) {
+  runTooltipAction(opened, name, id) {
     if (!this.tooltipAction) {
       return;
     }
-    this.tooltipAction(opened, name);
+    this.tooltipAction(opened, name, id);
   }
 
   tooltipPosition(event, tooltip) {
@@ -265,14 +271,22 @@ export class MapChart {
             let color = resultValues ? self.getPercentage(
               resultValues.maxVal, resultValues.minVal, val.value.replace(/[,.]/g, "")
             ) : parseFloat(val.value);
+
             const name = self.states[key].name;
             const label = self.states[key].acronym;
-            return {
+
+            const contentData = {
               label: label,
               data: val,
               name,
               color: self.getColor(color, self.getMaxColorVal(), self.type),
             }
+            const id = self.states[key].id;
+            if (id) {
+              contentData["id"] = id
+            }
+
+            return contentData
           }
         ).filter(x => self.statesSelected.includes(x.label));
     }

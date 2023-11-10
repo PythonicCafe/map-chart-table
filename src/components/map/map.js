@@ -1,5 +1,5 @@
 import { MapChart } from "../../map-chart";
-import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
 import { convertArrayToObject, createDebounce } from "../../utils";
@@ -18,9 +18,18 @@ export const map = {
     const store = useStore();
     const datasetStates = ref(null);
     const datasetCities = ref(null);
+    const granularity = computed(() => store.state.content.form.granularity);
 
     const queryMap = async (local) => {
-      const map = Array.isArray(local) && local.length > 1 ? "BR" : local;
+      let map;
+
+      if (granularity.value === "Macrorregião de saúde") {
+        map = "reg/BR";
+      } else if (Array.isArray(local) && local.length > 1) {
+        map = "BR";
+      } else {
+        map = local;
+      }
 
       const file = await store.dispatch(`content/requestMap`, { map });
       return file;
@@ -32,8 +41,8 @@ export const map = {
         mapChart.value = new MapChart({
           ...args,
           type,
-          tooltipAction: (opened, name) => {
-            emit("mapTooltip", { opened, name, type });
+          tooltipAction: (opened, name, id) => {
+            emit("mapTooltip", { opened, name, id, type });
           }
         });
       } else {

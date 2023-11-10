@@ -259,8 +259,8 @@ export const subSelect = {
           class="mct-select"
           :class="modal ? 'mct-select--modal' : ''"
           placeholder="Selecione Granularidade"
+          clearable
           filterable
-          disabled
         />
       </n-form-item>
     </section>

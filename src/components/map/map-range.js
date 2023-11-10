@@ -11,9 +11,6 @@ export const mapRange = {
     mapTooltip: {
       type: Object,
     },
-    tooltipAction: {
-      type: Object,
-    },
     mapDataHover: {
       type: String
     },
@@ -115,6 +112,9 @@ export const mapRange = {
         circle.setAttribute("cy",y);
         circle.setAttribute("r",6);
         circle.setAttribute("fill", data[i].color);
+        if (data[i].id) {
+          circle.setAttribute("id", data[i].id);
+        }
         circle.setAttribute("data-title", data[i].name);
         circle.setAttribute("data-value", JSON.stringify(data[i].data));
         circle.setAttribute("opacity", 0.8);
@@ -168,7 +168,8 @@ export const mapRange = {
     watch(
       () => props.mapTooltip,
       () => {
-        const circle = document.querySelector(`[data-title="${props.mapTooltip.name}"]`)
+        const query =  props.mapTooltip.id ? `[id="${props.mapTooltip.id}"]` : `[data-title="${props.mapTooltip.name}"]`;
+        let circle = document.querySelector(query)
         if (!circle) {
           return;
         }

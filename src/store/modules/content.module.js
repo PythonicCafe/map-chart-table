@@ -106,10 +106,21 @@ export default {
         request += "&stateTotal=true";
       }
 
-      const isStateData = form.local.length > 1;
+      const granularity = form.granularity;
+
+      let isStateData = form.local.length > 1 && granularity !== "Região de saúde" ? "statesNames" : "citiesNames";
+      if (granularity === "Região de saúde" && form.local.length > 1) {
+        isStateData = "regNames";
+      } else if (granularity === "Macrorregião de saúde" && form.local.length > 1) {
+        isStateData = "macregnames";
+      } else if (form.local.length > 1) {
+        isStateData = "statesNames";
+      } else {
+        isStateData = "citiesNames";
+      }
       const [result, localNames] = await Promise.all([
         api.request(`data/${request}`),
-        api.request(isStateData ? "statesNames" : "citiesNames")
+        api.request(isStateData)
       ]);
 
       if (!result || result.data.length <= 1) {
@@ -129,7 +140,7 @@ export default {
       }
 
       // Fix data to display state names as code
-      if (result && isStateData && stateNameAsCode) {
+      if (result && (isStateData === "statesNames") && stateNameAsCode) {
         const newResult = [];
         const data = result.data;
         for (let i=1; i < data.length; i++) {
