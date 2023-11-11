@@ -102,15 +102,20 @@ export class MapChart {
       }
 
       const content = contentData ? contentData[elementId] : [];
-      let dataset = self.findElement(datasetStates, content) ??  { data: { value: "---" }, color: "#e9e9e9" };
 
       if (!content || !content.name) {
         // To work with maps that color comes from groups/regions
         if (!element.parentNode.style.fill) {
-          element.style.fill = dataset.color;
+          element.style.fill = "#e9e9e9";
         }
         continue;
       }
+
+      let dataset = { data: { value: "---" }, color: "#e9e9e9" };
+      if (self.datasetValues.find(x => x.name == content.name)) {
+        dataset = self.datasetValues.find(x => x.name == content.name);
+      }
+
       const result = dataset.data;
       const resultColor = dataset.color;
       const tooltip = self.element.querySelector(".mct-tooltip")

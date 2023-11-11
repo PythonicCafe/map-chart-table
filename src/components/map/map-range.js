@@ -89,7 +89,7 @@ export const mapRange = {
         const samePercentCircle = [...svg.querySelectorAll("circle")].find(
           x => JSON.parse(x.dataset.value).value === data[i].data.value
         );
-        if(samePercentCircle) { 
+        if(samePercentCircle) {
           const newTitle = samePercentCircle.dataset.title.replace(/\se\s/, ", ") + " e " + data[i].name;
           samePercentCircle.setAttribute("data-title", newTitle);
           continue;
