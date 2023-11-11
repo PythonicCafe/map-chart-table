@@ -113,7 +113,7 @@ export const mapRange = {
         circle.setAttribute("r",6);
         circle.setAttribute("fill", data[i].color);
         if (data[i].id) {
-          circle.setAttribute("id", data[i].id);
+          circle.setAttribute("data-id", data[i].id);
         }
         circle.setAttribute("data-title", data[i].name);
         circle.setAttribute("data-value", JSON.stringify(data[i].data));
@@ -168,7 +168,7 @@ export const mapRange = {
     watch(
       () => props.mapTooltip,
       () => {
-        const query =  props.mapTooltip.id ? `[id="${props.mapTooltip.id}"]` : `[data-title="${props.mapTooltip.name}"]`;
+        const query =  props.mapTooltip.id ? `[data-id="${props.mapTooltip.id}"]` : `[data-title="${props.mapTooltip.name}"]`;
         let circle = document.querySelector(query)
         if (!circle) {
           return;

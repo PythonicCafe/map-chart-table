@@ -119,7 +119,7 @@ export class MapChart {
         self.tooltipPosition(event, tooltip);
       });
       element.addEventListener("mouseover", (event) => {
-        element.style.stroke = "blue";
+        event.target.style.strokeWidth = "2px";
         let tooltipExtra = "";
         if (result && result.population) {
           tooltipExtra = `
@@ -145,7 +145,13 @@ export class MapChart {
         self.tooltipPosition(event, tooltip);
         self.runTooltipAction(true, content.name, content.id);
       });
-      element.addEventListener("mouseleave", () => {
+      element.addEventListener("mouseleave", (event) => {
+        if (event.target.tagName === "g") {
+          [...event.target.querySelectorAll("path")].forEach(path => path.style.strokeWidth = "1px");
+        } else {
+          element.style.strokeWidth = "1px";
+        }
+
         element.style.fill = resultColor;
         element.style.stroke = "white";
         tooltip.style.display = "none";
