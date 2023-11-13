@@ -112,8 +112,14 @@ export class MapChart {
       }
 
       let dataset = { data: { value: "---" }, color: "#e9e9e9" };
-      if (self.datasetValues.find(x => x.name == content.name)) {
-        dataset = self.datasetValues.find(x => x.name == content.name);
+      let datasetValuesFound = [];
+      if (content.id) {
+        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content.name) && (ds.id == content.id));
+      } else {
+        datasetValuesFound = self.datasetValues.find(ds => ds.name == content.name);
+      }
+      if (datasetValuesFound) {
+        dataset = datasetValuesFound;
       }
 
       const result = dataset.data;
@@ -247,13 +253,22 @@ export class MapChart {
               resultValues.minVal,
               val.value.replace(/[,.]/g, "")
             ) : parseFloat(val.value);
-            const name = self.cities[key].name;
-            return {
-              label: name,
+            const currentElement = self.cities[key];
+            const name = currentElement.name;
+            const label = currentElement.acronym;
+
+            const contentData = {
+              label: label,
               data: val,
               name,
               color: self.getColor(color, self.getMaxColorVal(), self.type),
             }
+            const id = currentElement.id;
+            if (id) {
+              contentData["id"] = id
+            }
+
+            return contentData
           }
         );
     }
@@ -283,8 +298,9 @@ export class MapChart {
               resultValues.maxVal, resultValues.minVal, val.value.replace(/[,.]/g, "")
             ) : parseFloat(val.value);
 
-            const name = self.states[key].name;
-            const label = self.states[key].acronym;
+            const currentElement = self.states[key];
+            const name = currentElement.name;
+            const label = currentElement.acronym;
 
             const contentData = {
               label: label,
@@ -292,7 +308,7 @@ export class MapChart {
               name,
               color: self.getColor(color, self.getMaxColorVal(), self.type),
             }
-            const id = self.states[key].id;
+            const id = currentElement.id;
             if (id) {
               contentData["id"] = id
             }
@@ -393,7 +409,9 @@ export class MapChart {
 
     const colors = reverse ? cPalette.reverse() : cPalette;
 
-    if (percentage < 0) {
+    if (!percentage) {
+      percentage = 0
+    } else if (percentage < 0) {
       return reverse ? "rgb(0, 69, 124)" : "rgb(105, 42, 34)";
     } else if (percentage > maxVal) {
       return reverse ? "rgb(0, 69, 124)" : "rgb(0, 69, 124)";

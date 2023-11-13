@@ -23,8 +23,10 @@ export const map = {
     const queryMap = async (local) => {
       let map;
 
-      if (granularity.value === "Macrorregião de saúde") {
-        map = "reg/BR";
+      if (granularity.value === "Macrorregião de saúde" && local.length > 1) {
+        map = "macreg/BR";
+      } else if (granularity.value === "Macrorregião de saúde") {
+        map = `macreg/${local}`;
       } else if (Array.isArray(local) && local.length > 1) {
         map = "BR";
       } else {

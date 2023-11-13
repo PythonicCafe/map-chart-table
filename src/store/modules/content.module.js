@@ -113,6 +113,8 @@ export default {
         isStateData = "regNames";
       } else if (granularity === "Macrorregião de saúde" && form.local.length > 1) {
         isStateData = "macregnames";
+      } else if (granularity === "Macrorregião de saúde") {
+        isStateData = "macregnames";
       } else if (form.local.length > 1) {
         isStateData = "statesNames";
       } else {
