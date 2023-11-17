@@ -1,4 +1,4 @@
-import { timestampToYear, formatDate, sickImmunizerAsText } from "../../utils";
+import { timestampToYear, formatDate, sickImmunizerAsText, disableOptions, disableOptionsByTab } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
 // TODO: Detect if url is setted before set default state app to avoid unecessary API requests
@@ -52,7 +52,11 @@ export default {
     ) {
       const api = new DataFetcher(state.apiUrl);
       const payload = {};
-      for (let [key, value] of Object.entries(await api.request("options"))) {
+      const options = await api.request("options");
+      if (!options) {
+        return;
+      }
+      for (let [key, value] of Object.entries(options)) {
         value.sort();
         payload[key] = value.map(x => { return { label: x, value: x } });
       }
@@ -147,7 +151,7 @@ export default {
         const data = result.data;
         for (let i=1; i < data.length; i++) {
           const currentData = data[i];
-          const code = Object.entries(localNames).find(x => x[1].acronym === currentData[1])[0];
+          const code = localNames.find(x => x[2] === currentData[1])[0];
           currentData[1] = code;
           newResult.push(currentData);
         }
@@ -189,11 +193,13 @@ export default {
   mutations: {
     UPDATE_FORM(state, payload, commit) {
       for (let [key, value] of Object.entries(payload)){
-        if (key === "periodStart") {
+        if (key == "periodStart") {
           state.form.period = !value && state.form.period ? state.form.periodEnd : value;
-        } else if (key === "periodEnd") {
+        } else if (key == "periodEnd") {
           state.form.period = state.form.periodStart ? state.form.periodStart : value;
         }
+        disableOptions(state, key, value);
+
         state.form[key] = value;
       }
     },
@@ -238,8 +244,8 @@ export default {
       }
     },
     UPDATE_TABBY(state, payload) {
+      disableOptionsByTab(state, payload);
       state.tabBy = Object.values(payload)[0];
-
       state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
     },
     SET_API(state, payload) {
@@ -258,7 +264,11 @@ export default {
                 state.form[formKey] = formValue;
               }
             }
+            disableOptions(state, formKey, formValue);
           }
+        } else if (key === "tabBy") {
+          disableOptionsByTab(state, payload);
+          state[key] = value;
         } else {
           state[key] = value;
         }

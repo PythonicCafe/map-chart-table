@@ -1,5 +1,5 @@
 import { MapChart } from "../../map-chart";
-import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, computed, nextTick } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
 import { convertArrayToObject, createDebounce } from "../../utils";
@@ -67,6 +67,7 @@ export const map = {
         map = await queryMap(local);
       }
       const results = await store.dispatch("content/requestData");
+
       try {
         let mapSetup = {
           element: mapElement,
@@ -90,6 +91,7 @@ export const map = {
             statesSelected: local
           }
         }
+
         renderMap(mapSetup);
       } catch (e) {
         renderMap({ element: mapElement, map });
@@ -102,7 +104,7 @@ export const map = {
 
     onMounted(async () => {
       loading.value = true;
-      debounce(async () => await setMap(), 100);
+      debounce(async () => await setMap(), 200);
       loading.value = false;
     });
 
@@ -114,7 +116,7 @@ export const map = {
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
-          debounce(async () => await setMap(), 100);
+          debounce(async () => await setMap(), 200);
         }
       }
     )

@@ -257,8 +257,18 @@ export const chart = {
       let locals = [];
 
       // Loop through the dataArray starting from the second element to not get header
+      let localNames = [];
+      let counter = 0;
       for (let i = 1; i < dataArray.length; i++) {
         const [year, local, value, population, doses, sickImmunizer] = dataArray[i];
+        if (!localNames.includes(local + sickImmunizer)){
+          counter++;
+          if (counter > 9) {
+            continue;
+          }
+          localNames.push(local + sickImmunizer);
+        }
+
         if (!data[sickImmunizer]) {
           data[sickImmunizer] = {};
         }

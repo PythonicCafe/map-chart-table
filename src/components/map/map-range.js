@@ -43,6 +43,23 @@ export const mapRange = {
       }
     }
 
+    const samePercentCircle = (svg, i, data, meta) => [...svg.querySelectorAll("circle")].find(
+      el => {
+        let result;
+        let dataValue = data[i].data.value;
+        if (meta) {
+          dataValue = parseInt(dataValue) === 0 ? "Não" : "Sim";
+        }
+        try {
+          result = JSON.parse(el.dataset.value).value;
+        } catch(e) {
+          result = el.dataset.value;
+        }
+
+        return result == dataValue;
+      }
+    );
+
     const handleMapChange = (data) => {
       const svg = mapRangeSVG.value;
       if (!svg) {
@@ -67,6 +84,9 @@ export const mapRange = {
         defineMinVal = 0;
       } else if (type === "Cobertura") {
         maxDataVal = "120%";
+      } else if (type === "Meta atingida") {
+        maxDataVal = "Sim";
+        defineMinVal = "Não";
       } else {
         maxDataVal = "100%";
       }
@@ -86,21 +106,29 @@ export const mapRange = {
       }
 
       for (let i = 0; i < data.length; i++) {
-        const samePercentCircle = [...svg.querySelectorAll("circle")].find(
-          x => JSON.parse(x.dataset.value).value === data[i].data.value
-        );
-        if(samePercentCircle) {
-          const newTitle = samePercentCircle.dataset.title.replace(/\se\s/, ", ") + " e " + data[i].name;
-          samePercentCircle.setAttribute("data-title", newTitle);
-          continue;
-        }
-
         let dataVal = data[i].data.value.replace(/[.,]/g, "");
         if (data[i].data.value && data[i].data.value.includes("%")) {
           dataVal = parseFloat(data[i].data.value);
         }
 
-        let y = svgHeight - (dataVal / parseInt(maxDataVal) * svgHeight);
+        let y = 0;
+        let dataValue = JSON.stringify(data[i].data);
+        let samePercentCircleResult;
+        if (type === "Meta atingida") {
+          y = svgHeight - (dataVal / 1 * svgHeight);
+          dataValue = parseInt(data[i].data.value) === 0 ? "Não" : "Sim";
+          samePercentCircleResult = samePercentCircle(svg, i, data, true);
+        } else {
+          y = svgHeight - (dataVal / parseInt(maxDataVal) * svgHeight);
+          samePercentCircleResult = samePercentCircle(svg, i, data, false);
+        }
+
+        if(samePercentCircleResult) {
+          const newTitle = samePercentCircleResult.dataset.title.replace(/\se\s/, ", ") + " e " + data[i].name;
+          samePercentCircleResult.setAttribute("data-title", newTitle);
+          continue;
+        }
+
         // Block to max value as full or min height
         if (y > svgHeight) {
           y = svgHeight;
@@ -108,15 +136,15 @@ export const mapRange = {
           y = 0;
         }
         const circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-        circle.setAttribute("cx",20);
-        circle.setAttribute("cy",y);
-        circle.setAttribute("r",6);
+        circle.setAttribute("cx", 20);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", 6);
         circle.setAttribute("fill", data[i].color);
-        if (data[i].id) {
-          circle.setAttribute("data-id", data[i].id);
+        if (data[i].label) {
+          circle.setAttribute("data-id", data[i].label);
         }
         circle.setAttribute("data-title", data[i].name);
-        circle.setAttribute("data-value", JSON.stringify(data[i].data));
+        circle.setAttribute("data-value", dataValue);
         circle.setAttribute("opacity", 0.8);
         circle.setAttribute("stroke", "#aaa");
         circle.setAttribute("stroke-width", "0.4");
@@ -126,9 +154,15 @@ export const mapRange = {
       svg.addEventListener('mousemove', (e) => {
         const target = e.target;
         if (target.tagName === 'circle') {
+          let value;
+          try {
+            value = JSON.parse(target.getAttribute('data-value')).value;
+          } catch(e) {
+            value = target.getAttribute('data-value');
+          }
           const parentElement = target.parentNode;
           parentElement.appendChild(target);
-          showTooltip(e, target.getAttribute('data-title'), JSON.parse(target.getAttribute('data-value')) );
+          showTooltip(e, target.getAttribute('data-title'), value, type);
           return;
         }
         hideTooltip();
@@ -137,7 +171,6 @@ export const mapRange = {
       svg.addEventListener("mouseleave", () => {
         hideTooltip();
       });
-
     }
 
     const showTooltip = (evt, text, value) => {
@@ -145,7 +178,7 @@ export const mapRange = {
       tooltip.innerHTML = `
           <article>
             <div class="mct-tooltip__title">${text}</div>
-            <div class="mct-tooltip__result">${value.value}</div>
+            <div class="mct-tooltip__result">${value}</div>
           </article>`;
       tooltip.style.display = "block";
       tooltip.style.left = (evt.clientX + 20) + 'px';
@@ -168,15 +201,14 @@ export const mapRange = {
     watch(
       () => props.mapTooltip,
       () => {
-        const query =  props.mapTooltip.id ? `[data-id="${props.mapTooltip.id}"]` : `[data-title="${props.mapTooltip.name}"]`;
+        const query =  props.mapTooltip.label ? `[data-id="${props.mapTooltip.label}"]` : `[data-title="${props.mapTooltip.name}"]`;
         let circle = document.querySelector(query)
+
         if (!circle) {
           return;
         }
 
         if (props.mapTooltip.opened) {
-          const parentElement = circle.parentNode;
-          parentElement.appendChild(circle);
           circle.setAttribute("r", 9);
           circle.setAttribute("opacity", 1);
           circle.setAttribute("stroke", "#7a7a7a");

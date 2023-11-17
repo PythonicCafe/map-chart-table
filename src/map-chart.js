@@ -2,6 +2,7 @@ import Abandono from "./assets/images/abandono.svg"
 import Cobertura from "./assets/images/cobertura.svg"
 import HomGeo from "./assets/images/hom_geo.svg"
 import HomVac from "./assets/images/hom_vac.svg"
+import Meta from "./assets/images/meta.svg"
 
 export class MapChart {
 
@@ -32,6 +33,7 @@ export class MapChart {
 
   start() {
     const self = this;
+
     if (!self.element) {
       return;
     }
@@ -76,9 +78,21 @@ export class MapChart {
     }
 
     const svgElement = svgContainer.querySelector("svg");
-    svgElement.style.maxWidth = "100%";
-    svgElement.style.height = "100%";
-    svgElement.style.margin = "auto";
+    if (svgElement) {
+      svgElement.style.maxWidth = "100%";
+      svgElement.style.height = "100%";
+      svgElement.style.margin = "auto";
+    }
+  }
+
+  getData(contentData, elementId) {
+    if (!contentData) {
+        return [];
+    }
+    const index = contentData[0].indexOf("geom_id") != -1 ? contentData[0].indexOf("geom_id") : contentData[0].indexOf("id");
+    const indexName = contentData[0].indexOf("name");
+    const indexAcronym = contentData[0].indexOf("acronym");
+    return [ index, indexName, indexAcronym, contentData.find(el => el[index] === elementId) ];
   }
 
   setData(
@@ -101,9 +115,16 @@ export class MapChart {
         elementId = element.id.substring(0, elementId.length -1);
       }
 
-      const content = contentData ? contentData[elementId] : [];
+      let [ index, indexName, indexAcronym, currentElement ] = self.getData(contentData, elementId);
 
-      if (!content || !content.name) {
+      let content;
+      if (currentElement) {
+        const name = currentElement[indexName];
+        const label = currentElement[indexAcronym];
+        content = currentElement;
+      }
+
+      if (!content || !content[indexName]) {
         // To work with maps that color comes from groups/regions
         if (!element.parentNode.style.fill) {
           element.style.fill = "#e9e9e9";
@@ -114,9 +135,9 @@ export class MapChart {
       let dataset = { data: { value: "---" }, color: "#e9e9e9" };
       let datasetValuesFound = [];
       if (content.id) {
-        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content.name) && (ds.id == content.id));
+        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.id == content[indexName]));
       } else {
-        datasetValuesFound = self.datasetValues.find(ds => ds.name == content.name);
+        datasetValuesFound = self.datasetValues.find(ds => ds.name == content[indexName]);
       }
       if (datasetValuesFound) {
         dataset = datasetValuesFound;
@@ -145,16 +166,22 @@ export class MapChart {
             `;
           }
         }
+        let value = result.value;
+        if (type === "Meta atingida") {
+          if(result.value !== "---") {
+            value = parseInt(result.value) === 0 ? "Não" : "Sim";
+          }
+        }
         tooltip.innerHTML = `
           <article>
-            <div class="mct-tooltip__title">${content.name}</div>
-            <div class="mct-tooltip__result">${result.value}</div>
+            <div class="mct-tooltip__title">${content[indexName]}</div>
+            <div class="mct-tooltip__result">${value}</div>
             ${tooltipExtra}
           </article>`;
         tooltip.style.display = "block";
         tooltip.style.backgroundColor = result.value.includes("---") ? "grey" : "var(--primary-color)";
         self.tooltipPosition(event, tooltip);
-        self.runTooltipAction(true, content.name, content.id);
+        self.runTooltipAction(true, content[indexName], content[index]);
       });
       element.addEventListener("mouseleave", (event) => {
         if (event.target.tagName === "g") {
@@ -166,7 +193,7 @@ export class MapChart {
         element.style.fill = resultColor;
         element.style.stroke = "white";
         tooltip.style.display = "none";
-        self.runTooltipAction(false, content.name, content.id);
+        self.runTooltipAction(false, content[indexName], content[index]);
       });
 
       element.style.fill = resultColor;
@@ -237,7 +264,7 @@ export class MapChart {
   }
 
 
-  loadMapState () {
+  loadMapState() {
     const self = this;
     let result = [];
 
@@ -253,9 +280,10 @@ export class MapChart {
               resultValues.minVal,
               val.value.replace(/[,.]/g, "")
             ) : parseFloat(val.value);
-            const currentElement = self.cities[key];
-            const name = currentElement.name;
-            const label = currentElement.acronym;
+
+            let [ index, indexName, indexAcronym, currentElement ] = self.getData(self.cities, key);
+            const name = currentElement[indexName];
+            const label = currentElement[indexAcronym];
 
             const contentData = {
               label: label,
@@ -298,9 +326,9 @@ export class MapChart {
               resultValues.maxVal, resultValues.minVal, val.value.replace(/[,.]/g, "")
             ) : parseFloat(val.value);
 
-            const currentElement = self.states[key];
-            const name = currentElement.name;
-            const label = currentElement.acronym;
+            let [ index, indexName, indexAcronym, currentElement ] = self.getData(self.states, key);
+            const name = currentElement[indexName];
+            const label = currentElement[indexAcronym];
 
             const contentData = {
               label: label,
@@ -390,6 +418,12 @@ export class MapChart {
       } else { // percentage > 80
         return cPalette0[4];
       }
+    }  else if (type === "Meta atingida") {
+      if (percentage == 0) {
+        return cPalette0[4];
+      } else {
+        return cPalette0[2];
+      }
     }
 
     const cPalette = [
@@ -445,6 +479,8 @@ export class MapChart {
       legendSvg = HomGeo;
     } else if (self.type === "Homogeneidade entre vacinas") {
       legendSvg = HomVac;
+    } else if (self.type === "Meta atingida") {
+      legendSvg = Meta;
     }
 
     if (legendSvg) {

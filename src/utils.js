@@ -88,6 +88,10 @@ export const formatToTable = (data, localNames) => {
     )
   }
 
+  const index = localNames[0].indexOf("geom_id");
+  const indexName = localNames[0].indexOf("name");
+  const indexAcronym = localNames[0].indexOf("acronym");
+  const indexUF = localNames[0].indexOf("uf");
   const rows = [];
   // Loop api return value
   for (let i = 1; i < data.length; i++) {
@@ -97,10 +101,11 @@ export const formatToTable = (data, localNames) => {
       const key = header[j].key;
       const value = data[i][j];
       if (key === "local") {
-        const localResult = localNames[value.toString()];
-        let name = localResult.name;
-        if (localResult.uf) {
-          name += " - " + localResult.uf
+        const localResult = localNames.find(localName => localName[index] == value);
+        let name = localResult[indexName];
+        let ufAcronymName = localResult[indexUF];
+        if (ufAcronymName) {
+          name += " - " + ufAcronymName
         }
         row[header[j].key] = name;
         continue;
@@ -182,4 +187,46 @@ export const sickImmunizerAsText = (form) => {
   }
 
   return [ sickImmunizer, multipleSickImmunizer ];
+}
+
+export const disableOptions = (state, formKey, formValue) => {
+  if (formKey == "type" && formValue == "Abandono")  {
+    const doses = state.form.doses;
+    const index = doses.indexOf(doses.find(el => el.label === "1ª dose"));
+    doses[index] = { ...doses[index], disabled: true };
+    if (state.form.dose == doses[index].label) {
+      state.form.dose = null;
+    }
+  } else if (formKey == "type" && formValue != "Abandono") {
+    const doses = state.form.doses;
+    const index = doses.indexOf(doses.find(el => el.label === "1ª dose"));
+    doses[index] = { ...doses[index], disabled: false }
+  } else if (formKey == "dose" && formValue == "1ª dose")  {
+    const types = state.form.types;
+    const index = types.indexOf(types.find(el => el.label == "Abandono"));
+    types[index] = { ...types[index], disabled: true };
+    if (state.form.type == types[index].label) {
+      state.form.type = null;
+    }
+  } else if (formKey == "dose" && formValue != "1ª dose") {
+    const types = state.form.types;
+    const index = types.indexOf(types.find(el => el.label === "Abandono"));
+    types[index] = { ...types[index], disabled: false }
+  }
+}
+
+export const disableOptionsByTab = (state, payload) => {
+  if (payload.tabBy == "immunizers") {
+    const types = state.form.types;
+    const index = types.indexOf(types.find(el => el.label == "Homogeneidade geográfica"));
+    const indexEv = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
+    types[indexEv] = { ...types[indexEv], disabled: false };
+  } else {
+    const types = state.form.types;
+    const indexEv = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
+    types[indexEv] = { ...types[indexEv], disabled: true };
+    if (state.form.type == types[indexEv].label) {
+      state.form.type = null;
+    }
+  }
 }
