@@ -79,7 +79,7 @@ export const table = {
       >
         <n-empty
           style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px; border-radius: .25rem"
-          description="Selecione valores para serem exibidos"
+          description="Selecione os filtros desejados para iniciar a visualização dos dados"
         />
       </div>
     </section>

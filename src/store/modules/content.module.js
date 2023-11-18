@@ -22,7 +22,7 @@ const getDefaultState = () => {
       years: null,
       periodStart: null,
       periodEnd: null,
-      granularity: "Municípios",
+      granularity: null,
       granularities: [],
     },
     about: null,

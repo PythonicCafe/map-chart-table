@@ -357,7 +357,7 @@ export const chart = {
         <n-empty
           :class="chartDefined ? 'element-hidden' : ''"
           style="justify-content: center; border: 1px dashed gray; width: 100%; border-radius: .25rem"
-          description="Selecione valores para serem exibidos"
+          description="Selecione os filtros desejados para iniciar a visualização dos dados"
         />
       </div>
     </n-spin>

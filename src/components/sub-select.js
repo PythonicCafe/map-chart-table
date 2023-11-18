@@ -1,5 +1,5 @@
-import { ref, watch, computed, toRaw, onBeforeMount } from "vue/dist/vue.esm-bundler";
-import { NSelect, NFormItem, NDatePicker, NButton } from "naive-ui";
+import { ref, watch, computed, toRaw, onBeforeMount, h } from "vue/dist/vue.esm-bundler";
+import { NSelect, NFormItem, NDatePicker, NButton, NTooltip } from "naive-ui";
 import { useStore } from 'vuex';
 import { computedVar } from "../utils";
 
@@ -173,6 +173,17 @@ export const subSelect = {
         }
         return result;
       }),
+      renderOption: ({ node, option }) => {
+        if (!option.disabled) {
+          return node;
+        }
+        return h(NTooltip, {
+          style: "width: 250px; transform-origin: inherit"
+        }, {
+          trigger: () => node,
+          default: () => option.disabledText
+        })
+      },
     }
   },
   template: `
@@ -201,6 +212,7 @@ export const subSelect = {
           max-tag-count="responsive"
           placeholder="Selecione dose"
           filterable
+          :render-option="renderOption"
         />
       </n-form-item>
       <n-form-item label="Tipo de dado">
@@ -213,6 +225,7 @@ export const subSelect = {
           max-tag-count="responsive"
           placeholder="Selecione Tipo de dado"
           filterable
+          :render-option="renderOption"
         />
       </n-form-item>
       <n-form-item label="Estados">

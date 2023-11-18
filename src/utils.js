@@ -190,28 +190,30 @@ export const sickImmunizerAsText = (form) => {
 }
 
 export const disableOptions = (state, formKey, formValue) => {
+  const disabledTextAbandono = "Essa informação não está disponível para 1ª dose";
+  const disabledText1Dose = "Essa informação não está disponível para Abandono";
   if (formKey == "type" && formValue == "Abandono")  {
     const doses = state.form.doses;
     const index = doses.indexOf(doses.find(el => el.label === "1ª dose"));
-    doses[index] = { ...doses[index], disabled: true };
+    doses[index] = { ...doses[index], disabled: true, disabledText: disabledTextAbandono };
     if (state.form.dose == doses[index].label) {
       state.form.dose = null;
     }
   } else if (formKey == "type" && formValue != "Abandono") {
     const doses = state.form.doses;
     const index = doses.indexOf(doses.find(el => el.label === "1ª dose"));
-    doses[index] = { ...doses[index], disabled: false }
+    doses[index] = { ...doses[index], disabled: false, disabledText: disabledText1Dose }
   } else if (formKey == "dose" && formValue == "1ª dose")  {
     const types = state.form.types;
     const index = types.indexOf(types.find(el => el.label == "Abandono"));
-    types[index] = { ...types[index], disabled: true };
+    types[index] = { ...types[index], disabled: true, disabledText: disabledTextAbandono };
     if (state.form.type == types[index].label) {
       state.form.type = null;
     }
   } else if (formKey == "dose" && formValue != "1ª dose") {
     const types = state.form.types;
     const index = types.indexOf(types.find(el => el.label === "Abandono"));
-    types[index] = { ...types[index], disabled: false }
+    types[index] = { ...types[index], disabled: false, disabledText: disabledText1Dose }
   }
 }
 
@@ -224,7 +226,11 @@ export const disableOptionsByTab = (state, payload) => {
   } else {
     const types = state.form.types;
     const indexEv = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
-    types[indexEv] = { ...types[indexEv], disabled: true };
+    types[indexEv] = {
+      ...types[indexEv],
+      disabled: true,
+      disabledText: "Essa informação está disponível apenas no recorte por vacina"
+    };
     if (state.form.type == types[indexEv].label) {
       state.form.type = null;
     }
