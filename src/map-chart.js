@@ -113,18 +113,16 @@ export class MapChart {
       if (datasetLabel) {
         elementId = datasetLabel;
       } else if (elementId.length > 2) {
-        elementId = element.id.substring(0, elementId.length -1);
+        // Get id without last number to work with map cities code
+        elementId = element.id.substring(0, elementId.length - 1);
       }
 
       let [ index, indexName, indexAcronym, currentElement ] = self.getData(contentData, elementId);
 
       let content;
       if (currentElement) {
-        const name = currentElement[indexName];
-        const label = currentElement[indexAcronym];
         content = currentElement;
       }
-
 
       if (!content || !content[indexName]) {
         // To work with maps that color comes from groups/regions
@@ -137,11 +135,11 @@ export class MapChart {
       let dataset = { data: { value: "---" }, color: "#e9e9e9" };
       let datasetValuesFound = [];
       if (content.id) {
-      // Get by id
+        // Get by id
         datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.id == content[indexName]));
       } else {
         // Get by name
-        datasetValuesFound = self.datasetValues.find(ds => ds.name == content[indexName]);
+        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.label == content[indexAcronym]));
       }
 
       if (datasetValuesFound) {
@@ -492,6 +490,7 @@ export class MapChart {
     if (legendSvg) {
       legend =`<img class="mct-legend-svg" src=${legendSvg} alt="some file" />`;
     }
+
     const map = `
       <section>
         <div class="mct__canva-section">

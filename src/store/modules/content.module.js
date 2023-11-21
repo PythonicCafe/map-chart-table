@@ -226,7 +226,8 @@ export default {
         state.disableMap = true;
         state.disableChart = true;
       } else if (
-        state.form.granularity === "Municípios"
+        state.form.granularity === "Municípios" ||
+        state.form.type === "Meta atingida"
       ) {
         if (state.tab === "chart") {
           this.commit("content/UPDATE_TAB", { tab: "table" });
