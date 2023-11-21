@@ -58,14 +58,14 @@ export const convertDateToUtc = (dateString) => {
   return utcdate;
 };
 
-export const formatToTable = (data, localNames) => {
-  const header = [];
-  for (const column of [...data[0]]) {
+export const formatToTable = (data, localNames, metadata) => {
+  let header = [];
+  for (const column of [...data[0], "código"]) {
     // Setting width and behaveours of table column
     let width = null;
     let align = 0;
     let minWidth = 200;
-    if (["ano", "valor", "população", "doses"].includes(column)) {
+    if (["ano", "valor", "população", "doses", "código"].includes(column)) {
       align = "right";
       width = 120;
       minWidth = null;
@@ -93,6 +93,7 @@ export const formatToTable = (data, localNames) => {
   const indexAcronym = localNames[0].indexOf("acronym");
   const indexUF = localNames[0].indexOf("uf");
   const rows = [];
+
   // Loop api return value
   for (let i = 1; i < data.length; i++) {
     const row = {};
@@ -102,15 +103,22 @@ export const formatToTable = (data, localNames) => {
       const value = data[i][j];
       if (key === "local") {
         const localResult = localNames.find(localName => localName[index] == value);
+        if (!localResult) {
+          continue
+        }
         let name = localResult[indexName];
         let ufAcronymName = localResult[indexUF];
         if (ufAcronymName) {
           name += " - " + ufAcronymName
         }
+        row["código"] = value;
         row[header[j].key] = name;
         continue;
       } else if (["população", "doses"].includes(key)) {
         row[header[j].key] = value.toLocaleString("pt-BR");
+        continue
+      } else if (metadata.type == "Meta atingida" && key == "valor") {
+        row[header[j].key] = parseInt(value) === 1 ? "Sim" : "Não";
         continue
       }
       row[header[j].key] = value;
@@ -118,6 +126,8 @@ export const formatToTable = (data, localNames) => {
     // Pushing result row
     rows.push(row)
   }
+
+  header.splice(1, 0, header.splice(6, 1)[0]);
 
   return { header, rows }
 }
@@ -189,7 +199,7 @@ export const sickImmunizerAsText = (form) => {
   return [ sickImmunizer, multipleSickImmunizer ];
 }
 
-export const disableOptions = (state, formKey, formValue) => {
+export const disableOptionsByTypeAndDose = (state, formKey, formValue) => {
   const disabledTextAbandono = "Essa informação não está disponível para 1ª dose";
   const disabledText1Dose = "Essa informação não está disponível para Abandono";
   if (formKey == "type" && formValue == "Abandono")  {

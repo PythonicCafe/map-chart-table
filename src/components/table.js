@@ -28,11 +28,13 @@ export const table = {
         rows.value = [];
         return;
       }
-      const tableData = formatToTable(currentResult.data, currentResult.localNames);
+
+      const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
       columns.value = tableData.header;
       rows.value = tableData.rows;
 
-      [2, 3, 4].forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
+      const arraySortColumns = currentResult.metadata.type == "Meta atingida" ? [4, 5] : [3, 4, 5];
+      arraySortColumns.forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
       loading.value = false;
     }
 

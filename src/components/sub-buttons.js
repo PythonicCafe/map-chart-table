@@ -117,11 +117,15 @@ export const subButtons = {
       }
 
       const currentResult = await store.dispatch("content/requestData", { detail: true });
+
       if (!currentResult) {
         store.commit('message/ERROR', "Preencha os seletores para gerar csv")
         return;
       }
-      const csvwriter = new CsvWriterGen(currentResult.data.shift(), currentResult.data);
+
+      const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
+
+      const csvwriter = new CsvWriterGen(tableData.header.map(x => Object.values(x)[0]), tableData.rows.map(x => Object.values(x)));
       csvwriter.anchorElement('tabela');
     }
 

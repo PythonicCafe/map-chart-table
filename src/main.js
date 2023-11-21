@@ -1,11 +1,10 @@
 import "./assets/css/style.css";
 import logo from "./assets/images/logo-vacinabr.svg";
-
 import { createApp, computed, ref, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
-import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NModal, NScrollbar, NTag } from "naive-ui";
+import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NModal, NScrollbar, NTag, NTooltip } from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
@@ -22,12 +21,14 @@ export default class MCT {
   render() {
     const self = this;
     const App = {
-      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar, NTag },
+      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar, NTag, NTooltip },
       setup() {
         const store = useStore();
         const showModal = ref(false);
         const tab = computed(computedVar({ store,  mutation: "content/UPDATE_TAB", field: "tab" }));
         const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
+        const disableMap = computed(() => store.state.content.disableMap);
+        const disableChart = computed(() => store.state.content.disableChart);
         const handleUpdateValueTabBy = (tabByName) => {
           tabBy.value = tabByName;
         };
@@ -52,6 +53,8 @@ export default class MCT {
           biInfoCircle,
           biConeStriped,
           showModal,
+          disableMap,
+          disableChart,
           modalContent: computed(() => {
             const text = store.state.content.about;
             let result = "";
@@ -103,8 +106,8 @@ export default class MCT {
                     <n-tab name="immunizers" tab="Vacina" />
                   </n-tabs>
                   <n-tabs v-model:value="tab" type="segment">
-                    <n-tab name="map" tab="Mapa" />
-                    <n-tab name="chart" tab="Gráfico"/>
+                    <n-tab name="map" tab="Mapa" :disabled="disableMap" />
+                    <n-tab name="chart" tab="Gráfico" :disabled="disableChart" />
                     <n-tab name="table" tab="Tabela"/>
                   </n-tabs>
                 </div>

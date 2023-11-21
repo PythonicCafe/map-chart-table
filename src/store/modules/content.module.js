@@ -1,4 +1,4 @@
-import { timestampToYear, formatDate, sickImmunizerAsText, disableOptions, disableOptionsByTab } from "../../utils";
+import { timestampToYear, formatDate, sickImmunizerAsText, disableOptionsByTypeAndDose, disableOptionsByTab } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
 // TODO: Detect if url is setted before set default state app to avoid unecessary API requests
@@ -30,6 +30,8 @@ const getDefaultState = () => {
     titles: null,
     glossary: null,
     csvAllDataLink: null,
+    disableMap: false,
+    disableChart: false,
   }
 }
 
@@ -113,13 +115,14 @@ export default {
       const granularity = form.granularity;
 
       let isStateData = form.local.length > 1 && granularity !== "Região de saúde" ? "statesNames" : "citiesNames";
-      if (granularity === "Região de saúde" && form.local.length > 1) {
+      const states = form.local;
+      if (granularity === "Região de saúde" && states.length > 1) {
         isStateData = "regNames";
-      } else if (granularity === "Macrorregião de saúde" && form.local.length > 1) {
+      } else if (granularity === "Macrorregião de saúde" && states.length > 1) {
         isStateData = "macregnames";
       } else if (granularity === "Macrorregião de saúde") {
         isStateData = "macregnames";
-      } else if (form.local.length > 1) {
+      } else if (granularity === "Estados") {
         isStateData = "statesNames";
       } else {
         isStateData = "citiesNames";
@@ -191,16 +194,42 @@ export default {
     }
   },
   mutations: {
-    UPDATE_FORM(state, payload, commit) {
+    UPDATE_FORM(state, payload) {
       for (let [key, value] of Object.entries(payload)){
         if (key == "periodStart") {
           state.form.period = !value && state.form.period ? state.form.periodEnd : value;
         } else if (key == "periodEnd") {
           state.form.period = state.form.periodStart ? state.form.periodStart : value;
         }
-        disableOptions(state, key, value);
+        disableOptionsByTypeAndDose(state, key, value);
 
         state.form[key] = value;
+      }
+
+      this.commit("content/CHECK_GRAN_WITH_LOCAL");
+    },
+    CHECK_GRAN_WITH_LOCAL(state, payload) {
+      // Granularities logic
+      if (
+        state.form.granularity === "Municípios" &&
+        state.form.local.length > 1
+      ) {
+        if (state.tab === "map") {
+          this.commit("content/UPDATE_TAB", { tab: "table" });
+        }
+        state.disableMap = true;
+        state.disableChart = true;
+      } else if (
+        state.form.granularity === "Municípios"
+      ) {
+        if (state.tab === "chart") {
+          this.commit("content/UPDATE_TAB", { tab: "table" });
+        }
+        state.disableMap = false;
+        state.disableChart = true;
+      } else {
+        state.disableMap = false;
+        state.disableChart = false;
       }
     },
     UPDATE_TITLES(state, payload) {
@@ -230,21 +259,21 @@ export default {
           state.form.sickImmunizer = [state.form.sickImmunizer];
           this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
         }
+      } else if (
+        state.form.sickImmunizer &&
+        Array.isArray(state.form.sickImmunizer) &&
+        state.form.sickImmunizer.length > 0
+      ) {
+        state.form.sickImmunizer = state.form.sickImmunizer[0];
+        this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
       } else {
-        if (
-          state.form.sickImmunizer &&
-          Array.isArray(state.form.sickImmunizer) &&
-          state.form.sickImmunizer.length > 0
-        ) {
-          state.form.sickImmunizer = state.form.sickImmunizer[0];
-          this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
-        } else {
-          state.form.sickImmunizer = null;
-        }
+        state.form.sickImmunizer = null;
       }
+
+      this.commit("content/CHECK_GRAN_WITH_LOCAL");
     },
     UPDATE_TABBY(state, payload) {
-      disableOptionsByTab(state, payload);
+      disableOptionsByTypeAndDose(state, payload);
       state.tabBy = Object.values(payload)[0];
       state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
     },
@@ -257,14 +286,12 @@ export default {
           for (let [formKey, formValue] of Object.entries(value)) {
             if (Array.isArray(state.form[formKey])) {
               state.form[formKey] = state.form[formKey].concat( ...state.form[formKey], formValue );
+            } else if (formKey === "sickImmunizer" && state.tab !== "map") {
+              state.form[formKey] =  Array.isArray(formValue) ? formValue : [formValue];
             } else {
-              if (formKey === "sickImmunizer" && state.tab !== "map") {
-                state.form[formKey] =  Array.isArray(formValue) ? formValue : [formValue];
-              } else {
-                state.form[formKey] = formValue;
-              }
+              state.form[formKey] = formValue;
             }
-            disableOptions(state, formKey, formValue);
+            disableOptionsByTypeAndDose(state, formKey, formValue);
           }
         } else if (key === "tabBy") {
           disableOptionsByTab(state, payload);
@@ -273,6 +300,7 @@ export default {
           state[key] = value;
         }
       }
+      this.commit("content/CHECK_GRAN_WITH_LOCAL");
     },
   },
   getters: {
