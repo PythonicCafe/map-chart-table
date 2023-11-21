@@ -11,7 +11,7 @@ export class DataFetcher {
       const data = await response.json();
       return data;
     } catch (error) {
-      // Do Nothing
+      return { error }
     }
   }
 

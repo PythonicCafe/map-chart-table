@@ -116,6 +116,7 @@ export default {
 
       let isStateData = form.local.length > 1 && granularity !== "Região de saúde" ? "statesNames" : "citiesNames";
       const states = form.local;
+
       if (granularity === "Região de saúde" && states.length > 1) {
         isStateData = "regNames";
       } else if (granularity === "Macrorregião de saúde" && states.length > 1) {
@@ -127,18 +128,23 @@ export default {
       } else {
         isStateData = "citiesNames";
       }
+
       const [result, localNames] = await Promise.all([
         api.request(`data/${request}`),
         api.request(isStateData)
       ]);
 
-      if (!result || result.data.length <= 1) {
+      if (result.error) {
+        this.commit("message/ERROR", "Não foi possível carregar os dados. Tente novamente mais tarde.", { root: true });
+        return { result: {}, localNames: {} }
+      } else if (!result || result.data && result.data.length <= 1) {
         commit("UPDATE_TITLES", null);
         this.commit("message/WARNING", "Não há dados disponíveis para os parâmetros selecionados.", { root: true });
         return { result: {}, localNames: {} }
+      } else {
+        commit("UPDATE_TITLES", result.metadata.titles);
       }
 
-      commit("UPDATE_TITLES", result.metadata.titles);
       if (form.type !== "Doses aplicadas" && state.tab !== "chart") {
         result.data.slice(1).forEach((x, i) => x[2] = (Number(x[2]).toFixed(2) + "%"))
       } else if (form.type === "Doses aplicadas") {
@@ -214,7 +220,7 @@ export default {
         state.form.granularity === "Municípios" &&
         state.form.local.length > 1
       ) {
-        if (state.tab === "map") {
+        if (["map", "chart"].includes(state.tab)) {
           this.commit("content/UPDATE_TAB", { tab: "table" });
         }
         state.disableMap = true;
