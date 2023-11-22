@@ -111,6 +111,16 @@ export const chart = {
 
       return null;
     }
+    const formatterTooltip = (context, signal) => {
+      let label = context.dataset.label || '';
+      if (label) {
+        label += ': ';
+      }
+      if (context.parsed.y !== null) {
+        label += context.parsed.y + signal;
+      }
+      return label;
+    }
 
     let chart = null;
     const renderChart = (labels, datasets) => {
@@ -124,7 +134,11 @@ export const chart = {
       }
       chartDefined.value = true;
 
-      const signal = store.state.content.form.type !== "Doses aplicadas" ? "%" : "";
+      let signal = "";
+      if (store.state.content.form.type !== "Doses aplicadas") {
+        signal =  "%";
+        datasets[0].data = datasets[0].data.map(x => Number(x).toFixed(2));
+      }
       if (chart) {
         chart.data.labels = labels;
         chart.data.datasets = datasets;
@@ -132,6 +146,7 @@ export const chart = {
           return value + signal;
         };
         chart.options.plugins.datalabels.formatter = (value, context) => formatter(value, context, signal);
+        chart.options.plugins.tooltip.callbacks.label = (context) => formatterTooltip(context, signal);
         chart.update();
         return;
       }
@@ -223,6 +238,11 @@ export const chart = {
                 display: 'auto',
                 formatter: (value, context) => formatter(value, context, signal),
               },
+              tooltip: {
+                callbacks: {
+                  label: (context) => formatterTooltip(context, signal)
+                }
+              }
             },
             layout: {
               padding: {
