@@ -114,15 +114,15 @@ export default {
 
       const granularity = form.granularity;
 
-      let isStateData = form.local.length > 1 && granularity !== "Região de saúde" ? "statesNames" : "citiesNames";
       const states = form.local;
 
+      let isStateData;
       if (granularity === "Região de saúde" && states.length > 1) {
         isStateData = "regNames";
-      } else if (granularity === "Macrorregião de saúde" && states.length > 1) {
-        isStateData = "macregnames";
       } else if (granularity === "Macrorregião de saúde") {
         isStateData = "macregnames";
+      } else if (granularity === "Região de saúde") {
+        isStateData = "regnames";
       } else if (granularity === "Estados") {
         isStateData = "statesNames";
       } else {
@@ -160,7 +160,7 @@ export default {
         const data = result.data;
         for (let i=1; i < data.length; i++) {
           const currentData = data[i];
-          const code = localNames.find(x => x[2] === currentData[1])[0];
+          const code = localNames.find(x => x[1] === currentData[1])[0];
           currentData[1] = code;
           newResult.push(currentData);
         }
@@ -170,6 +170,7 @@ export default {
       }
       return { ...result, localNames };
     },
+
     async requestAbout(
       { state, commit },
     ) {

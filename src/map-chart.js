@@ -107,13 +107,9 @@ export class MapChart {
 
     // Querying map country states setting eventListener
     for (const element of self.element.querySelectorAll('#canvas path, #canvas g')) {
-      let datasetLabel = element.dataset.label;
       let elementId = element.id;
 
-      if (datasetLabel) {
-        elementId = datasetLabel;
-      } else if (elementId.length > 2) {
-        // Get id without last number to work with map cities code
+      if (elementId.length > 6) { // granularity Municipios
         elementId = element.id.substring(0, elementId.length - 1);
       }
 
@@ -139,7 +135,7 @@ export class MapChart {
         datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.id == content[indexName]));
       } else {
         // Get by name
-        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.label == content[indexAcronym]));
+        datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.name == content[indexName]));
       }
 
       if (datasetValuesFound) {
@@ -353,6 +349,7 @@ export class MapChart {
     self.datasetValues = result;
 
     self.applyMap(self.map);
+
     self.setData({
       datasetStates: result,
       contentData: self.states,

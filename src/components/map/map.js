@@ -27,6 +27,10 @@ export const map = {
         map = "macreg/BR";
       } else if (granularity.value === "Macrorregião de saúde") {
         map = `macreg/${local}`;
+      } else if (granularity.value === "Região de saúde" && local.length > 1) {
+        map = `reg/BR`;
+      } else if (granularity.value === "Região de saúde") {
+        map = `reg/${local}`;
       } else if (granularity.value === "Estados") {
         map = "BR";
       } else {
