@@ -282,6 +282,11 @@ export class MapChart {
             ) : parseFloat(val.value);
 
             let [ index, indexName, indexAcronym, currentElement ] = self.getData(self.cities, key);
+
+            if(!currentElement) {
+              return;
+            }
+
             const name = currentElement[indexName];
             const label = currentElement[indexAcronym];
 
@@ -327,6 +332,11 @@ export class MapChart {
             ) : parseFloat(val.value);
 
             let [ index, indexName, indexAcronym, currentElement ] = self.getData(self.states, key);
+
+            if(!currentElement) {
+              return;
+            }
+
             const name = currentElement[indexName];
             const label = currentElement[indexAcronym];
 
@@ -343,7 +353,11 @@ export class MapChart {
 
             return contentData
           }
-        ).filter(x => self.statesSelected.includes(x.label));
+        ).filter(content => {
+          if (content) {
+            return self.statesSelected.includes(content.label);
+          }
+        });
     }
 
     self.datasetValues = result;
