@@ -4,11 +4,11 @@ import { createApp, computed, ref, onBeforeMount } from "vue/dist/vue.esm-bundle
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
-import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NModal, NScrollbar, NTag, NTooltip } from "naive-ui";
+import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NModal, NScrollbar, NTooltip } from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
-import { biInfoCircle, biConeStriped } from "./icons.js";
+import { biInfoCircle } from "./icons.js";
 import { modal as Modal } from "./components/modal";
 
 export default class MCT {
@@ -21,7 +21,7 @@ export default class MCT {
   render() {
     const self = this;
     const App = {
-      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar, NTag, NTooltip },
+      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar, NTooltip },
       setup() {
         const store = useStore();
         const showModal = ref(false);
@@ -51,7 +51,6 @@ export default class MCT {
           handleUpdateValueTabBy,
           logo,
           biInfoCircle,
-          biConeStriped,
           showModal,
           disableMap,
           disableChart,
@@ -89,12 +88,6 @@ export default class MCT {
                   <div>
                     <img :src="logo" width="150">
                   </div>
-                  <n-tag round :bordered="false" type="info">
-                    Em elaboração: versão beta para testes
-                    <template #icon>
-                      <n-icon v-html="biConeStriped" />
-                    </template>
-                  </n-tag>
                 </div>
                 <div style="display:flex; gap: 32px; overflow: auto; max-width: 100%; align-items: center" class="mct-scrollbar">
                   <n-button text color="#e96f5f" @click="showModal = true">

@@ -78,7 +78,7 @@ export const subButtons = {
       ]
 
       const type = store.state.content.form.type;
-      let legendSvg; 
+      let legendSvg;
 
       if (type === "Abandono") {
         legendSvg = Abandono;
@@ -98,7 +98,6 @@ export const subButtons = {
         {
           title: store.getters['content/mainTitle'],
           subTitle: store.getters['content/subTitle'],
-          message: "Em elaboração: versão beta para testes.",
           source: store.state.content.legend + ".",
         }
       );
@@ -176,7 +175,6 @@ export const subButtons = {
           title: store.getters['content/mainTitle'],
           subTitle: store.getters['content/subTitle'],
           source: store.state.content.legend + ".",
-          message: "Em elaboração: versão beta para testes."
         }
       );
       await canvasDownload.download();
