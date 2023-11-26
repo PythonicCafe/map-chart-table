@@ -107,9 +107,11 @@ export const map = {
     const debounce = createDebounce();
 
     onMounted(async () => {
-      loading.value = true;
-      debounce(async () => await setMap(), 200);
-      loading.value = false;
+      debounce(async () => {
+        loading.value = true;
+        await setMap(), 200;
+        loading.value = false;
+      });
     });
 
     watch(
@@ -120,7 +122,11 @@ export const map = {
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
-          debounce(async () => await setMap(), 200);
+          debounce(async () => {
+            loading.value = true;
+            await setMap(), 200;
+            loading.value = false;
+          });
         }
       }
     )
