@@ -13,6 +13,7 @@ export const map = {
   },
   setup(props, { emit }) {
     const loading = ref(true);
+    const map = ref(null);
     const yearMapElement = ref(null);
     const mapChart = ref(null);
     const store = useStore();
@@ -21,23 +22,23 @@ export const map = {
     const granularity = computed(() => store.state.content.form.granularity);
 
     const queryMap = async (local) => {
-      let map;
+      let maplocal;
 
       if (granularity.value === "Macrorregião de saúde" && local.length > 1) {
-        map = "macreg/BR";
+        maplocal = "macreg/BR";
       } else if (granularity.value === "Macrorregião de saúde") {
-        map = `macreg/${local}`;
+        maplocal = `macreg/${local}`;
       } else if (granularity.value === "Região de saúde" && local.length > 1) {
-        map = `reg/BR`;
+        maplocal = `reg/BR`;
       } else if (granularity.value === "Região de saúde") {
-        map = `reg/${local}`;
+        maplocal = `reg/${local}`;
       } else if (granularity.value === "Estados") {
-        map = "BR";
+        maplocal = "BR";
       } else {
-        map = local;
+        maplocal = local;
       }
 
-      const file = await store.dispatch(`content/requestMap`, { map });
+      const file = await store.dispatch(`content/requestMap`, { map:maplocal });
       return file;
     }
 
@@ -58,24 +59,21 @@ export const map = {
     }
 
     const setMap = async () => {
-      const mapElement = document.querySelector('#map');
       const local = store.state.content.form.local;
+      if (!local) {
+        return;
+      }
+      const mapElement = document.querySelector('#map');
       const period = store.state.content.form.period;
       datasetCities.value = null;
       datasetStates.value = null;
-      let map = await queryMap("BR");
-      if (!local) {
-        renderMap({ element: mapElement, map });
-        return;
-      } else if (local.length === 1) {
-        map = await queryMap(local);
-      }
-      const results = await store.dispatch("content/requestData");
 
+      loading.value = true;
+      const results = await store.dispatch("content/requestData");
       try {
         let mapSetup = {
           element: mapElement,
-          map
+          map: map.value
         };
         if (local.length === 1) {
           datasetCities.value = convertArrayToObject(results.data).data;
@@ -98,7 +96,18 @@ export const map = {
 
         renderMap(mapSetup);
       } catch (e) {
-        renderMap({ element: mapElement, map });
+        renderMap({ element: mapElement, map: map.value });
+      }
+      loading.value = false;
+    }
+
+    const updateMap = async (local) => {
+      if (local.length === 1) {
+        map.value = await queryMap(local);
+      } else {
+        const mapElement = document.querySelector('#map');
+        map.value = await queryMap("BR");
+        renderMap({ element: mapElement, map: map.value });
       }
     }
 
@@ -108,26 +117,32 @@ export const map = {
 
     onMounted(async () => {
       debounce(async () => {
-        loading.value = true;
+        await updateMap(store.state.content.form.local);
         await setMap(), 200;
-        loading.value = false;
       });
     });
 
     watch(
       () => {
         const form = store.state.content.form;
-        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
+        return [form.sickImmunizer, form.dose, form.type, store.state.content.form.local, form.granularity, form.periodStart, form.periodEnd];
       },
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
           debounce(async () => {
-            loading.value = true;
             await setMap(), 200;
-            loading.value = false;
           });
         }
+      }
+    )
+
+    watch(
+      () => [store.state.content.form.local, store.state.content.form.granularity],
+      async () => {
+        loading.value = true;
+        await updateMap(store.state.content.form.local);
+        loading.value = false;
       }
     )
 
