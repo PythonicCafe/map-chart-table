@@ -64,7 +64,8 @@ export const table = {
     return {
       columns,
       loading,
-      rows
+      rows,
+      formPopulated: computed(() => store.getters["content/selectsPopulated"])
     };
   },
   template: `
@@ -85,9 +86,14 @@ export const table = {
         v-else
       >
         <n-empty
+          v-if="!loading"
           style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px; border-radius: .25rem"
-          description="Selecione os filtros desejados para iniciar a visualização dos dados"
+          :description="formPopulated ? 'Não existem dados para os filtros selecionados': 'Selecione os filtros desejados para iniciar a visualização dos dados'"
         />
+        <div
+          v-else
+          style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px;"
+        ></div>
       </n-spin>
     </section>
   `

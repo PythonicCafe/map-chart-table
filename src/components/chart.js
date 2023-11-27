@@ -1,4 +1,4 @@
-import { ref, onMounted, watch } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { randomHexColor } from "../utils";
 import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
@@ -258,7 +258,6 @@ export const chart = {
     }
 
     const setChartData = async () => {
-      loading.value = false;
 
       const result = await store.dispatch("content/requestData", {
         detail: true,
@@ -333,14 +332,18 @@ export const chart = {
           borderWidth: 2,
         });
       }
+
       renderChart(
         years,
         dataChart
       )
-
     }
 
-    onMounted(async () => await setChartData());
+    onMounted(async () => {
+      loading.value = true;
+      await setChartData();
+      loading.value = false;
+    });
 
     watch(
       () =>  {
@@ -359,14 +362,17 @@ export const chart = {
       async () => {
         // Avoid render before change tab
         if (Array.isArray(store.state.content.form.sickImmunizer)) {
+          loading.value = true;
           await setChartData();
+          loading.value = false;
         }
       }
     )
 
     return {
       chartDefined,
-      loading
+      loading,
+      formPopulated: computed(() => store.getters["content/selectsPopulated"])
     };
   },
   template: `
@@ -375,10 +381,15 @@ export const chart = {
       <div class="mct-canva mct-canva--chart">
         <canvas :class="chartDefined ? '' : 'element-hidden'" id="chart"></canvas>
         <n-empty
+          v-if="!loading"
           :class="chartDefined ? 'element-hidden' : ''"
           style="justify-content: center; border: 1px dashed gray; width: 100%; border-radius: .25rem"
-          description="Selecione os filtros desejados para iniciar a visualização dos dados"
+          :description="formPopulated ? 'Não existem dados para os filtros selecionados': 'Selecione os filtros desejados para iniciar a visualização dos dados'"
         />
+        <div
+          v-else
+          style="width: 100%"
+        ></div>
       </div>
     </n-spin>
   `

@@ -20,6 +20,7 @@ export const map = {
     const datasetStates = ref(null);
     const datasetCities = ref(null);
     const granularity = computed(() => store.state.content.form.granularity);
+    const formPopulated = computed(() => store.getters["content/selectsPopulated"]);
 
     const queryMap = async (local) => {
       let maplocal;
@@ -48,12 +49,13 @@ export const map = {
         mapChart.value = new MapChart({
           ...args,
           type,
+          formPopulated: formPopulated.value,
           tooltipAction: (opened, name, id) => {
             emit("mapTooltip", { opened, name, id, type });
           }
         });
       } else {
-        mapChart.value.update({ ...args, type });
+        mapChart.value.update({ ...args, type, formPopulated: formPopulated.value });
       }
       emit("mapChange", mapChart.value.datasetValues);
     }
@@ -90,7 +92,7 @@ export const map = {
             ...mapSetup,
             datasetStates: datasetStates.value[period],
             states: results.localNames,
-            statesSelected: local
+            statesSelected: local,
           }
         }
 
@@ -125,13 +127,21 @@ export const map = {
     watch(
       () => {
         const form = store.state.content.form;
-        return [form.sickImmunizer, form.dose, form.type, store.state.content.form.local, form.granularity, form.periodStart, form.periodEnd];
+        return [
+          form.sickImmunizer,
+          form.dose,
+          form.type,
+          form.local,
+          form.granularity,
+          form.periodStart,
+          form.periodEnd
+        ];
       },
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
           debounce(async () => {
-            await setMap(), 200;
+            await setMap(), 500;
           });
         }
       }

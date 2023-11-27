@@ -367,6 +367,19 @@ export default {
         subtitle = state.tab === 'map' ? state.titles.map?.subtitle : state.titles.table.subtitle;
       }
       return subtitle;
+    },
+    selectsPopulated: state => {
+      const form = state.form;
+      if (
+        form.sickImmunizer &&
+        form.type &&
+        form.local.length &&
+        form.period &&
+        form.granularity
+      ) {
+        return true;
+      }
+      return false;
     }
   }
 }
