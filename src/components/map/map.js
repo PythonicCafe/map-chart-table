@@ -103,22 +103,22 @@ export const map = {
       loading.value = false;
     }
 
+    const currentLocal = ref(null);
+
     const updateMap = async (local) => {
+      const granularity = store.state.content.form.granularity;
       if (local.length === 1) {
-        map.value = await queryMap(local);
-      } else {
+        if (local+granularity !== currentLocal.value) {
+          map.value = await queryMap(local);
+        }
+        currentLocal.value = local + granularity;
+      } else if (local+granularity !== currentLocal.value) {
         const mapElement = document.querySelector('#map');
         map.value = await queryMap("BR");
         renderMap({ element: mapElement, map: map.value });
+        currentLocal.value = "BR" + granularity;
       }
     }
-
-    watch(
-      () => [store.state.content.form.local, store.state.content.form.granularity],
-      async () => {
-        await updateMap(store.state.content.form.local);
-      }
-    )
 
     watch(
       () => {
@@ -136,6 +136,7 @@ export const map = {
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
+          await updateMap(store.state.content.form.local);
           await setMap();
         }
       }
