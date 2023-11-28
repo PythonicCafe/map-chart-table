@@ -31,7 +31,7 @@ const getDefaultState = () => {
     glossary: null,
     csvAllDataLink: null,
     disableMap: false,
-    disableChart: false,
+    disableChart: false
   }
 }
 
@@ -203,9 +203,13 @@ export default {
   mutations: {
     UPDATE_FORM(state, payload) {
       for (let [key, value] of Object.entries(payload)){
-        if (key == "periodStart") {
-          state.form.period = !value && state.form.period ? state.form.periodEnd : value;
-        } else if (key == "periodEnd") {
+        if (key === "periodStart") {
+          if (!value && state.form.periodEnd) {
+            state.form.period = state.form.periodEnd;
+          } else {
+            state.form.period = value;
+          }
+        } else if (key === "periodEnd") {
           state.form.period = state.form.periodStart ? state.form.periodStart : value;
         }
         disableOptionsByTypeAndDose(state, key, value);
@@ -244,7 +248,9 @@ export default {
       state.titles = payload;
     },
     UPDATE_FORM_SELECTS(state, payload) {
-      state.form = { ...state.form, ...payload };
+      for (let [key, value] of Object.entries(payload)) {
+        state.form[key] = value;
+      }
     },
     UPDATE_ABOUT(state, payload) {
       state.about = payload;

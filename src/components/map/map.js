@@ -1,5 +1,5 @@
 import { MapChart } from "../../map-chart";
-import { ref, onMounted, watch, computed, nextTick } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
 import { convertArrayToObject, createDebounce } from "../../utils";
@@ -113,16 +113,12 @@ export const map = {
       }
     }
 
-    // Using debounce to load most recent setMap call
-    // Fix url already setted values causing multiple setMap calls
-    const debounce = createDebounce();
-
-    onMounted(async () => {
-      debounce(async () => {
+    watch(
+      () => [store.state.content.form.local, store.state.content.form.granularity],
+      async () => {
         await updateMap(store.state.content.form.local);
-        await setMap(), 200;
-      });
-    });
+      }
+    )
 
     watch(
       () => {
@@ -140,19 +136,8 @@ export const map = {
       async () => {
         // Avoid render before change tab
         if (!Array.isArray(store.state.content.form.sickImmunizer)) {
-          debounce(async () => {
-            await setMap(), 500;
-          });
+          await setMap();
         }
-      }
-    )
-
-    watch(
-      () => [store.state.content.form.local, store.state.content.form.granularity],
-      async () => {
-        loading.value = true;
-        await updateMap(store.state.content.form.local);
-        loading.value = false;
       }
     )
 
@@ -166,6 +151,17 @@ export const map = {
         }
       }
     )
+
+    onMounted(async () => {
+      // Avoiding wrong map loading
+      setTimeout(async () => {
+        // If map not setted by watcher
+        if(!document.querySelector('#map').innerHTML) {
+          await updateMap(store.state.content.form.local);
+          await setMap();
+        }
+      }, 500);
+    });
 
     return {
       loading,
