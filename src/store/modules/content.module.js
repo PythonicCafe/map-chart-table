@@ -175,7 +175,7 @@ export default {
       { state, commit },
     ) {
       const api = new DataFetcher(state.apiUrl);
-      const payload = await api.request(`about`);
+      const payload = await api.requestSettingApiEndPoint("?slug=sobre-vacinabr", "/wp-json/wp/v2/pages");
       commit("UPDATE_ABOUT", payload);
     },
     async requestAboutVaccines(

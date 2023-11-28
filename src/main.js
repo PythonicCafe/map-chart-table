@@ -29,9 +29,6 @@ export default class MCT {
         const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
         const disableMap = computed(() => store.state.content.disableMap);
         const disableChart = computed(() => store.state.content.disableChart);
-        const handleUpdateValueTabBy = (tabByName) => {
-          tabBy.value = tabByName;
-        };
         // Define apiUrl in store state
         onBeforeMount(async () => {
           store.commit("content/SET_API", self.api);
@@ -48,31 +45,18 @@ export default class MCT {
           tab,
           tabBy,
           api: self.api,
-          handleUpdateValueTabBy,
           logo,
           biInfoCircle,
           showModal,
           disableMap,
           disableChart,
           modalContent: computed(() => {
-            const text = store.state.content.about;
-            let result = "";
-            // TODO: Links inside text should be clickable
-            for (let [key, val] of Object.entries(text)){
-              let validUrl = null;
-              let valFomated = val.replace(/\n/gi, "<br><br>");
-              try {
-                validUrl = new URL(val);
-              }
-              catch (e) {
-                //Do nothing
-              }
-              if(validUrl) {
-                valFomated = `<a href="${valFomated}" target="about:blank" style="color: #e96f5f">Acessar arquivo</a>`
-              }
-              result += `<h2 style="margin-bottom: 12px">${key}</h2><p>${valFomated}</p>`;
+            const result = store.state.content.about;
+            if (result && result[0]) {
+              return result[0].content.rendered
             }
-            return result;
+
+            return;
           }),
           bodyStyle: {
             maxWidth: '900px'
@@ -90,11 +74,11 @@ export default class MCT {
                   </div>
                 </div>
                 <div style="display:flex; gap: 32px; overflow: auto; max-width: 100%; align-items: center" class="mct-scrollbar">
-                  <n-button text color="#e96f5f" @click="showModal = true">
+                  <n-button v-if="modalContent" text color="#e96f5f" @click="showModal = true">
                     <template #icon><n-icon v-html="biInfoCircle" /></template>
                     Sobre o projeto
                   </n-button>
-                  <n-tabs type="segment" v-model:value="tabBy" @update:value="handleUpdateValueTabBy">
+                  <n-tabs type="segment" v-model:value="tabBy">
                     <n-tab name="sicks" tab="Por doença" />
                     <n-tab name="immunizers" tab="Vacina" />
                   </n-tabs>
@@ -108,7 +92,7 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <modal v-model:show="showModal" title="Sobre o projeto">
+              <modal v-if="modalContent" v-model:show="showModal" title="Sobre o projeto">
                 <div v-html="modalContent"></div>
               </modal>
             </n-message-provider>
