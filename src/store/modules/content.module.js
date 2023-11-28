@@ -287,7 +287,7 @@ export default {
       this.commit("content/CHECK_GRAN_WITH_LOCAL");
     },
     UPDATE_TABBY(state, payload) {
-      disableOptionsByTypeAndDose(state, payload);
+      disableOptionsByTab(state, payload);
       state.tabBy = Object.values(payload)[0];
       state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
     },
