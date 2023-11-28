@@ -12,7 +12,7 @@ import { biInfoCircle } from "./icons.js";
 import { modal as Modal } from "./components/modal";
 
 export default class MCT {
-  constructor(api, baseAddress = "") {
+  constructor({ api = "", baseAddress = "" }) {
     this.api = api;
     this.baseAddress = baseAddress;
     this.render();
