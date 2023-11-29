@@ -1,11 +1,9 @@
 import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
-import { randomHexColor } from "../utils";
 import { NSelect, NEmpty, NSpin } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { useStore } from "vuex";
 
-// Registrar a escala "category"
 Chart.register(CategoryScale, LineController, LineElement, PointElement, LinearScale, Tooltip, Legend, ChartDataLabels);
 
 export const chart = {
@@ -321,9 +319,21 @@ export const chart = {
         }
       }
 
+      const colors = [
+        '#e96f5f', // Base color
+        '#5f9fe9', // Blue
+        '#558e5a', // Darker Green
+        '#e9c35f', // Yellow
+        '#915fe9', // Purple
+        '#3ca0a0', // Cyan
+        '#ff007f', // Shocking Pink
+        '#666666', // Gray
+        '#e9a35f'  // Orange
+      ];
       const dataChart = [];
+      let i = 0;
       for(let [key, value] of Object.entries(chartResult)) {
-        const color = randomHexColor(key.replace(" ", "") + value);
+        const color = colors[i % colors.length];
         dataChart.push({
           label: key,
           data: value,
@@ -331,6 +341,7 @@ export const chart = {
           borderColor: color,
           borderWidth: 2,
         });
+        i++;
       }
 
       renderChart(
