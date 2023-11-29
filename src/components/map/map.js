@@ -157,7 +157,8 @@ export const map = {
       // Avoiding wrong map loading
       setTimeout(async () => {
         // If map not setted by watcher
-        if(!document.querySelector('#map').innerHTML) {
+        const mapElement = document.querySelector('#map');
+        if(mapElement && !mapElement.innerHTML) {
           await updateMap(store.state.content.form.local);
           await setMap();
         }
