@@ -21,8 +21,6 @@ export const map = {
     const datasetCities = ref(null);
     const granularity = computed(() => store.state.content.form.granularity);
     const formPopulated = computed(() => store.getters["content/selectsPopulated"]);
-    const lastStartYear = ref(null);
-    const lastEndYear = ref(null);
     const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM",  field: "period" }));
 
     const queryMap = async (local) => {
@@ -67,10 +65,7 @@ export const map = {
       const startYear = store.state.content.form.periodStart;
       const endYear = store.state.content.form.periodEnd;
       // If updated select start or end year update period
-      if (
-        startYear && endYear &&
-        (startYear !== lastStartYear.value || endYear !== lastEndYear.value)
-      ) {
+      if (startYear && endYear) {
         const cities = datasetCities.value;
         const states = datasetStates.value;
         if (cities) {
@@ -79,8 +74,6 @@ export const map = {
           period.value = Number(Object.keys(states)[0]);
         }
       }
-      lastStartYear.value = startYear;
-      lastEndYear.value = endYear;
     }
 
     const setMap = async () => {
