@@ -209,8 +209,9 @@ export default {
           } else {
             state.form.period = value;
           }
-        } else if (key === "periodEnd") {
-          state.form.period = state.form.periodStart ? state.form.periodStart : value;
+        } else if (key === "periodEnd" && !state.form.periodStart) {
+          // If update and not periodStart, set period as periodEnd value
+          state.form.period = value;
         }
         disableOptionsByTypeAndDose(state, key, value);
 

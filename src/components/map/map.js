@@ -2,7 +2,7 @@ import { MapChart } from "../../map-chart";
 import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
-import { convertArrayToObject, createDebounce } from "../../utils";
+import { convertArrayToObject, createDebounce, computedVar } from "../../utils";
 
 export const map = {
   components: {
@@ -21,6 +21,9 @@ export const map = {
     const datasetCities = ref(null);
     const granularity = computed(() => store.state.content.form.granularity);
     const formPopulated = computed(() => store.getters["content/selectsPopulated"]);
+    const lastStartYear = ref(null);
+    const lastEndYear = ref(null);
+    const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM",  field: "period" }));
 
     const queryMap = async (local) => {
       let maplocal;
@@ -60,6 +63,26 @@ export const map = {
       emit("mapChange", mapChart.value.datasetValues);
     }
 
+    const updatePeriod = () => {
+      const startYear = store.state.content.form.periodStart;
+      const endYear = store.state.content.form.periodEnd;
+      // If updated select start or end year update period
+      if (
+        startYear && endYear &&
+        (startYear !== lastStartYear.value || endYear !== lastEndYear.value)
+      ) {
+        const cities = datasetCities.value;
+        const states = datasetStates.value;
+        if (cities) {
+          period.value = Number(Object.keys(cities)[0]);
+        } else if (states) {
+          period.value = Number(Object.keys(states)[0]);
+        }
+      }
+      lastStartYear.value = startYear;
+      lastEndYear.value = endYear;
+    }
+
     const setMap = async () => {
       const local = store.state.content.form.local;
       if (!local) {
@@ -67,6 +90,7 @@ export const map = {
       }
       const mapElement = document.querySelector('#map');
       const period = store.state.content.form.period;
+
       datasetCities.value = null;
       datasetStates.value = null;
 
@@ -80,6 +104,7 @@ export const map = {
         if (local.length === 1) {
           datasetCities.value = convertArrayToObject(results.data).data;
           datasetStates.value = null;
+          updatePeriod();
           mapSetup = {
             ...mapSetup,
             datasetCities: datasetCities.value[period],
@@ -88,6 +113,7 @@ export const map = {
         } else {
           datasetCities.value = null;
           datasetStates.value = convertArrayToObject(results.data).data;
+          updatePeriod();
           mapSetup = {
             ...mapSetup,
             datasetStates: datasetStates.value[period],
