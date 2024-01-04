@@ -84,7 +84,7 @@ export const chart = {
           textContainer.style.padding = 0;
           textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
 
-          const text = document.createTextNode(item.text);
+          const text = document.createTextNode(splitTextToChart(item.text));
           textContainer.appendChild(text);
 
           li.appendChild(boxSpan);
@@ -93,6 +93,16 @@ export const chart = {
         });
       }
     };
+
+    const splitTextToChart = (label) => {
+      let labelSplited = label.split(" ");
+      let lastLabel = labelSplited[labelSplited.length -1]
+      if (label.includes(",")) {
+        labelSplited = label.split(",");
+        lastLabel = labelSplited[1].split(" ")[0] + " " + labelSplited[1].split(" ")[2].substr(0, 3);
+      }
+      return `${labelSplited[0].substr(0, 3)}. ${lastLabel}`;
+    }
 
     const formatter = (value, context, signal) => {
       const dataset = context.dataset.data;
@@ -103,8 +113,8 @@ export const chart = {
         count++
       }
       if (context.dataIndex === dataset.length - count) {
-        const labelSplited = context.dataset.label.split(" ");
-        return `${labelSplited[0].substr(0, 3)}. ${labelSplited[labelSplited.length -1]} ${value} ${signal}`;
+        const label = splitTextToChart(context.dataset.label);
+        return `${label} ${value} ${signal}`;
       }
 
       return null;
@@ -277,7 +287,10 @@ export const chart = {
       let localNames = [];
       let counter = 0;
       for (let i = 1; i < dataArray.length; i++) {
-        const [year, local, value, population, doses, sickImmunizer] = dataArray[i];
+        let [year, local, value, population, doses, sickImmunizer] = dataArray[i];
+        if (!isNaN(local)) {
+          local = result.localNames.find(x => x[0] == local)
+        }
         if (!localNames.includes(local + sickImmunizer)){
           counter++;
           if (counter > 9) {
