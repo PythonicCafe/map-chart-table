@@ -184,7 +184,11 @@ export const subButtons = {
       window.open('https://creativecommons.org/licenses/by/4.0/');
     }
 
+    // TODO: Última atualização deve receber dado da data de algum endpoint que não seja o
+    // options.json que é reservado para dados que populam os selects da interface
+    const lastUpdate = "04.01.2024"
     return {
+      lastUpdate,
       bodyStyle: {
         maxWidth: '900px',
         maxHeight: '90vh',
@@ -267,6 +271,10 @@ export const subButtons = {
             <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
           </div>
         </div>
+        <div style="display: flex; gap: 12px">
+          <div class="main-card-footer__legend">Última atualização: </div>
+          <span>{{ lastUpdate }}</span>
+        </div>
       </div>
       <div class="main-card-footer-container-mobile">
         <div class="main-card-footer main-card-footer--mobile">
@@ -291,6 +299,10 @@ export const subButtons = {
         </div>
         <div class="main-card-footer main-card-footer--mobile">
           <span class="main-card-footer__legend">{{ legend }}</span>
+          <div style="display: flex; gap: 12px">
+            <div class="main-card-footer__legend">Última atualização: </div>
+            <span>{{ lastUpdate }}</span>
+          </div>
           <div
             style="background-color: #f7f7f7; padding: 6px 12px; border-radius: .23rem; display: flex; align-items: center; gap: 8px"
           >
