@@ -115,7 +115,8 @@
 
 .mct-selects {
   display:flex;
-  gap: 14px
+  gap: 14px;
+  align-items: center;
 }
 
 .mct-selects--modal {

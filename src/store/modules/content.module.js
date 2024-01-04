@@ -201,6 +201,17 @@ export default {
     }
   },
   mutations: {
+    CLEAR_STATE(state) {
+      state.tab = "map";
+      state.tabBy = "sicks";
+      const defaultState = getDefaultState();
+      Object.keys(defaultState.form).forEach(key => {
+        // Reset only default select fields not options comming from api
+        if (!key.endsWith('s')) {
+          state.form[key] = defaultState.form[key]
+        }
+      })
+    },
     UPDATE_FORM(state, payload) {
       for (let [key, value] of Object.entries(payload)){
         if (key === "periodStart") {

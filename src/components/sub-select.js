@@ -1,14 +1,16 @@
 import { ref, watch, computed, toRaw, onBeforeMount, h } from "vue/dist/vue.esm-bundler";
-import { NSelect, NFormItem, NDatePicker, NButton, NTooltip } from "naive-ui";
+import { NSelect, NFormItem, NDatePicker, NButton, NTooltip, NIcon } from "naive-ui";
 import { useStore } from 'vuex';
 import { computedVar } from "../utils";
+import { biEraser } from "../icons.js";
 
 export const subSelect = {
   components:  {
     NSelect,
     NFormItem,
     NDatePicker,
-    NButton
+    NButton,
+    NIcon
   },
   props: {
     modal: {
@@ -108,6 +110,10 @@ export const subSelect = {
       }
     };
 
+    const eraseForm = () => {
+      store.commit("content/CLEAR_STATE");
+    }
+
     watch(
       () => store.state.content.form.local,
       (loc) => {
@@ -153,6 +159,8 @@ export const subSelect = {
       tab,
       tabBy,
       immunizers,
+      biEraser,
+      eraseForm,
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -233,6 +241,7 @@ export const subSelect = {
           v-model:value="localTemp"
           :options="locals"
           class="mct-select"
+          style="width: 225px"
           :class="modal ? 'mct-select--modal' : ''"
           placeholder="Selecione Estado"
           multiple
@@ -276,6 +285,9 @@ export const subSelect = {
           filterable
         />
       </n-form-item>
+      <n-button title="Apagar todas as seleções" style="padding: 10px" @click="eraseForm">
+        <template #icon><n-icon v-html="biEraser" /></template>
+      </n-button>
     </section>
   `,
 }
