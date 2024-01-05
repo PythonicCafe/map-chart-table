@@ -17,7 +17,18 @@
 
 .custom-card-body {
   max-height: calc(100vh - 170px);
-  overflow-y: auto;
+  overflow-y: hidden;
+}
+
+.custom-card-body>.n-scrollbar-container>.n-scrollbar-content {
+  padding: 0px;
+}
+.custom-card-body .n-tabs-nav--line-type.n-tabs-nav--top.n-tabs-nav {
+  padding: 0px 25px;
+}
+
+.custom-card-body .n-tabs-tab__label {
+  padding: 4px 0px 8px;
 }
 
 .custom-card-body h3 {

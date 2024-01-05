@@ -4,12 +4,12 @@ import { createApp, computed, ref, onBeforeMount } from "vue/dist/vue.esm-bundle
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
-import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NModal, NScrollbar, NTooltip } from "naive-ui";
+import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NScrollbar, NTooltip } from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
 import { biInfoCircle } from "./icons.js";
-import { modal as Modal } from "./components/modal";
+import { modalWithTabs as Modal } from "./components/modalWithTabs.js";
 
 export default class MCT {
   constructor({ api = "", baseAddress = "" }) {
@@ -41,6 +41,25 @@ export default class MCT {
              ]
           );
         });
+
+        const modalContent = computed(() => {
+          const text = store.state.content.about;
+          if (!text) {
+            return
+          }
+          const div = document.createElement("div");
+          div.innerHTML = text[0].content.rendered
+          const result = [...div.querySelectorAll("table>tbody>tr")].map(
+            tr => {
+              return {
+                header: tr.querySelectorAll("td")[0].innerHTML,
+                content: tr.querySelectorAll("td")[1].innerHTML
+              }
+            }
+          )
+          return result;
+        })
+
         return {
           tab,
           tabBy,
@@ -50,14 +69,7 @@ export default class MCT {
           showModal,
           disableMap,
           disableChart,
-          modalContent: computed(() => {
-            const result = store.state.content.about;
-            if (result && result[0]) {
-              return result[0].content.rendered
-            }
-
-            return;
-          }),
+          modalContent,
           bodyStyle: {
             maxWidth: '900px'
           },
@@ -92,9 +104,12 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <modal v-if="modalContent" v-model:show="showModal" title="Sobre o projeto">
-                <div v-html="modalContent"></div>
-              </modal>
+              <modal
+                v-if="modalContent"
+                v-model:show="showModal"
+                title="Sobre o projeto"
+                :data="modalContent"
+              />
             </n-message-provider>
           </main>
         </Config>

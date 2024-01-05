@@ -1,4 +1,4 @@
-import { timestampToYear, formatDate, sickImmunizerAsText, disableOptionsByTypeAndDose, disableOptionsByTab } from "../../utils";
+import { disableOptionsByTypeAndDose, disableOptionsByTab } from "../../utils";
 import { DataFetcher } from "../../data-fetcher";
 
 // TODO: Detect if url is setted before set default state app to avoid unecessary API requests
@@ -182,7 +182,7 @@ export default {
       { state, commit },
     ) {
       const api = new DataFetcher(state.apiUrl);
-      const payload = await api.request(`about-vaccines`);
+      const payload = await api.requestSettingApiEndPoint("?slug=sobre-vacinas-vacinabr", "/wp-json/wp/v2/pages");
       commit("UPDATE_ABOUT_VACCINES", payload);
     },
     async requestLinkCsv(
@@ -196,7 +196,7 @@ export default {
       { state, commit },
     ) {
       const api = new DataFetcher(state.apiUrl);
-      const payload = await api.request(`glossary`);
+      const payload = await api.requestSettingApiEndPoint("?slug=glossario-vacinabr", "/wp-json/wp/v2/pages");
       commit("UPDATE_GLOSSARY", payload);
     }
   },

@@ -1,12 +1,13 @@
-import { ref, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
-import { formatToTable, timestampToYear } from "../utils.js";
+import { formatToTable } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png";
 import cc from "../assets/images/cc.png";
 import riAlertLine from "../assets/images/ri-alert-line.svg";
+import { modalWithTabs as ModalWithTabs } from "./modalWithTabs.js";
 import { modal as Modal } from "./modal.js";
 import CanvasDownload from "../canvas-download.js";
 import logo from "../assets/images/logo-vacinabr.svg";
@@ -17,13 +18,14 @@ import HomVac from "../assets/images/hom_vac.svg"
 
 export const subButtons = {
   components:  {
-    NButton,
-    NIcon,
-    NCard,
-    NScrollbar,
     Modal,
-    NTabs,
-    NTabPane
+    ModalWithTabs,
+    NButton,
+    NCard,
+    NIcon,
+    NScrollbar,
+    NTabPane,
+    NTabs
   },
   setup() {
     const svg = ref(null);
@@ -36,16 +38,28 @@ export const subButtons = {
     const legend = ref(computed(() => store.state.content.legend));
     const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
 
-    const aboutVaccines = ref(computed(() => {
+    const aboutVaccines = computed(() => {
       const text = store.state.content.aboutVaccines;
-      let result = [];
-      // TODO: Links inside text should be clickable
-      for (let [header, rows] of Object.entries(text["rows"])){
-        let rowFomated = rows["Texto"].replace(/\n/gi, "<br>").replace(/\*\*(.*?)\*\*/gi, '<b>$1</b>') ;
-        result.push({ header: rows["ABA"], content: rowFomated })
+      if (!text) {
+        return
       }
+      const div = document.createElement("div");
+      div.innerHTML = text[0].content.rendered
+      const result = [...div.querySelectorAll("table>tbody>tr")].map(
+        tr => {
+          return {
+            header: tr.querySelectorAll("td")[0].innerHTML,
+            content: tr.querySelectorAll("td")[1].innerHTML
+          }
+        }
+      )
       return result;
-    }))
+    })
+
+    const modalGlossary = computed(() => {
+      const glossary = store.state.content.glossary;
+      return glossary && glossary[0] ? glossary[0].content.rendered : glossary;
+    })
 
     const downloadSvg = () => {
       const svgData = document.querySelector("#canvas").innerHTML;
@@ -57,11 +71,6 @@ export const subButtons = {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-    }
-
-    const timer = (seconds) =>  {
-      let time = seconds * 1000
-      return new Promise(res => setTimeout(res, time))
     }
 
     const downloadPng = async () => {
@@ -223,15 +232,7 @@ export const subButtons = {
       clickShowGloss,
       showModalVac,
       clickShowVac,
-      modalGlossary: computed(() => {
-        const text = store.state.content.glossary["rows"];
-        let result = "";
-        // TODO: Links inside text should be clickable
-        for (let val of text) {
-          result += `<h2 style="margin-bottom: 12px">${val['ABA']}</h2><p>${val['Texto']}</p>`;
-        }
-        return result;
-      })
+      modalGlossary
     };
   },
   template: `
@@ -312,18 +313,11 @@ export const subButtons = {
           </div>
         </div>
       </div>
-      <modal
+      <modal-with-tabs
         v-model:show="showModalVac"
         title="Sobre as Vacinas"
-      >
-        <n-tabs type="line">
-          <n-tab-pane v-for="item in aboutVaccines" :name="item.header" :tab="item.header">
-            <n-scrollbar style="height: 55vh; line-height: 26px">
-              <div style="padding: 12px 0px" v-html="item.content"></div>
-            </n-scrollbar>
-          </n-tab-pane>
-        </n-tabs>
-      </modal>
+        :data="aboutVaccines"
+      />
       <modal
         v-model:show="showModalGloss"
         title="Glossário"

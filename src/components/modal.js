@@ -42,7 +42,9 @@ export const modal = {
       transform-origin="center"
     >
       <n-scrollbar class="custom-card-body">
-        <slot />
+        <div style="padding: 12px 24px;">
+          <slot />
+        </div>
       </n-scrollbar>
     </n-modal>
   `,
