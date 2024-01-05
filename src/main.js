@@ -44,7 +44,7 @@ export default class MCT {
 
         const modalContent = computed(() => {
           const text = store.state.content.about;
-          if (!text) {
+          if (!text || !text.length) {
             return
           }
           const div = document.createElement("div");

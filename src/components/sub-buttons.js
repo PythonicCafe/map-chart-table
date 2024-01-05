@@ -40,7 +40,7 @@ export const subButtons = {
 
     const aboutVaccines = computed(() => {
       const text = store.state.content.aboutVaccines;
-      if (!text) {
+      if (!text || !text.length) {
         return
       }
       const div = document.createElement("div");
@@ -241,11 +241,23 @@ export const subButtons = {
         <div class="main-card-footer">
           <span class="main-card-footer__legend">{{ legend }}</span>
           <div class="main-card-footer__buttons">
-            <n-button quaternary type="primary" style="font-weight: 500" @click="clickShowVac">
+            <n-button
+              v-if="aboutVaccines && aboutVaccines.length"
+              quaternary
+              type="primary"
+              style="font-weight: 500"
+              @click="clickShowVac"
+            >
               <template #icon><n-icon v-html="biBook" /></template>
               Sobre as vacinas
             </n-button>
-            <n-button quaternary type="primary" style="font-weight: 500" @click="clickShowGloss">
+            <n-button
+              v-if="modalGlossary && modalGlossary.length"
+              quaternary
+              type="primary"
+              style="font-weight: 500"
+              @click="clickShowGloss"
+            >
               <template #icon><n-icon v-html="biListUl" /></template>
               Glossário
             </n-button>
@@ -280,10 +292,21 @@ export const subButtons = {
       <div class="main-card-footer-container-mobile">
         <div class="main-card-footer main-card-footer--mobile">
           <div class="main-card-footer__buttons main-card-footer__buttons--mobile">
-            <n-button text type="primary" style="font-weight: 500" @click="clickShowVac">
+            <n-button
+              v-if="aboutVaccines && aboutVaccines.length"
+              text type="primary"
+              style="font-weight: 500"
+              @click="clickShowVac"
+            >
               Sobre a vacina
             </n-button>
-            <n-button text type="primary" style="font-weight: 500" @click="clickShowGloss">
+            <n-button
+              v-if="modalGlossary && modalGlossary.length"
+              text
+              type="primary"
+              style="font-weight: 500"
+              @click="clickShowGloss"
+            >
               Glossário
             </n-button>
             <n-button text type="primary" style="font-weight: 500" @click="clickShowModal">
