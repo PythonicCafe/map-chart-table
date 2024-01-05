@@ -121,9 +121,14 @@ export const chart = {
     }
     const formatterTooltip = (context, signal) => {
       let label = context.dataset.label || '';
-      if (label) {
-        label += ': ';
+      if (label.includes(",")) {
+        let resultNewLabel = label.split(",");
+        // Extract first value remove region code
+        const sickName = resultNewLabel.shift().split(" ")[0];
+        resultNewLabel.pop();
+        label = sickName + " " + resultNewLabel.join(", ")
       }
+      label += ': ';
       if (context.parsed.y !== null) {
         label += context.parsed.y + signal;
       }
