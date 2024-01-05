@@ -77,7 +77,6 @@ export const formatToTable = (data, localNames, metadata) => {
 
   const index = localNames[0].indexOf("geom_id");
   const indexName = localNames[0].indexOf("name");
-  const indexAcronym = localNames[0].indexOf("acronym");
   const indexUF = localNames[0].indexOf("uf");
   const rows = [];
 

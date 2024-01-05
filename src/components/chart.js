@@ -114,7 +114,7 @@ export const chart = {
       }
       if (context.dataIndex === dataset.length - count) {
         const label = splitTextToChart(context.dataset.label);
-        return `${label} ${value} ${signal}`;
+        return `${label} ${value}${signal}`;
       }
 
       return null;
@@ -254,7 +254,7 @@ export const chart = {
             },
             layout: {
               padding: {
-                right: 100
+                right: 150
               }
             },
           },
@@ -305,7 +305,11 @@ export const chart = {
         if (!data[sickImmunizer][year]) {
           data[sickImmunizer][year] = {};
         }
-        data[sickImmunizer][year][local] = value;
+        if (value.at(-1) === "%") {
+          data[sickImmunizer][year][local] = value.substring(0, value.length - 1);
+        } else {
+          data[sickImmunizer][year][local] = value;
+        }
         years.push(year);
         locals.push(local);
       }

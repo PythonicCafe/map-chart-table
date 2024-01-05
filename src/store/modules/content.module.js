@@ -145,7 +145,7 @@ export default {
         commit("UPDATE_TITLES", result.metadata.titles);
       }
 
-      if (form.type !== "Doses aplicadas" && state.tab !== "chart") {
+      if (form.type !== "Doses aplicadas") {
         result.data.slice(1).forEach((x, i) => x[2] = (Number(x[2]).toFixed(2) + "%"))
       } else if (form.type === "Doses aplicadas") {
         result.data.forEach((x, i) => {
