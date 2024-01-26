@@ -285,7 +285,7 @@ export const subSelect = {
           filterable
         />
       </n-form-item>
-      <n-button title="Apagar todas as seleções" style="padding: 10px" @click="eraseForm">
+      <n-button title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm">
         <template #icon><n-icon v-html="biEraser" /></template>
       </n-button>
     </section>
