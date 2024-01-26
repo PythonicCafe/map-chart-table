@@ -24,6 +24,7 @@ export const chart = {
       if (!listContainer) {
         listContainer = document.createElement('ul');
         listContainer.style.display = 'flex';
+        listContainer.style.gap = '12px';
         listContainer.style.flexDirection = 'row';
         listContainer.style.flexWrap = 'wrap';
         listContainer.style.margin = 0;
@@ -57,14 +58,25 @@ export const chart = {
           li.style.display = 'flex';
           li.style.cursor = 'pointer';
           li.style.flexDirection = 'row';
-          li.style.marginLeft = '10px';
           li.style.opacity = item.hidden ? '30%' : '100%';
+          li.style.border = '1px solid #ddd';
+          li.style.padding = '2px 4px';
+          li.style.borderRadius = '3px';
           li.title = "Clique para" + (item.hidden ? " exibir " : " ocultar ") + "dado no gráfico";
 
           li.onclick = () => {
             chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
             chart.update();
           };
+
+          if(!item.hidden) {
+            li.onmouseenter = () => {
+              li.style.borderColor = '#e96f5f';
+            }
+            li.onmouseleave = () => {
+              li.style.borderColor = '#ddd';
+            }
+          }
 
           // Color box
           const boxSpan = document.createElement('span');
