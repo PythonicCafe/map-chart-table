@@ -37,7 +37,8 @@ export default class MCT {
               store.dispatch("content/requestAbout"),
               store.dispatch("content/requestAboutVaccines"),
               store.dispatch("content/requestLinkCsv"),
-              store.dispatch("content/requestGlossary")
+              store.dispatch("content/requestGlossary"),
+              store.dispatch("content/requestLastUpdateDate"),
              ]
           );
         });
@@ -104,7 +105,7 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <modal
+              <modal 
                 v-if="modalContent"
                 v-model:show="showModal"
                 title="Sobre o projeto"

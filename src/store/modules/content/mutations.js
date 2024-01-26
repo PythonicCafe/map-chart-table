@@ -71,6 +71,9 @@ export default {
   UPDATE_ABOUT_VACCINES(state, payload) {
     state.aboutVaccines = payload;
   },
+  UPDATE_LAST_UPDATE_DATE(state, payload) {
+    state.lastUpdateDate = payload;
+  },
   UPDATE_LINK_CSV(state, payload) {
     state.csvAllDataLink = payload;
   },

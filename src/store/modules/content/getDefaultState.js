@@ -23,10 +23,11 @@ export const getDefaultState = () => {
     },
     about: null,
     aboutVaccines: null,
+    lastUpdateDate: null,
     titles: null,
     glossary: null,
     csvAllDataLink: null,
     disableMap: false,
-    disableChart: false
+    disableChart: false,
   }
 }

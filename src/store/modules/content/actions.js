@@ -130,7 +130,6 @@ export default {
     }
     return { ...result, localNames };
   },
-
   async requestAbout(
     { state, commit },
   ) {
@@ -158,5 +157,12 @@ export default {
     const api = new DataFetcher(state.apiUrl);
     const payload = await api.requestSettingApiEndPoint("?slug=glossario-vacinabr", "/wp-json/wp/v2/pages");
     commit("UPDATE_GLOSSARY", payload);
+  },
+  async requestLastUpdateDate(
+    { state, commit },
+  ) {
+    const api = new DataFetcher(state.apiUrl);
+    const payload = await api.requestSettingApiEndPoint("lastupdatedate", "/wp-json/api/v1/");
+    commit("UPDATE_LAST_UPDATE_DATE", payload);
   }
 }

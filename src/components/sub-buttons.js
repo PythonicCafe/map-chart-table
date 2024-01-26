@@ -1,7 +1,7 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
-import { formatToTable } from "../utils.js";
+import { formatToTable, formatDatePtBr } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
 import sbim from "../assets/images/sbim.png";
@@ -193,9 +193,7 @@ export const subButtons = {
       window.open('https://creativecommons.org/licenses/by/4.0/');
     }
 
-    // TODO: Última atualização deve receber dado da data de algum endpoint que não seja o
-    // options.json que é reservado para dados que populam os selects da interface
-    const lastUpdate = "04.01.2024"
+    const lastUpdate = computed(() => store.state.content.lastUpdateDate)
     return {
       lastUpdate,
       bodyStyle: {
@@ -232,7 +230,8 @@ export const subButtons = {
       clickShowGloss,
       showModalVac,
       clickShowVac,
-      modalGlossary
+      modalGlossary,
+      formatDatePtBr
     };
   },
   template: `
@@ -284,9 +283,15 @@ export const subButtons = {
             <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
           </div>
         </div>
-        <div style="display: flex; gap: 12px">
-          <div class="main-card-footer__legend">Última atualização: </div>
-          <span>{{ lastUpdate }}</span>
+        <div v-if="lastUpdate" style="display: flex; flex-direction: column; gap: 4px">
+          <div v-if="lastUpdate.data" style="display: flex; gap: 12px">
+            <div class="main-card-footer__legend">Dados coletados em: </div>
+            <span>{{ formatDatePtBr(lastUpdate.data) }}</span>
+          </div>
+          <div v-if="lastUpdate.platform" style="display: flex; gap: 12px">
+            <div class="main-card-footer__legend">Última atualização da plataforma: </div>
+            <span>{{ formatDatePtBr(lastUpdate.platform) }}</span>
+          </div>
         </div>
       </div>
       <div class="main-card-footer-container-mobile">
@@ -323,9 +328,15 @@ export const subButtons = {
         </div>
         <div class="main-card-footer main-card-footer--mobile">
           <span class="main-card-footer__legend">{{ legend }}</span>
-          <div style="display: flex; gap: 12px">
-            <div class="main-card-footer__legend">Última atualização: </div>
-            <span>{{ lastUpdate }}</span>
+          <div v-if="lastUpdate">
+            <div v-if="lastUpdate.data" style="display: flex; gap: 12px">
+              <div class="main-card-footer__legend">Dados coletados em:  </div>
+              <span>{{ formatDatePtBr(lastUpdate.data) }}</span>
+            </div>
+            <div v-if="lastUpdate.platform" style="display: flex; gap: 12px">
+              <div class="main-card-footer__legend">Última atualização da plataforma:  </div>
+              <span>{{ formatDatePtBr(lastUpdate.platform) }}</span>
+            </div>
           </div>
           <div
             style="background-color: #f7f7f7; padding: 6px 12px; border-radius: .23rem; display: flex; align-items: center; gap: 8px"

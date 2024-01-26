@@ -232,3 +232,10 @@ export const disableOptionsByTab = (state, payload) => {
     }
   }
 }
+
+export const formatDatePtBr = (date) => {
+  const inputDate = new Date(date);
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const formatter = new Intl.DateTimeFormat('pt-BR', options);
+  return formatter.format(inputDate);
+}
