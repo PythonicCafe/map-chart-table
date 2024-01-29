@@ -29,5 +29,6 @@ export const getDefaultState = () => {
     csvAllDataLink: null,
     disableMap: false,
     disableChart: false,
+    loading: false
   }
 }

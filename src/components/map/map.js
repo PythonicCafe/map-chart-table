@@ -2,7 +2,7 @@ import { MapChart } from "../../map-chart";
 import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
 import { NSelect, NSpin, NButton, NFormItem } from "naive-ui";
 import { useStore } from "vuex";
-import { convertArrayToObject, createDebounce, computedVar } from "../../utils";
+import { convertArrayToObject, computedVar } from "../../utils";
 
 export const map = {
   components: {
@@ -12,11 +12,11 @@ export const map = {
     NFormItem,
   },
   setup(props, { emit }) {
-    const loading = ref(true);
     const map = ref(null);
     const yearMapElement = ref(null);
     const mapChart = ref(null);
     const store = useStore();
+    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
     const datasetStates = ref(null);
     const datasetCities = ref(null);
     const granularity = computed(() => store.state.content.form.granularity);
@@ -191,10 +191,10 @@ export const map = {
   },
   template: `
     <section>
-      <n-spin :show="loading" class="map-container">
+      <div class="map-container" style="position: relative;">
         <div ref="map" id="map"></div>
         <div ref="yearMapElement" class="mct-canva-year"></div>
-      </n-spin>
+      </div>
     </section>
   `
 };

@@ -105,7 +105,7 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <modal 
+              <modal
                 v-if="modalContent"
                 v-model:show="showModal"
                 title="Sobre o projeto"

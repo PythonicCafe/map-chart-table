@@ -1,6 +1,6 @@
 import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
-import { NButton, NDataTable, NSelect, NEmpty, NSpin } from "naive-ui";
-import { timestampToYear, formatToTable } from "../utils";
+import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
+import { computedVar, formatToTable } from "../utils";
 import { useStore } from 'vuex';
 
 export const table = {
@@ -8,8 +8,7 @@ export const table = {
     NButton,
     NDataTable,
     NSelect,
-    NEmpty,
-    NSpin
+    NEmpty
   },
   props: {
     form: {
@@ -18,9 +17,9 @@ export const table = {
   },
   setup() {
     const store = useStore();
-    const loading = ref(false);
     const rows =  ref([]);
     const columns = ref([]);
+    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
 
     const setTableData = async () => {
       const currentResult = await store.dispatch("content/requestData", { detail: true });
@@ -77,16 +76,12 @@ export const table = {
         :columns="columns"
         :data="rows"
         :bordered="false"
-        :loading="loading"
         :pagination="{ pageSlot:7 }"
         :scrollbar-props="{ trigger: 'none', xScrollable: true }"
       />
-      <n-spin
-        :show="loading"
-        v-else
-      >
+      <section v-else>
         <n-empty
-          v-if="!loading"
+          v-if="!loading.loading"
           style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px; border-radius: .25rem"
           :description="formPopulated ? 'Não existem dados para os filtros selecionados': 'Selecione os filtros desejados para iniciar a visualização dos dados'"
         />
@@ -94,7 +89,7 @@ export const table = {
           v-else
           style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px;"
         ></div>
-      </n-spin>
+      </section>
     </section>
   `
 };

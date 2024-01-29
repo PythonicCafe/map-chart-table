@@ -1,4 +1,4 @@
-import { NCard, NSkeleton, useMessage, NModal, NButton } from "naive-ui";
+import { NCard, NSkeleton, useMessage, NModal, NButton, NSpin } from "naive-ui";
 import { ref, computed, onBeforeMount, watch } from "vue/dist/vue.esm-bundler";
 import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
@@ -8,7 +8,7 @@ import { subButtons as SubButtons } from "./sub-buttons";
 import { yearSlider as YearSlider } from "./map/year-slider";
 import { mapRange as MapRange } from "./map/map-range";
 import { useStore } from 'vuex'
-import { mapFields, convertDateToUtc } from '../utils';
+import { mapFields, computedVar } from '../utils';
 import { useRouter, useRoute } from 'vue-router';
 import { formatToApi } from "../common";
 
@@ -24,7 +24,8 @@ export const mainCard = {
     MapRange,
     NSkeleton,
     NModal,
-    NButton
+    NButton,
+    NSpin
   },
   props: {
     api: {
@@ -38,6 +39,7 @@ export const mainCard = {
     const map = ref(null);
     const mapData = ref([]);
     const mapTooltip = ref([]);
+    const show = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
     const isMobileScreen = ref(null);
     const getWindowWidth = () => {
       isMobileScreen.value = window.innerWidth <= 1350;
@@ -178,7 +180,8 @@ export const mainCard = {
       form,
       tab,
       showModal: ref(false),
-      isMobileScreen
+      isMobileScreen,
+      show
     };
   },
   template: `
@@ -198,38 +201,40 @@ export const mainCard = {
       <template v-else>
         <SubSelect />
       </template>
-      <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
-        {{ mainTitle }}
-      </h2>
-      <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
-      <div style="margin-top: 0px; margin-bottom: 16px">
-        <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
-         {{ subTitle }}
-        </h3>
-        <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
-      </div>
-      <section>
-        <template v-if="tab === 'map'">
-          <div style="display: flex; gap: 12px">
-            <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
-            <div style="width: 100%;">
-              <Map
-                ref="map"
-                :api='api'
-                @map-change="handleMapChange"
-                @map-tooltip="handleMapTooltip"
-              />
-              <YearSlider />
+      <n-spin :show="show.loading">
+        <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
+          {{ mainTitle }}
+        </h2>
+        <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
+        <div style="margin-top: 0px; margin-bottom: 16px">
+          <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
+           {{ subTitle }}
+          </h3>
+          <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
+        </div>
+        <section>
+          <template v-if="tab === 'map'">
+            <div style="display: flex; gap: 12px">
+              <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
+              <div style="width: 100%;">
+                <Map
+                  ref="map"
+                  :api='api'
+                  @map-change="handleMapChange"
+                  @map-tooltip="handleMapTooltip"
+                />
+                <YearSlider />
+              </div>
             </div>
-          </div>
-        </template>
-        <template v-else-if="tab === 'chart'">
-          <Chart />
-        </template>
-        <template v-else>
-          <Table />
-        </template>
-      </section>
+          </template>
+          <template v-else-if="tab === 'chart'">
+            <Chart />
+          </template>
+          <template v-else>
+            <Table />
+          </template>
+        </section>
+      </n-spin>
       <SubButtons />
     </n-card>
   `,

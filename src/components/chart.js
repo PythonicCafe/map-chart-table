@@ -1,21 +1,18 @@
 import { ref, onMounted, watch, computed } from "vue/dist/vue.esm-bundler";
-import { NSelect, NEmpty, NSpin } from "naive-ui";
+import { NSelect, NEmpty } from "naive-ui";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Legend } from 'chartjs';
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { useStore } from "vuex";
+import { computedVar } from "../utils";
 
 Chart.register(CategoryScale, LineController, LineElement, PointElement, LinearScale, Tooltip, Legend, ChartDataLabels);
 
 export const chart = {
-  components: {
-    NSelect,
-    NEmpty,
-    NSpin
-  },
+  components: { NSelect, NEmpty },
   setup() {
     const store = useStore();
     const chartDefined = ref(true);
-    const loading = ref(true);
+    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
 
     const getOrCreateLegendList = (chart, id) => {
       const legendContainer = document.getElementById(id);
@@ -421,12 +418,12 @@ export const chart = {
     };
   },
   template: `
-    <n-spin :show="loading">
+    <section>
       <div id="legend-container" style="padding-right: 64px; padding-left: 64px;"></div>
       <div class="mct-canva mct-canva--chart">
         <canvas :class="chartDefined ? '' : 'element-hidden'" id="chart"></canvas>
         <n-empty
-          v-if="!loading"
+          v-if="!loading.loading"
           :class="chartDefined ? 'element-hidden' : ''"
           style="justify-content: center; border: 1px dashed gray; width: 100%; border-radius: .25rem"
           :description="formPopulated ? 'Não existem dados para os filtros selecionados': 'Selecione os filtros desejados para iniciar a visualização dos dados'"
@@ -436,6 +433,6 @@ export const chart = {
           style="width: 100%"
         ></div>
       </div>
-    </n-spin>
+    </section>
   `
 };

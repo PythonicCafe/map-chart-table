@@ -5,6 +5,8 @@ export default {
   CLEAR_STATE(state) {
     state.tab = "map";
     state.tabBy = "sicks";
+    state.disableMap = false;
+    state.disableChart = false;
     const defaultState = getDefaultState();
     Object.keys(defaultState.form).forEach(key => {
       // Reset only default select fields not options comming from api
@@ -77,10 +79,14 @@ export default {
   UPDATE_LINK_CSV(state, payload) {
     state.csvAllDataLink = payload;
   },
+  UPDATE_LOADING(state, payload) {
+    state.loading = payload;
+  },
   UPDATE_GLOSSARY(state, payload) {
     state.glossary = payload;
   },
   UPDATE_TAB(state, payload) {
+    state.loading = true;
     state.tab = Object.values(payload)[0];
     if (["table", "chart"].includes(Object.values(payload)[0])) {
       if (!state.form.sickImmunizer) {
@@ -101,6 +107,7 @@ export default {
     }
 
     this.commit("content/CHECK_GRAN_WITH_LOCAL");
+    state.loading = false;
   },
   UPDATE_TABBY(state, payload) {
     disableOptionsByTab(state, payload);
