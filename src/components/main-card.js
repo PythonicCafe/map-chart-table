@@ -217,7 +217,7 @@ export const mainCard = {
             </h3>
             <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
           </div>
-          <section>
+          <section style="min-height:520px">
             <template v-if="tab === 'map'">
               <div>
                 <div style="display: flex; gap: 12px">
