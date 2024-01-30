@@ -4,6 +4,7 @@ import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
 import { table as Table } from "./table";
 import { subSelect as SubSelect } from "./sub-select";
+import { filterSuggestion as FilterSuggestion } from "./filter-suggestion";
 import { subButtons as SubButtons } from "./sub-buttons";
 import { yearSlider as YearSlider } from "./map/year-slider";
 import { mapRange as MapRange } from "./map/map-range";
@@ -18,6 +19,7 @@ export const mainCard = {
     Chart,
     Map,
     Table,
+    FilterSuggestion,
     SubSelect,
     SubButtons,
     YearSlider,
@@ -41,6 +43,7 @@ export const mainCard = {
     const mapTooltip = ref([]);
     const show = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
     const isMobileScreen = ref(null);
+    const formPopulated = computed(() => store.getters["content/selectsEmpty"]);
     const getWindowWidth = () => {
       isMobileScreen.value = window.innerWidth <= 1350;
     }
@@ -181,7 +184,8 @@ export const mainCard = {
       tab,
       showModal: ref(false),
       isMobileScreen,
-      show
+      show,
+      formPopulated
     };
   },
   template: `
@@ -201,40 +205,45 @@ export const mainCard = {
       <template v-else>
         <SubSelect />
       </template>
-      <n-spin :show="show.loading">
-        <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
-          {{ mainTitle }}
-        </h2>
-        <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
-        <div style="margin-top: 0px; margin-bottom: 16px">
-          <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
-           {{ subTitle }}
-          </h3>
-          <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
-        </div>
-        <section>
-          <template v-if="tab === 'map'">
-            <div style="display: flex; gap: 12px">
-              <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
-              <div style="width: 100%;">
-                <Map
-                  ref="map"
-                  :api='api'
-                  @map-change="handleMapChange"
-                  @map-tooltip="handleMapTooltip"
-                />
-                <YearSlider />
+      <div style="position: relative;">
+        <n-spin :show="show.loading">
+          <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
+            {{ mainTitle }}
+          </h2>
+          <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
+          <div style="margin-top: 0px; margin-bottom: 16px">
+            <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
+             {{ subTitle }}
+            </h3>
+            <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
+          </div>
+          <section>
+            <template v-if="tab === 'map'">
+              <div>
+                <div style="display: flex; gap: 12px">
+                  <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
+                  <div style="width: 100%;">
+                    <Map
+                      ref="map"
+                      :api='api'
+                      @map-change="handleMapChange"
+                      @map-tooltip="handleMapTooltip"
+                    />
+                    <YearSlider />
+                  </div>
+                </div>
               </div>
-            </div>
-          </template>
-          <template v-else-if="tab === 'chart'">
-            <Chart />
-          </template>
-          <template v-else>
-            <Table />
-          </template>
-        </section>
-      </n-spin>
+            </template>
+            <template v-else-if="tab === 'chart'">
+              <Chart />
+            </template>
+            <template v-else>
+              <Table />
+            </template>
+          </section>
+        </n-spin>
+        <FilterSuggestion v-if="formPopulated" />
+      </div>
       <SubButtons />
     </n-card>
   `,

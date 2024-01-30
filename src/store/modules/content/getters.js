@@ -67,5 +67,22 @@ export default {
       return true;
     }
     return false;
+  },
+  selectsEmpty: state => {
+    const form = state.form;
+    if (
+      (
+        // If sickImmunizer selected in map or if sickImmunizer array is empty in chart and tables
+        (form.sickImmunizer && !Array.isArray(form.sickImmunizer)) ||
+        (form.sickImmunizer && form.sickImmunizer.length)
+      ) ||
+      form.type ||
+      form.local.length ||
+      form.period ||
+      form.granularity
+    ) {
+      return false;
+    }
+    return true;
   }
 }
