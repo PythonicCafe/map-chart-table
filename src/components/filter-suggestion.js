@@ -39,10 +39,10 @@ export const filterSuggestion = {
           style="display: flex; justify-content: initial; height: 80px;" @click="selectFilter(element)"
         >
           <div style="display: flex; flex-direction: column; gap: 4px">
-            <div style="width: 0px">
+            <div class="filter-text-suggestion filter-title">
              {{ element.title }}
             </div>
-            <div class="filter-description">{{ element.description }}</div>
+            <div class="filter-text-suggestion filter-description">{{ element.description }}</div>
           </div>
         </n-button>
       </div>

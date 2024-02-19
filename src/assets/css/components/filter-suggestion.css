@@ -16,24 +16,39 @@
   grid-template-columns: auto auto;
 }
 
+.filter-title {
+  height: 18px;
+}
+.filter-text-suggestion {
+  text-align: initial;
+  max-width: 650px;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
 .filter-description {
   font-size: 11px;
+  height: 14px;
 }
 
 /* MediaQuery */
 
-@media (max-width: 1200px) {
+@media (max-width: 1600px) {
   .filters-container {
     grid-template-columns: auto;
   }
 }
 
-@media (max-width: 800px) {
-  .filter-description {
+@media (max-width: 900px) {
+  .filter-text-suggestion {
     max-width: 375px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 800px) {
+  .filter-text-suggestion {
+    max-width: 324px;
   }
 }
 
