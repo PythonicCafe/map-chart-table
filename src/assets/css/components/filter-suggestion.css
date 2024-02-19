@@ -21,7 +21,7 @@
 }
 .filter-text-suggestion {
   text-align: initial;
-  max-width: 650px;
+  max-width: 490px;
   white-space: nowrap;
   overflow-x: hidden;
   text-overflow: ellipsis;
