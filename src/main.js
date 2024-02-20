@@ -34,6 +34,7 @@ export default class MCT {
           store.commit("content/SET_API", self.api);
           await Promise.all(
             [
+              store.dispatch("content/requestDoseBlocksCsv"),
               store.dispatch("content/requestAbout"),
               store.dispatch("content/requestAboutVaccines"),
               store.dispatch("content/requestLinkCsv"),

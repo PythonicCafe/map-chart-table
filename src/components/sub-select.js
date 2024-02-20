@@ -114,6 +114,17 @@ export const subSelect = {
       store.commit("content/CLEAR_STATE");
     }
 
+    const clear = (key) => {
+      if (key === "sickImmunizer") {
+        sickTemp.value = null;
+        sick.value = null;
+      } else if (key === "dose") {
+        dose.value = null;
+      } else if (key === "type") {
+        type.value = null;
+      }
+    }
+
     watch(
       () => store.state.content.form.local,
       (loc) => {
@@ -161,6 +172,7 @@ export const subSelect = {
       immunizers,
       biEraser,
       eraseForm,
+      clear,
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -186,7 +198,8 @@ export const subSelect = {
           return node;
         }
         return h(NTooltip, {
-          style: "width: 250px; transform-origin: inherit"
+          style: "",
+          delay: 500
         }, {
           trigger: () => node,
           default: () => option.disabledText
@@ -199,28 +212,33 @@ export const subSelect = {
       <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Vacina'">
         <n-select
           v-model:value="sickTemp"
-          :options="tabBy === 'sicks' ? sicks : immunizers"
-          :consistent-menu-width="false"
-          class="mct-select"
-          :class="modal ? 'mct-select--modal' : ''"
           max-tag-count="responsive"
-          :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
+          class="mct-select"
+          filterable
+          :class="modal ? 'mct-select--modal' : ''"
+          :consistent-menu-width="false"
           :multiple="tab !== 'map'"
           :on-update:show="handleSicksUpdateShow"
           :on-update:value="handleSicksUpdateValue"
-          filterable
+          :options="tabBy === 'sicks' ? sicks : immunizers"
+          :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
+          :render-option="renderOption"
+          clearable
+          :on-clear="() => clear('sickImmunizer')"
         />
       </n-form-item>
       <n-form-item label="Dose">
         <n-select
           v-model:value="dose"
-          :options="doses"
           class="mct-select-dose"
-          :class="modal ? 'mct-select-dose--modal' : ''"
+          filterable
           max-tag-count="responsive"
           placeholder="Selecione dose"
-          filterable
+          :options="doses"
+          :class="modal ? 'mct-select-dose--modal' : ''"
           :render-option="renderOption"
+          clearable
+          :on-clear="() => clear('dose')"
         />
       </n-form-item>
       <n-form-item label="Tipo de dado">
@@ -234,6 +252,8 @@ export const subSelect = {
           placeholder="Selecione Tipo de dado"
           filterable
           :render-option="renderOption"
+          clearable
+          :on-clear="() => clear('type')"
         />
       </n-form-item>
       <n-form-item label="Estados">

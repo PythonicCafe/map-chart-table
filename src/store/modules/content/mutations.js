@@ -1,5 +1,5 @@
 import { getDefaultState } from "./getDefaultState";
-import { disableOptionsByTypeAndDose, disableOptionsByTab } from "../../../utils";
+import { disableOptionsByTypeAndDose, disableOptionsByTab, disableOptionsByDoseOrSick } from "../../../utils";
 
 export default {
   CLEAR_STATE(state) {
@@ -14,6 +14,9 @@ export default {
         state.form[key] = defaultState.form[key]
       }
     })
+    disableOptionsByTypeAndDose(state);
+    disableOptionsByTab(state);
+    disableOptionsByDoseOrSick(state);
   },
   UPDATE_FORM(state, payload) {
     for (let [key, value] of Object.entries(payload)){
@@ -26,6 +29,8 @@ export default {
       } else if (key === "periodEnd" && !state.form.periodStart) {
         // If update and not periodStart, set period as periodEnd value
         state.form.period = value;
+      } else if (key === "sickImmunizer" || key === "dose") {
+        disableOptionsByDoseOrSick(state, payload)
       }
       disableOptionsByTypeAndDose(state, key, value);
 
@@ -80,6 +85,9 @@ export default {
   UPDATE_LINK_CSV(state, payload) {
     state.csvAllDataLink = payload;
   },
+  UPDATE_DOSE_BLOCKS_CSV(state, payload) {
+    state.csvDoseBlocks = payload;
+  },
   UPDATE_LOADING(state, payload) {
     state.loading = payload;
   },
@@ -114,6 +122,9 @@ export default {
     disableOptionsByTab(state, payload);
     state.tabBy = Object.values(payload)[0];
     state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
+    state.form.dose = null;
+    disableOptionsByTypeAndDose(state);
+    disableOptionsByDoseOrSick(state);
   },
   SET_API(state, payload) {
     state.apiUrl = payload;
@@ -130,10 +141,12 @@ export default {
             state.form[formKey] = formValue;
           }
           disableOptionsByTypeAndDose(state, formKey, formValue);
+          disableOptionsByDoseOrSick(state, { [formKey]: formValue });
         }
       } else if (key === "tabBy") {
         disableOptionsByTab(state, payload);
         state[key] = value;
+        disableOptionsByTab(state, payload);
       } else {
         state[key] = value;
       }

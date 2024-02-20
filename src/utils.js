@@ -185,6 +185,15 @@ export const sickImmunizerAsText = (form) => {
   return [ sickImmunizer, multipleSickImmunizer ];
 }
 
+const resetOptions = (array, object = { disabled: false }) => {
+  for (let i=0; i < array.length; i++) {
+    array[i] = {
+      ...array[i],
+      ...object
+    };
+  }
+}
+
 export const disableOptionsByTypeAndDose = (state, formKey, formValue) => {
   const disabledTextAbandono = "Essa informação não está disponível para 1ª dose";
   const disabledText1Dose = "Essa informação não está disponível para Abandono";
@@ -210,25 +219,110 @@ export const disableOptionsByTypeAndDose = (state, formKey, formValue) => {
     const types = state.form.types;
     const index = types.indexOf(types.find(el => el.label === "Abandono"));
     types[index] = { ...types[index], disabled: false, disabledText: disabledText1Dose }
+  } else { // CLEAR_STATE
+    const doses = state.form.doses;
+    const types = state.form.types;
+    let index = doses.indexOf(doses.find(el => el.label === "1ª dose"));
+    resetOptions(doses[index])
+    index = types.indexOf(types.find(el => el.label === "Abandono"));
+    resetOptions(types[index])
   }
 }
 
 export const disableOptionsByTab = (state, payload) => {
-  if (payload.tabBy == "immunizers") {
+  if (payload && payload.tabBy == "immunizers") {
     const types = state.form.types;
-    const index = types.indexOf(types.find(el => el.label == "Homogeneidade geográfica"));
-    const indexEv = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
-    types[indexEv] = { ...types[indexEv], disabled: false };
+    const index = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
+    types[index] = { ...types[index], disabled: false };
   } else {
     const types = state.form.types;
-    const indexEv = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
-    types[indexEv] = {
-      ...types[indexEv],
+    const index = types.indexOf(types.find(el => el.label == "Homogeneidade entre vacinas"));
+    types[index] = {
+      ...types[index],
       disabled: true,
       disabledText: "Essa informação está disponível apenas no recorte por vacina"
     };
-    if (state.form.type == types[indexEv].label) {
+    if (state.form.type == types[index].label) {
       state.form.type = null;
+    }
+  }
+}
+
+const blockHeaderName = (value) => {
+  const firstLetter = value[0];
+  const lastLetter = value[value.length - 1];
+  return firstLetter + (lastLetter === "o" ? "R" : "");
+}
+
+export const disableOptionsByDoseOrSick = (state, payload) => {
+  const sicksImmunizers = state.tabBy === "sicks" ? state.form['sicks'] : state.form['immunizers'];
+  const doses = state.form.doses;
+
+  if(!payload) { // CLEAR_STATE
+    resetOptions(sicksImmunizers);
+    resetOptions(doses);
+    return;
+  }
+
+  const blockedListHeader = [...state.csvDoseBlocks[0]];
+  const blockedListRows = [...state.csvDoseBlocks];
+
+  // Removing header row from blockedListRows
+  blockedListRows.splice(0, 1);
+
+  const selected = Object.entries(payload)[0];
+  const selectedKey = selected[0];
+  const selectedValue = selected[1];
+
+  if (selected[0] === "dose") {
+    if(!selectedValue) { // CLEAR_STATE
+      resetOptions(sicksImmunizers);
+      return;
+    }
+    const listIndex = blockedListHeader.findIndex(el => el === blockHeaderName(selectedValue));
+    for (let i=0; i < sicksImmunizers.length; i++) {
+      sicksImmunizers[i] = {
+        ...sicksImmunizers[i],
+        disabled: blockedListRows[i][listIndex] === "true" ? false : true,
+        disabledText: "Não selecionável para essa dose."
+      };
+    }
+  } else if (selected[0] === "sickImmunizer") {
+    if(!selectedValue) { // CLEAR_STATE
+      resetOptions(doses);
+      return;
+    }
+    const listIndex = blockedListHeader.findIndex(el => el === selectedKey);
+    let resultToBlock;
+
+    if (Array.isArray(selectedValue)) {
+      resultToBlock = blockedListRows.filter(el => selectedValue.includes(el[listIndex]));
+    } else {
+      resultToBlock = blockedListRows.find(el => el[listIndex] === selectedValue);
+    }
+
+    for (let i=0; i < doses.length; i++) {
+
+      let disabled;
+      if (Array.isArray(selectedValue)) {
+        for(let result of resultToBlock) {
+          disabled = false;
+          if (result[blockedListHeader.findIndex(el => el === blockHeaderName(doses[i].label))] === "false"){
+            disabled = true;
+            break;
+          }
+        }
+      } else {
+        disabled = resultToBlock[
+          blockedListHeader.findIndex(el => el === blockHeaderName(doses[i].label))
+        ] === "true" ? false : true;
+      }
+
+      doses[i] = {
+        ...doses[i],
+        disabled,
+        disabledText: "Não selecionável para essa doença/vacina"
+      };
     }
   }
 }

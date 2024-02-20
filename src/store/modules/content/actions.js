@@ -148,8 +148,15 @@ export default {
     { state, commit },
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request(`link-csv`);
+    const payload = await api.request('link-csv');
     commit("UPDATE_LINK_CSV", payload);
+  },
+  async requestDoseBlocksCsv(
+    { state, commit },
+  ) {
+    const api = new DataFetcher(state.apiUrl);
+    const payload = await api.request('dose-blocks');
+    commit("UPDATE_DOSE_BLOCKS_CSV", payload);
   },
   async requestGlossary(
     { state, commit },
