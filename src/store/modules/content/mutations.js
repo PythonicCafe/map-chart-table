@@ -66,6 +66,7 @@ export default {
     for (let [key, value] of Object.entries(payload)) {
       state.form[key] = value;
     }
+    disableOptionsByTab(state, payload);
   },
   UPDATE_ABOUT(state, payload) {
     state.about = payload;
