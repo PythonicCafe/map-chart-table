@@ -328,7 +328,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
 }
 
 export const formatDatePtBr = (date) => {
-  const inputDate = new Date(date);
+  const inputDate = new Date(date + "T00:00:00");
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
   const formatter = new Intl.DateTimeFormat('pt-BR', options);
   return formatter.format(inputDate);
