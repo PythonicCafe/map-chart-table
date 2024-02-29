@@ -23,7 +23,7 @@
   text-align: initial;
   max-width: 490px;
   white-space: nowrap;
-  overflow-x: hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -34,7 +34,7 @@
 
 /* MediaQuery */
 
-@media (max-width: 1600px) {
+@media (max-width: 1300px) {
   .filters-container {
     grid-template-columns: auto;
   }
