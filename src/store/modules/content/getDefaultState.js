@@ -23,6 +23,7 @@ export const getDefaultState = () => {
     },
     about: null,
     aboutVaccines: null,
+    mandatoryVaccineYears: null,
     lastUpdateDate: null,
     titles: null,
     glossary: null,

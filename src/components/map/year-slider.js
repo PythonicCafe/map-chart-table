@@ -1,8 +1,8 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NCard, NSlider, NSpace, NButton, NIconWrapper } from "naive-ui";
-import { timestampToYear } from "../../utils";
+import { NCard, NSlider, NSpace, NButton, NIconWrapper, NIcon } from "naive-ui";
 import { useStore } from 'vuex'
 import { computedVar } from "../../utils";
+import { biCaretDown } from "../../icons.js";
 
 export const yearSlider = {
   components:  {
@@ -10,7 +10,8 @@ export const yearSlider = {
     NSlider,
     NSpace,
     NButton,
-    NIconWrapper
+    NIconWrapper,
+    NIcon
   },
   setup () {
     const store = useStore();
@@ -30,6 +31,40 @@ export const yearSlider = {
 
     const max = computed(() => setSliderValue(store.state.content.form.periodEnd));
     const min = computed(() => setSliderValue(store.state.content.form.periodStart));
+
+    const valueMandatoryLabels = ref(null);
+    const valueMandatory = computed(() => {
+      const tabBy = store.state.content.tabBy;
+      if (tabBy !== "immunizers") {
+        return
+      }
+
+      const sickImmunizer = store.state.content.form.sickImmunizer;
+      const dose = store.state.content.form.dose ? store.state.content.form.dose : "1ª dose";
+      const mandatoryVaccineYears = store.state.content.mandatoryVaccineYears;
+
+      if (mandatoryVaccineYears) {
+        const result = mandatoryVaccineYears.find(el => el[0] === sickImmunizer && el[1] === dose);
+        if (result) {
+          valueMandatoryLabels.value = [result[2], result[3]];
+          if (
+            max.value && min.value &&
+            (
+              (max.value && max.value <= result[3]) ||
+              (min.value && min.value >= result[2])
+            )
+          ) {
+            return [result[2], result[3]];
+          } else if (max.value && max.value <= result[3] && max.value >= result[2]) {
+            return result[3];
+          } else if (min.value && min.value >= result[2] && min.value <= result[3] ) {
+            return result[2];
+          }
+        }
+      }
+
+      return
+    });
 
     const years = computed(() => {
       let y = min.value;
@@ -61,8 +96,11 @@ export const yearSlider = {
     return {
       max,
       min,
+      valueMandatory,
       showSlider,
       showTooltip,
+      formatTooltip: (value) =>
+        `Introdução no calendário de ${valueMandatoryLabels.value[0]} até ${valueMandatoryLabels.value[1]}`,
       playMap,
       mapPlaying,
       stopMap: () => {
@@ -70,7 +108,8 @@ export const yearSlider = {
         showTooltip.value = false;
         mapPlaying.value = false;
       },
-      period
+      period,
+      biCaretDown
     }
   },
   template: `
@@ -120,13 +159,51 @@ export const yearSlider = {
           </svg>
         </template>
       </n-button>
-      <span style="white-space:nowrap; padding: 0px 6px; font-size: 14px">{{ min }}</span>
-      <n-slider :disabled="!showSlider" :show-tooltip="showTooltip" v-model:value="period" :min="min" :max="max" :tooltip="showSlider">
-        <template #thumb>
-          <n-icon-wrapper :size="12" :border-radius="12" style="cursor: auto"></n-icon-wrapper>
-        </template>
-      </n-slider>
-      <span style="white-space:nowrap; padding: 0px 6px; font-size: 14px">{{ max }}</span>
+      <div style="width: 100%">
+        <div style="display: flex">
+          <span
+            class="span-date"
+            :class="valueMandatory ? 'span-date--more-padding' : ''"
+          >{{ min }}</span>
+          <div style="width:100%">
+            <n-slider
+              v-if="valueMandatory"
+              class="mandatory-vaccine-years"
+              v-model:value="valueMandatory"
+              disable
+              :min="min"
+              :max="max"
+              placement="top"
+              disabled
+              :range="max && min"
+              :format-tooltip="formatTooltip"
+            >
+              <template #thumb>
+                <n-icon-wrapper style="width: 15px; background-color: white; cursor: auto">
+                  <n-icon v-html="biCaretDown" color="#32a1e6" size="12px" />
+                </n-icon-wrapper>
+              </template>
+            </n-slider>
+            <n-slider
+              :disabled="!showSlider"
+              :show-tooltip="showTooltip"
+              v-model:value="period"
+              :min="min"
+              :max="max"
+              :tooltip="showSlider"
+              placement="bottom"
+            >
+              <template #thumb>
+                <n-icon-wrapper :size="12" :border-radius="12" style="cursor: auto" />
+              </template>
+            </n-slider>
+          </div>
+          <span
+            class="span-date"
+            :class="valueMandatory ? 'span-date--more-padding' : ''"
+          >{{ max }}</span>
+        </div>
+      </div>
     </section>
   `,
 }

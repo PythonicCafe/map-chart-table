@@ -144,19 +144,26 @@ export default {
     const payload = await api.requestSettingApiEndPoint("?slug=sobre-vacinas-vacinabr", "/wp-json/wp/v2/pages");
     commit("UPDATE_ABOUT_VACCINES", payload);
   },
-  async requestLinkCsv(
+  async requestLink(
     { state, commit },
   ) {
     const api = new DataFetcher(state.apiUrl);
     const payload = await api.request('link-csv');
     commit("UPDATE_LINK_CSV", payload);
   },
-  async requestDoseBlocksCsv(
+  async requestDoseBlocks(
     { state, commit },
   ) {
     const api = new DataFetcher(state.apiUrl);
     const payload = await api.request('dose-blocks');
     commit("UPDATE_DOSE_BLOCKS_CSV", payload);
+  },
+  async requestMandatoryVaccination(
+    { state, commit },
+  ) {
+    const api = new DataFetcher(state.apiUrl);
+    const payload = await api.request('mandatory-vaccinations-years');
+    commit("UPDATE_MANDATORY_VACCINATIONS_YEARS", payload);
   },
   async requestGlossary(
     { state, commit },

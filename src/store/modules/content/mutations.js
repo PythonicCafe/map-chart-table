@@ -88,6 +88,9 @@ export default {
   UPDATE_DOSE_BLOCKS_CSV(state, payload) {
     state.csvDoseBlocks = payload;
   },
+  UPDATE_MANDATORY_VACCINATIONS_YEARS(state, payload) {
+    state.mandatoryVaccineYears = payload;
+  },
   UPDATE_LOADING(state, payload) {
     state.loading = payload;
   },
