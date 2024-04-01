@@ -15,7 +15,8 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.period ||
-      !form.local.length
+      !form.local.length ||
+      !form.dose
     ) {
       return;
     }
@@ -45,7 +46,8 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.period ||
-      !form.local.length
+      !form.local.length ||
+      !form.dose
     ) {
       return;
     }

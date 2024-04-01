@@ -37,6 +37,7 @@ export default {
     const api = new DataFetcher(state.apiUrl);
     const form = state.form;
 
+    // Return if form field sickImmunizer is a multiple select and is empty
     if (
       form.sickImmunizer &&
       Array.isArray(form.sickImmunizer) &&
@@ -49,6 +50,7 @@ export default {
       !form.type ||
       !form.granularity ||
       !form.sickImmunizer ||
+      !form.dose ||
       (!form.periodStart && !form.periodEnd) ||
       !form.local.length
     ) {
@@ -59,11 +61,10 @@ export default {
     const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
     const loc = Array.isArray(form.local) ? form.local.join("|") : form.local;
     let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-      "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc;
+      "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc + "&dose=" + form.dose;
 
     request += form.periodStart ? "&periodStart=" + form.periodStart : "";
     request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";
-    request += form.dose ? "&dose=" + form.dose : "";
 
     if (detail) {
       request += "&detail=true";
@@ -95,11 +96,19 @@ export default {
     ]);
 
     if (result.error) {
-      this.commit("message/ERROR", "Não foi possível carregar os dados. Tente novamente mais tarde.", { root: true });
+      this.commit(
+          "message/ERROR",
+          "Não foi possível carregar os dados. Tente novamente mais tarde.",
+          { root: true }
+      );
       return { result: {}, localNames: {} }
     } else if (!result || result.data && result.data.length <= 1) {
       commit("UPDATE_TITLES", null);
-      this.commit("message/WARNING", "Não há dados disponíveis para os parâmetros selecionados.", { root: true });
+      this.commit(
+          "message/WARNING",
+          "Não há dados disponíveis para os parâmetros selecionados.",
+          { root: true }
+      );
       return { result: {}, localNames: {} }
     } else {
       commit("UPDATE_TITLES", result.metadata.titles);

@@ -31,10 +31,35 @@ export default {
         state.form.period = value;
       } else if (key === "sickImmunizer" || key === "dose") {
         disableOptionsByDoseOrSick(state, payload)
+        const type = state.form.type;
+        if (type) {
+          disableOptionsByTypeAndDose(state, "type", type);
+        }
       }
       disableOptionsByTypeAndDose(state, key, value);
 
       state.form[key] = value;
+    }
+
+    if (
+      state.form.sickImmunizer &&
+      state.form.type &&
+      state.form.local.length &&
+      state.form.periodStart &&
+      state.form.periodEnd &&
+      state.form.granularity &&
+      // Avoid unecessary updates and enable use empty dose field
+      !Object.keys(payload).includes("period") &&
+      !Object.keys(payload).includes("dose") &&
+      !state.form.dose
+    ) {
+      const activeDoses = state.form.doses.filter(dose => !dose.disabled);
+      if (activeDoses.length) {
+        const newDose = activeDoses[activeDoses.length - 1].value;
+        disableOptionsByDoseOrSick(state, { dose: newDose });
+        disableOptionsByTypeAndDose(state, 'dose', newDose);
+        state.form.dose = newDose;
+      }
     }
 
     this.commit("content/CHECK_GRAN_WITH_LOCAL");
