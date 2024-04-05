@@ -100,7 +100,7 @@ export const yearSlider = {
       showSlider,
       showTooltip,
       formatTooltip: (value) =>
-        `Introdução no calendário de ${valueMandatoryLabels.value[0]} até ${valueMandatoryLabels.value[1]}`,
+        `Presente no calendário vacinal entre ${valueMandatoryLabels.value[0]} e ${valueMandatoryLabels.value[1]}`,
       playMap,
       mapPlaying,
       stopMap: () => {
