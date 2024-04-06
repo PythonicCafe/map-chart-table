@@ -41,6 +41,7 @@ export default class MCT {
               store.dispatch("content/requestMandatoryVaccination"),
               store.dispatch("content/requestGlossary"),
               store.dispatch("content/requestLastUpdateDate"),
+              store.dispatch("content/requestAutoFilters"),
              ]
           );
         });

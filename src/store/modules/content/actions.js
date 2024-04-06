@@ -167,6 +167,13 @@ export default {
     const payload = await api.request('dose-blocks');
     commit("UPDATE_DOSE_BLOCKS_CSV", payload);
   },
+  async requestAutoFilters(
+    { state, commit },
+  ) {
+    const api = new DataFetcher(state.apiUrl);
+    const payload = await api.request('auto-filters');
+    commit("UPDATE_AUTO_FILTERS", payload);
+  },
   async requestMandatoryVaccination(
     { state, commit },
   ) {

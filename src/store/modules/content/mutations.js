@@ -98,6 +98,9 @@ export default {
     }
     disableOptionsByTab(state, payload);
   },
+  UPDATE_AUTO_FILTERS(state, payload) {
+    state.autoFilters = payload;
+  },
   UPDATE_ABOUT(state, payload) {
     state.about = payload;
   },
