@@ -98,6 +98,9 @@ export default {
     }
     disableOptionsByTab(state, payload);
   },
+  UPDATE_YEAR_SLIDER_ANIMATION(state, payload) {
+    state.yearSlideAnimation = Object.values(payload)[0];
+  },
   UPDATE_AUTO_FILTERS(state, payload) {
     state.autoFilters = payload;
   },

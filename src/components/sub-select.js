@@ -173,6 +173,7 @@ export const subSelect = {
       biEraser,
       eraseForm,
       clear,
+      disableAll: computed(() => store.state.content.yearSlideAnimation),
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -224,6 +225,7 @@ export const subSelect = {
           :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
           :render-option="renderOption"
           clearable
+          :disabled="disableAll"
           :on-clear="() => clear('sickImmunizer')"
         />
       </n-form-item>
@@ -238,6 +240,7 @@ export const subSelect = {
           :class="modal ? 'mct-select-dose--modal' : ''"
           :render-option="renderOption"
           clearable
+          :disabled="disableAll"
           :on-clear="() => clear('dose')"
         />
       </n-form-item>
@@ -253,6 +256,7 @@ export const subSelect = {
           filterable
           :render-option="renderOption"
           clearable
+          :disabled="disableAll"
           :on-clear="() => clear('type')"
         />
       </n-form-item>
@@ -266,6 +270,7 @@ export const subSelect = {
           placeholder="Selecione Estado"
           multiple
           filterable
+          :disabled="disableAll"
           max-tag-count="responsive"
           :on-update:show="handleLocalsUpdateShow"
           :on-update:value="handleLocalsUpdateValue"
@@ -282,6 +287,7 @@ export const subSelect = {
          filterable
          @update:value="updateDatePosition"
          clearable
+          :disabled="disableAll"
         />
         <n-select
          class="end-datepicker"
@@ -292,6 +298,7 @@ export const subSelect = {
          filterable
          @update:value="updateDatePosition"
          clearable
+          :disabled="disableAll"
         />
       </n-form-item>
       <n-form-item label="Granularidade">
@@ -303,9 +310,10 @@ export const subSelect = {
           placeholder="Selecione Granularidade"
           clearable
           filterable
+          :disabled="disableAll"
         />
       </n-form-item>
-      <n-button title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm">
+      <n-button title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm" :disabled="disableAll">
         <template #icon><n-icon v-html="biEraser" /></template>
       </n-button>
     </section>

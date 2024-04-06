@@ -21,6 +21,7 @@ export const getDefaultState = () => {
       granularity: null,
       granularities: [],
     },
+    yearSlideAnimation: false,
     autoFilters: null,
     about: null,
     aboutVaccines: null,

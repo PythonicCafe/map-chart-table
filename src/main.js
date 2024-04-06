@@ -74,6 +74,7 @@ export default class MCT {
           disableMap,
           disableChart,
           modalContent,
+          disableAll: computed(() => store.state.content.yearSlideAnimation),
           bodyStyle: {
             maxWidth: '900px'
           },
@@ -95,13 +96,13 @@ export default class MCT {
                     Sobre o projeto
                   </n-button>
                   <n-tabs type="segment" v-model:value="tabBy">
-                    <n-tab name="sicks" tab="Por doença" />
-                    <n-tab name="immunizers" tab="Vacina" />
+                    <n-tab name="sicks" tab="Por doença" :disabled="disableAll" />
+                    <n-tab name="immunizers" tab="Vacina" :disabled="disableAll" />
                   </n-tabs>
                   <n-tabs v-model:value="tab" type="segment">
-                    <n-tab name="map" tab="Mapa" :disabled="disableMap" />
-                    <n-tab name="chart" tab="Gráfico" :disabled="disableChart" />
-                    <n-tab name="table" tab="Tabela"/>
+                    <n-tab name="map" tab="Mapa" :disabled="disableMap || disableAll" />
+                    <n-tab name="chart" tab="Gráfico" :disabled="disableChart || disableAll" />
+                    <n-tab name="table" tab="Tabela" :disabled="disableAll" />
                   </n-tabs>
                 </div>
               </section>

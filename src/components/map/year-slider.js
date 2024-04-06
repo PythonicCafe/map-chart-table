@@ -18,7 +18,7 @@ export const yearSlider = {
     const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM",  field: "period" }));
     const showSlider = ref(false);
     const showTooltip = ref(false);
-    const mapPlaying = ref(false);
+    const mapPlaying = computed(computedVar({ store, mutation: "content/UPDATE_YEAR_SLIDER_ANIMATION",  field: "yearSlideAnimation" }));
     const stopPlayMap = ref(false);
     const setSliderValue = (period) => {
       const form = store.state.content.form;
