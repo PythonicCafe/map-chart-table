@@ -44,7 +44,9 @@ export const yearSlider = {
       const mandatoryVaccineYears = store.state.content.mandatoryVaccineYears;
 
       if (mandatoryVaccineYears) {
-        const result = mandatoryVaccineYears.find(el => el[0] === sickImmunizer && el[1] === dose);
+        const result = mandatoryVaccineYears.find(el => el[0] === sickImmunizer &&
+          (el[1] === dose || el[1] === "Dose única" && dose === "1ª dose")
+        );
         if (result) {
           valueMandatoryLabels.value = [result[2], result[3]];
           if (
