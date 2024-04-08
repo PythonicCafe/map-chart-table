@@ -279,9 +279,11 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
     }
     const listIndex = blockedListHeader.findIndex(el => el === blockHeaderName(selectedValue));
     for (let i=0; i < sicksImmunizers.length; i++) {
+      const blockedListRow = blockedListRows.find(blr => blr[0] === sicksImmunizers[i].label);
+      const disabled = blockedListRow && blockedListRow[listIndex] === "false" ? true : false;
       sicksImmunizers[i] = {
         ...sicksImmunizers[i],
-        disabled: blockedListRows[i][listIndex] === "true" ? false : true,
+        disabled,
         disabledText: "Não selecionável para essa dose."
       };
     }
@@ -301,7 +303,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
 
     for (let i=0; i < doses.length; i++) {
       let disabled;
-      if (Array.isArray(selectedValue)) {
+      if (resultToBlock && Array.isArray(selectedValue)) {
         for(let result of resultToBlock) {
           disabled = false;
           if (
@@ -313,7 +315,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
             break;
           }
         }
-      } else { // Its not a multiple values select
+      } else if (resultToBlock){ // Its not a multiple values select
         disabled = resultToBlock[
           blockedListHeader.findIndex(el => el === blockHeaderName(doses[i].label))
         ] === "true" ? false : true;
