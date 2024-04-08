@@ -136,7 +136,7 @@ export const mainCard = {
         return;
       }
 
-      return router.push({ query: stateResult });
+      return router.replace({ query: stateResult });
     }
 
     watch(() => {
