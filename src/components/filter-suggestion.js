@@ -37,7 +37,7 @@ export const filterSuggestion = {
   template: `
     <div v-if="elements" class="filter-suggestion">
       <div style="text-align: center; font-size: 24px; padding-bottom: 48px">
-        Selecione um filtro predefinido
+        Explore a plataforma usando os filtros acima, ou selecione um dos exemplos abaixo
       </div>
       <div class="filters-container">
         <n-button
