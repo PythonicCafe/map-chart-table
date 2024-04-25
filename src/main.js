@@ -35,6 +35,7 @@ export default class MCT {
           await Promise.all(
             [
               store.dispatch("content/requestDoseBlocks"),
+              store.dispatch("content/requestGranularityBlocks"),
               store.dispatch("content/requestAbout"),
               store.dispatch("content/requestAboutVaccines"),
               store.dispatch("content/requestLink"),

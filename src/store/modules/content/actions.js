@@ -165,7 +165,14 @@ export default {
   ) {
     const api = new DataFetcher(state.apiUrl);
     const payload = await api.request('dose-blocks');
-    commit("UPDATE_DOSE_BLOCKS_CSV", payload);
+    commit("UPDATE_DOSE_BLOCKS", payload);
+  },
+  async requestGranularityBlocks(
+    { state, commit },
+  ) {
+    const api = new DataFetcher(state.apiUrl);
+    const payload = await api.request('granularity-blocks');
+    commit("UPDATE_GRANULARITY_BLOCKS", payload);
   },
   async requestAutoFilters(
     { state, commit },

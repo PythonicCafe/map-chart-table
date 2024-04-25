@@ -30,6 +30,8 @@ export const getDefaultState = () => {
     titles: null,
     glossary: null,
     csvAllDataLink: null,
+    doseBlocks: null,
+    granularityBlocks: null,
     disableMap: false,
     disableChart: false,
     loading: false

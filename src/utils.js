@@ -194,7 +194,7 @@ const resetOptions = (array, object = { disabled: false }) => {
   }
 }
 
-export const disableOptionsByTypeAndDose = (state, formKey, formValue) => {
+export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
   const disabledTextAbandono = "Essa informação não está disponível para 1ª dose";
   const disabledText1Dose = "Essa informação não está disponível para Abandono";
   if (formKey == "type" && formValue == "Abandono")  {
@@ -249,7 +249,7 @@ export const disableOptionsByTab = (state, payload) => {
 const blockHeaderName = (value) => {
   const firstLetter = value[0];
   const lastLetter = value[value.length - 1];
-  return firstLetter + (lastLetter === "o" ? "R" : "");
+  return (lastLetter === "o" ? "R" : "") + firstLetter;
 }
 
 export const disableOptionsByDoseOrSick = (state, payload) => {
@@ -262,14 +262,13 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
     return;
   }
 
-  const blockedListHeader = [...state.csvDoseBlocks[0]];
-  const blockedListRows = [...state.csvDoseBlocks];
+  const blockedListHeader = [...state.doseBlocks[0]];
+  const blockedListRows = [...state.doseBlocks];
 
   // Removing header row from blockedListRows
   blockedListRows.splice(0, 1);
 
   const selected = Object.entries(payload)[0];
-  const selectedKey = selected[0];
   const selectedValue = selected[1];
 
   if (selected[0] === "dose") {
@@ -280,7 +279,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
     const listIndex = blockedListHeader.findIndex(el => el === blockHeaderName(selectedValue));
     for (let i=0; i < sicksImmunizers.length; i++) {
       const blockedListRow = blockedListRows.find(blr => blr[0] === sicksImmunizers[i].label);
-      const disabled = blockedListRow && blockedListRow[listIndex] === "false" ? true : false;
+      const disabled = blockedListRow && blockedListRow[listIndex] === false ? true : false;
       sicksImmunizers[i] = {
         ...sicksImmunizers[i],
         disabled,
@@ -292,7 +291,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
       resetOptions(doses);
       return;
     }
-    const listIndex = blockedListHeader.findIndex(el => el === selectedKey);
+    const listIndex = blockedListHeader.findIndex(el => el === 'doenca_imuno');
     let resultToBlock;
 
     if (Array.isArray(selectedValue)) {
@@ -309,7 +308,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
           if (
               result[
                 blockedListHeader.findIndex(el => el === blockHeaderName(doses[i].label))
-              ] === "false"
+              ] === false
           ) {
             disabled = true;
             break;
@@ -318,7 +317,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
       } else if (resultToBlock){ // Its not a multiple values select
         disabled = resultToBlock[
           blockedListHeader.findIndex(el => el === blockHeaderName(doses[i].label))
-        ] === "true" ? false : true;
+        ] === true ? false : true;
       }
 
       doses[i] = {
@@ -341,3 +340,76 @@ export const formatDatePtBr = (date) => {
   const formatter = new Intl.DateTimeFormat('pt-BR', options);
   return formatter.format(inputDate);
 }
+
+export const disableOptionsByGranularityOrType = (state, payload) => {
+  const granularities = state.form.granularities;
+  const types = state.form.types;
+
+  if (!payload) { // CLEAR_STATE
+    resetOptions(granularities);
+    resetOptions(types);
+    return;
+  }
+
+  const selected = Object.entries(payload)[0];
+  const selectedValue = selected[1];
+  const blockedListHeader = [...state.granularityBlocks[0]];
+  const blockedListRows = [...state.granularityBlocks];
+
+  // Removing header row from blockedListRows
+  blockedListRows.splice(0, 1);
+  const granularityColumnIndex = blockedListHeader.findIndex(el => el === "granularidade");
+  const hv = "homogeneidade_entre_vacinas";
+  const hg = "homogeneidade_geografica";
+  const hvColumnIndex = blockedListHeader.findIndex(el => el === hv);
+  const hgColumnIndex = blockedListHeader.findIndex(el => el === hg);
+
+  if (selected[0] === "granularity") {
+    const hvOpt = types.find(type => strToSnakeCaseNormalize(type.value) === hv);
+    const hgOpt = types.find(type => strToSnakeCaseNormalize(type.value) === hg);
+    if (!selectedValue) {
+      if (state.tabBy === "immunizers") {
+        hvOpt.disabled = false;
+      }
+      hgOpt.disabled = false;
+      return;
+    }
+    const elRow = blockedListRows.find(el =>
+      el[granularityColumnIndex] === selectedValue.toLowerCase()
+    );
+    if (state.tabBy === "immunizers") {
+      hvOpt.disabled = !elRow[hvColumnIndex];
+      hvOpt.disabledText = "Não selecionável para essa granularidade";
+    }
+    hgOpt.disabled = !elRow[hgColumnIndex];
+    hgOpt.disabledText = "Não selecionável para essa granularidade";
+
+  } else if (selected[0] === "type") {
+    if (!selectedValue) {
+      granularities.forEach(granularity => granularity.disabled = false)
+      return;
+    }
+    const listIndex = blockedListHeader.findIndex(el => el === strToSnakeCaseNormalize(selectedValue));
+    if (listIndex < 1) {
+      granularities.forEach(granularity => granularity.disabled = false)
+      return
+    }
+    const resultToBlock = [];
+    blockedListRows.forEach(el => {
+      if (!el[listIndex]) {
+        resultToBlock.push(el[granularityColumnIndex]);
+      }
+    });
+    granularities.forEach(granularity => {
+      if (resultToBlock.includes(granularity.value.toLowerCase())) {
+        granularity.disabled = true;
+        granularity.disabledText = "Não selecionável para essa tipo de dado";
+        return;
+      }
+      granularity.disabled = false;
+    })
+  }
+}
+
+const strToSnakeCaseNormalize = (str) =>
+  str.toLowerCase().replace(/\s+/g, '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '')

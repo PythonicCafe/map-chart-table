@@ -310,6 +310,7 @@ export const subSelect = {
           placeholder="Selecione Granularidade"
           clearable
           filterable
+          :render-option="renderOption"
           :disabled="disableAll"
         />
       </n-form-item>
