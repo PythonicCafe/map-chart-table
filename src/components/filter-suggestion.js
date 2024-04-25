@@ -1,6 +1,6 @@
 import { NButton } from "naive-ui";
+import { computed } from "vue/dist/vue.esm-bundler";
 import { useStore } from 'vuex';
-import { exampleFilters } from "../exampleFilters";
 
 export const filterSuggestion = {
   components:  {
@@ -23,15 +23,21 @@ export const filterSuggestion = {
         ...element.filters,
       })
     }
+
+    const elements = computed(() => {
+      const result = store.state.content.autoFilters;
+      return result ? shuffle(result).slice(-4) : null;
+    })
+
     return {
-      elements: shuffle(exampleFilters).slice(-4),
+      elements,
       selectFilter
     };
   },
   template: `
-    <div class="filter-suggestion">
+    <div v-if="elements" class="filter-suggestion">
       <div style="text-align: center; font-size: 24px; padding-bottom: 48px">
-        Selecione um filtro predefinido
+        Explore a plataforma usando os filtros acima, ou selecione um dos exemplos abaixo
       </div>
       <div class="filters-container">
         <n-button
