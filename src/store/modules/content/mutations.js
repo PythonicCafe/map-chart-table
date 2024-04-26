@@ -1,5 +1,10 @@
 import { getDefaultState } from "./getDefaultState";
-import { disableOptionsByTypeAndDose, disableOptionsByTab, disableOptionsByDoseOrSick } from "../../../utils";
+import {
+  disableOptionsByTypeOrDose,
+  disableOptionsByTab,
+  disableOptionsByDoseOrSick,
+  disableOptionsByGranularityOrType,
+} from "../../../utils";
 
 export default {
   CLEAR_STATE(state) {
@@ -14,7 +19,8 @@ export default {
         state.form[key] = defaultState.form[key]
       }
     })
-    disableOptionsByTypeAndDose(state);
+    disableOptionsByTypeOrDose(state);
+    disableOptionsByGranularityOrType(state);
     disableOptionsByTab(state);
     disableOptionsByDoseOrSick(state);
   },
@@ -33,10 +39,15 @@ export default {
         disableOptionsByDoseOrSick(state, payload)
         const type = state.form.type;
         if (type) {
-          disableOptionsByTypeAndDose(state, "type", type);
+          disableOptionsByTypeOrDose(state, "type", type);
+          disableOptionsByGranularityOrType(state,  { "type":  type });
         }
+      } else if (key === "granularity") {
+        disableOptionsByGranularityOrType(state, { [key]: value });
+      } else if (key === "type") {
+        disableOptionsByTypeOrDose(state, key, value);
+        disableOptionsByGranularityOrType(state, { [key]: value });
       }
-      disableOptionsByTypeAndDose(state, key, value);
 
       state.form[key] = value;
     }
@@ -57,7 +68,7 @@ export default {
       if (activeDoses.length) {
         const newDose = activeDoses[activeDoses.length - 1].value;
         disableOptionsByDoseOrSick(state, { dose: newDose });
-        disableOptionsByTypeAndDose(state, 'dose', newDose);
+        disableOptionsByTypeOrDose(state, 'dose', newDose);
         state.form.dose = newDose;
       }
     }
@@ -116,8 +127,11 @@ export default {
   UPDATE_LINK_CSV(state, payload) {
     state.csvAllDataLink = payload;
   },
-  UPDATE_DOSE_BLOCKS_CSV(state, payload) {
-    state.csvDoseBlocks = payload;
+  UPDATE_DOSE_BLOCKS(state, payload) {
+    state.doseBlocks = payload;
+  },
+  UPDATE_GRANULARITY_BLOCKS(state, payload) {
+    state.granularityBlocks = payload;
   },
   UPDATE_MANDATORY_VACCINATIONS_YEARS(state, payload) {
     state.mandatoryVaccineYears = payload;
@@ -153,11 +167,16 @@ export default {
     state.loading = false;
   },
   UPDATE_TABBY(state, payload) {
+    disableOptionsByGranularityOrType(state);
     disableOptionsByTab(state, payload);
     state.tabBy = Object.values(payload)[0];
+
     state.form.sickImmunizer = Array.isArray(state.form.sickImmunizer) ? [] : null;
     state.form.dose = null;
-    disableOptionsByTypeAndDose(state);
+    state.form.granularity = null;
+    state.form.type = null;
+
+    disableOptionsByTypeOrDose(state);
     disableOptionsByDoseOrSick(state);
   },
   SET_API(state, payload) {
@@ -174,8 +193,9 @@ export default {
           } else {
             state.form[formKey] = formValue;
           }
-          disableOptionsByTypeAndDose(state, formKey, formValue);
+          disableOptionsByTypeOrDose(state, formKey, formValue);
           disableOptionsByDoseOrSick(state, { [formKey]: formValue });
+          disableOptionsByGranularityOrType(state, { [formKey]: formValue });
         }
       } else if (key === "tabBy") {
         disableOptionsByTab(state, payload);
