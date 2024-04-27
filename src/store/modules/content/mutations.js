@@ -125,6 +125,20 @@ export default {
   UPDATE_LAST_UPDATE_DATE(state, payload) {
     state.lastUpdateDate = payload;
   },
+  UPDATE_ACRONYMS(state, payload) {
+    const result = [];
+    const acronymsHeader = payload[0];
+    payload.forEach((row, i) => {
+      if (i < 1) {
+        return;
+      }
+
+      const resultRow = {};
+      row.forEach((col, j) => resultRow[acronymsHeader[j]] = col);
+      result.push(resultRow);
+    });
+    state.acronyms = result;
+  },
   UPDATE_LINK_CSV(state, payload) {
     state.csvAllDataLink = payload;
   },

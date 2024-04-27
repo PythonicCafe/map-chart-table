@@ -34,15 +34,20 @@ export default class MCT {
           store.commit("content/SET_API", self.api);
           await Promise.all(
             [
-              store.dispatch("content/requestDoseBlocks"),
-              store.dispatch("content/requestGranularityBlocks"),
-              store.dispatch("content/requestAbout"),
-              store.dispatch("content/requestAboutVaccines"),
-              store.dispatch("content/requestLink"),
-              store.dispatch("content/requestMandatoryVaccination"),
-              store.dispatch("content/requestGlossary"),
-              store.dispatch("content/requestLastUpdateDate"),
-              store.dispatch("content/requestAutoFilters"),
+              [
+                ["UPDATE_DOSE_BLOCKS", "dose-blocks"],
+                ["UPDATE_GRANULARITY_BLOCKS","granularity-blocks"],
+                ["UPDATE_LINK_CSV", "link-csv"],
+                ["UPDATE_MANDATORY_VACCINATIONS_YEARS", "mandatory-vaccinations-years"],
+                ["UPDATE_LAST_UPDATE_DATE", "lastupdatedate"],
+                ["UPDATE_AUTO_FILTERS", "auto-filters"],
+                ["UPDATE_ACRONYMS", "acronyms"]
+              ].map(request => store.dispatch("content/requestJson", request)),
+              [
+                ["UPDATE_ABOUT", "?slug=sobre-vacinabr"],
+                ["UPDATE_ABOUT_VACCINES", "?slug=sobre-vacinas-vacinabr"],
+                ["UPDATE_GLOSSARY", "?slug=glossario-vacinabr"]
+              ].map(request => store.dispatch("content/requestPage", request)),
              ]
           );
         });

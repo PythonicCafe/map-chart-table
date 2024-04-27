@@ -139,67 +139,20 @@ export default {
     }
     return { ...result, localNames };
   },
-  async requestAbout(
+  async requestPage(
     { state, commit },
+    [ mutation, slug ]
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const payload = await api.requestSettingApiEndPoint("?slug=sobre-vacinabr", "/wp-json/wp/v2/pages");
-    commit("UPDATE_ABOUT", payload);
+    const payload = await api.requestSettingApiEndPoint(slug, "/wp-json/wp/v2/pages");
+    commit(mutation, payload);
   },
-  async requestAboutVaccines(
+  async requestJson(
     { state, commit },
+    [ mutation, endpoint ]
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const payload = await api.requestSettingApiEndPoint("?slug=sobre-vacinas-vacinabr", "/wp-json/wp/v2/pages");
-    commit("UPDATE_ABOUT_VACCINES", payload);
+    const payload = await api.request(endpoint);
+    commit(mutation, payload);
   },
-  async requestLink(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request('link-csv');
-    commit("UPDATE_LINK_CSV", payload);
-  },
-  async requestDoseBlocks(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request('dose-blocks');
-    commit("UPDATE_DOSE_BLOCKS", payload);
-  },
-  async requestGranularityBlocks(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request('granularity-blocks');
-    commit("UPDATE_GRANULARITY_BLOCKS", payload);
-  },
-  async requestAutoFilters(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request('auto-filters');
-    commit("UPDATE_AUTO_FILTERS", payload);
-  },
-  async requestMandatoryVaccination(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request('mandatory-vaccinations-years');
-    commit("UPDATE_MANDATORY_VACCINATIONS_YEARS", payload);
-  },
-  async requestGlossary(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.requestSettingApiEndPoint("?slug=glossario-vacinabr", "/wp-json/wp/v2/pages");
-    commit("UPDATE_GLOSSARY", payload);
-  },
-  async requestLastUpdateDate(
-    { state, commit },
-  ) {
-    const api = new DataFetcher(state.apiUrl);
-    const payload = await api.requestSettingApiEndPoint("lastupdatedate", "/wp-json/api/v1/");
-    commit("UPDATE_LAST_UPDATE_DATE", payload);
-  }
 }
