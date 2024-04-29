@@ -13,6 +13,8 @@ export const chart = {
     const store = useStore();
     const chartDefined = ref(true);
     const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
+    const tabBy = computed(() => store.state.content.tabBy);
+    const acronyms = computed(() => store.state.content.acronyms);
 
     const getOrCreateLegendList = (chart, id) => {
       const legendContainer = document.getElementById(id);
@@ -105,12 +107,18 @@ export const chart = {
 
     const splitTextToChart = (label) => {
       let labelSplited = label.split(" ");
-      let lastLabel = labelSplited[labelSplited.length -1]
+      let lastLabel = labelSplited[labelSplited.length -1];
+      const vaccineName = labelSplited.slice(0 ,labelSplited.length - 1).join(" ");
+      const acronym = tabBy.value === "immunizers" ?
+        acronyms.value.find(acronym => acronym["nome_vacinabr"] === vaccineName) :
+        undefined;
+      let labelAcronym = acronym ? acronym["sigla_vacinabr"] : (labelSplited[0].substr(0, 3) + ".");
+
       if (label.includes(",")) {
         labelSplited = label.split(",");
         lastLabel = labelSplited[1].split(" ")[0] + " " + labelSplited[1].split(" ")[2].substr(0, 3);
       }
-      return `${labelSplited[0].substr(0, 3)}. ${lastLabel}`;
+      return `${labelAcronym} ${lastLabel}`;
     }
 
     const formatter = (value, context, signal) => {
