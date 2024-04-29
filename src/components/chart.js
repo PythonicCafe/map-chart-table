@@ -23,7 +23,7 @@ export const chart = {
       if (!listContainer) {
         listContainer = document.createElement('ul');
         listContainer.style.display = 'flex';
-        listContainer.style.gap = '12px';
+        listContainer.style.gap = '4px 12px';
         listContainer.style.flexDirection = 'row';
         listContainer.style.flexWrap = 'wrap';
         listContainer.style.margin = 0;
@@ -315,9 +315,6 @@ export const chart = {
         }
         if (!localNames.includes(local + sickImmunizer)){
           counter++;
-          if (counter > 9) {
-            continue;
-          }
           localNames.push(local + sickImmunizer);
         }
 
@@ -427,7 +424,11 @@ export const chart = {
   },
   template: `
     <section>
-      <div id="legend-container" style="padding-right: 64px; padding-left: 64px;"></div>
+      <div
+        id="legend-container"
+        style="margin: 0px 64px; max-height: 70px; overflow-y: auto;"
+        class="mct-scrollbar"
+      ></div>
       <div class="mct-canva mct-canva--chart">
         <canvas :class="chartDefined ? '' : 'element-hidden'" id="chart"></canvas>
         <n-empty
