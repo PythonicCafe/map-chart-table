@@ -38,6 +38,7 @@ export default {
       } else if (key === "sickImmunizer" || key === "dose") {
         disableOptionsByDoseOrSick(state, payload)
         disableOptionsByTypeOrDose(state, key, value);
+        // After sickImmunizer update dose select update with type and granularity
         const type = state.form.type;
         if (type) {
           disableOptionsByTypeOrDose(state, "type", type);
