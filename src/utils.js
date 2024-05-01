@@ -78,6 +78,7 @@ export const formatToTable = (data, localNames, metadata) => {
   const index = localNames[0].indexOf("geom_id");
   const indexName = localNames[0].indexOf("name");
   const indexUF = localNames[0].indexOf("uf");
+  const indexAcronym = localNames[0].indexOf("acronym");
   const rows = [];
 
   // Loop api return value
@@ -88,7 +89,9 @@ export const formatToTable = (data, localNames, metadata) => {
       const key = header[j].key;
       const value = data[i][j];
       if (key === "local") {
-        const localResult = localNames.find(localName => localName[index] == value);
+        let localResult =
+          localNames.find(localName => localName[index] == value) ||
+          localNames.find(localName => localName[indexAcronym] == value);
         if (!localResult) {
           continue
         }
@@ -377,6 +380,11 @@ export const disableOptionsByGranularityOrType = (state, payload) => {
     const elRow = blockedListRows.find(el =>
       el[granularityColumnIndex] === selectedValue.toLowerCase()
     );
+
+    if (!elRow) {
+      return
+    }
+
     if (state.tabBy === "immunizers") {
       hvOpt.disabled = !elRow[hvColumnIndex];
       hvOpt.disabledText = "Não selecionável para essa granularidade";

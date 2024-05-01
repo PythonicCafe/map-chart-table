@@ -95,6 +95,7 @@ export class MapChart {
     const index = contentData[0].indexOf("geom_id") != -1 ? contentData[0].indexOf("geom_id") : contentData[0].indexOf("id");
     const indexName = contentData[0].indexOf("name");
     const indexAcronym = contentData[0].indexOf("acronym");
+
     return [ index, indexName, indexAcronym, contentData.find(el => el[index] === elementId) ];
   }
 
@@ -128,6 +129,7 @@ export class MapChart {
 
       let dataset = { data: { value: "---" }, color: "#D3D3D3" };
       let datasetValuesFound = [];
+
       if (content.id) {
         // Get by id
         datasetValuesFound = self.datasetValues.find(ds => (ds.name == content[indexName]) && (ds.id == content[indexName]));

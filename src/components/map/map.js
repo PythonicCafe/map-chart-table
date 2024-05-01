@@ -35,6 +35,8 @@ export const map = {
       } else if (granularity.value === "Região de saúde") {
         maplocal = `reg/${local}`;
       } else if (granularity.value === "Estados") {
+        maplocal = "BR-UF";
+      } else if (granularity.value === "Nacional") {
         maplocal = "BR";
       } else {
         maplocal = local;
@@ -77,7 +79,11 @@ export const map = {
     }
 
     const setMap = async () => {
-      const local = store.state.content.form.local;
+      const granularity = store.state.content.form.granularity;
+      let local =  store.state.content.form.local;
+      if (granularity === "Nacional") {
+        local = ['BR'];
+      }
       if (!local) {
         return;
       }
@@ -94,6 +100,7 @@ export const map = {
           element: mapElement,
           map: map.value
         };
+
         if (local.length === 1) {
           datasetCities.value = convertArrayToObject(results.data).data;
           datasetStates.value = null;

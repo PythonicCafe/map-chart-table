@@ -51,8 +51,7 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.dose ||
-      (!form.periodStart && !form.periodEnd) ||
-      !form.local.length
+      (!form.periodStart && !form.periodEnd)
     ) {
       return;
     }
@@ -81,11 +80,13 @@ export default {
     if (granularity === "Região de saúde" && states.length > 1) {
       isStateData = "regNames";
     } else if (granularity === "Macrorregião de saúde") {
-      isStateData = "macregnames";
+      isStateData = "macregNames";
     } else if (granularity === "Região de saúde") {
-      isStateData = "regnames";
+      isStateData = "regNames";
     } else if (granularity === "Estados") {
       isStateData = "statesNames";
+    } else if (granularity === "Nacional") {
+      isStateData = "countryName";
     } else {
       isStateData = "citiesNames";
     }

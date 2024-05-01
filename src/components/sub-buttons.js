@@ -138,7 +138,7 @@ export const subButtons = {
     }
 
     const openInNewTab = () => {
-      window.open(csvAllDataLink.value["url"], '_blank');
+       window.open(window.location.href + csvAllDataLink.value["url"], '_blank');
     }
 
     const clickShowVac = () => {

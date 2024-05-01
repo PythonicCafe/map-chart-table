@@ -15,7 +15,7 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.period ||
-      !form.local.length ||
+      (!form.local.length && form.granularity !== 'Nacional') ||
       !form.dose
     ) {
       return;
@@ -46,7 +46,7 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.period ||
-      !form.local.length ||
+      (!form.local.length && form.granularity !== 'Nacional') ||
       !form.dose
     ) {
       return;
@@ -86,5 +86,14 @@ export default {
       return false;
     }
     return true;
+  },
+  disableLocalSelect: state => {
+    const granularity = state.form.granularity;
+
+    if (granularity === 'Nacional') {
+      state.form.local = [];
+      return true;
+    }
+    return false;
   }
 }

@@ -24,6 +24,7 @@ export const subSelect = {
     const tabBy = computed(() => store.state.content.tabBy);
     const sickTemp = ref(null);
     const localTemp = ref(null);
+    const disableLocalSelect = computed(() => store.getters[`content/disableLocalSelect`]);
     const sick = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sickImmunizer" }));
     const sicks = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sicks" }));
     const immunizers = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "immunizers" }));
@@ -174,6 +175,7 @@ export const subSelect = {
       eraseForm,
       clear,
       disableAll: computed(() => store.state.content.yearSlideAnimation),
+      disableLocalSelect,
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -270,7 +272,7 @@ export const subSelect = {
           placeholder="Selecione Estado"
           multiple
           filterable
-          :disabled="disableAll"
+          :disabled="disableAll || disableLocalSelect"
           max-tag-count="responsive"
           :on-update:show="handleLocalsUpdateShow"
           :on-update:value="handleLocalsUpdateValue"
