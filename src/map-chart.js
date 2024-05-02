@@ -421,13 +421,14 @@ export class MapChart {
       }
     } else if (type === "Homogeneidade geográfica") {
       if (percentage <= 20) {
-        return cPalette0[4];
+        return cPalette0[5];
       } else if (percentage > 20 && percentage <= 50) {
-        return cPalette0[3];
+        return cPalette0[4];
       } else if (percentage > 50 && percentage <= 70) {
-        return cPalette0[2];
+        console.log(cPalette0[2])
+        return cPalette0[3];
       } else if (percentage > 70 && percentage <= 95) {
-        return  cPalette0[1];
+        return  cPalette0[2];
       } else { // percentage > 95
         return cPalette0[0];
       }
