@@ -51,7 +51,8 @@ export default {
       !form.granularity ||
       !form.sickImmunizer ||
       !form.dose ||
-      (!form.periodStart && !form.periodEnd)
+      (!form.periodStart && !form.periodEnd) ||
+      (!form.local.length && form.granularity !== "Nacional")
     ) {
       return;
     }
