@@ -18,7 +18,7 @@ export const subSelect = {
       type: Boolean,
     },
   },
-  setup () {
+  setup (props) {
     const store = useStore();
     const tab = computed(() => store.state.content.tab);
     const tabBy = computed(() => store.state.content.tabBy);
@@ -126,6 +126,8 @@ export const subSelect = {
       }
     }
 
+    const styleWidth = props.modal ? "width: 400px;"  : "width: 225px;";
+
     watch(
       () => store.state.content.form.local,
       (loc) => {
@@ -176,6 +178,7 @@ export const subSelect = {
       clear,
       disableAll: computed(() => store.state.content.yearSlideAnimation),
       disableLocalSelect,
+      styleWidth,
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -218,7 +221,7 @@ export const subSelect = {
           max-tag-count="responsive"
           class="mct-select"
           filterable
-          :class="modal ? 'mct-select--modal' : ''"
+          :style="styleWidth"
           :consistent-menu-width="false"
           :multiple="tab !== 'map'"
           :on-update:show="handleSicksUpdateShow"
@@ -239,7 +242,7 @@ export const subSelect = {
           max-tag-count="responsive"
           placeholder="Selecione dose"
           :options="doses"
-          :class="modal ? 'mct-select-dose--modal' : ''"
+          :style="styleWidth"
           :render-option="renderOption"
           clearable
           :disabled="disableAll"
@@ -252,7 +255,7 @@ export const subSelect = {
           :consistent-menu-width="false"
           :options="types"
           class="mct-select"
-          :class="modal ? 'mct-select--modal' : ''"
+          :style="styleWidth"
           max-tag-count="responsive"
           placeholder="Selecione Tipo de dado"
           filterable
@@ -267,8 +270,7 @@ export const subSelect = {
           v-model:value="localTemp"
           :options="locals"
           class="mct-select"
-          style="width: 225px"
-          :class="modal ? 'mct-select--modal' : ''"
+          :style="styleWidth"
           placeholder="Selecione Estado"
           multiple
           filterable
@@ -279,7 +281,7 @@ export const subSelect = {
         >
         </n-select>
       </n-form-item>
-      <n-form-item label="Abrangência temporal" style="width: 200px">
+      <n-form-item label="Abrangência temporal" :style="modal ? 'max-width: 400px;' : 'max-width: 200px;'">
         <n-select
          class="start-datepicker"
          v-model:value="periodStart"
@@ -308,7 +310,7 @@ export const subSelect = {
           v-model:value="granularity"
           :options="granularities"
           class="mct-select"
-          :class="modal ? 'mct-select--modal' : ''"
+          :style="styleWidth"
           placeholder="Selecione Granularidade"
           clearable
           filterable

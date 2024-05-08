@@ -45,7 +45,7 @@ export const mainCard = {
     const isMobileScreen = ref(null);
     const formPopulated = computed(() => store.getters["content/selectsEmpty"]);
     const getWindowWidth = () => {
-      isMobileScreen.value = window.innerWidth <= 1350;
+      isMobileScreen.value = window.innerWidth <= 1368;
     }
     window.addEventListener('resize', getWindowWidth)
     const tab = computed(() => store.state.content.tab);
@@ -189,33 +189,68 @@ export const mainCard = {
     };
   },
   template: `
-    <n-card style="border: #D8D8D8 1px solid">
+    <section>
       <template v-if="isMobileScreen">
-        <n-button type="primary" round @click="showModal = true" style="width: 100%; margin: 12px 0px">Filtrar</n-button>
-        <n-modal v-model:show="showModal" transform-origin="center" preset="card" style="width: 100%; min-height: 100vh">
+        <div class="filter-mobile-button">
+          <n-button
+            type="primary"
+            round
+            @click="showModal = true"
+            style="width: 240px; margin: 12px 0px;"
+          >Filtrar
+        </n-button>
+        </div>
+        <n-modal
+          v-model:show="showModal"
+          transform-origin="center"
+          preset="card"
+          style="width: 100%; min-height: 100vh"
+        >
           <n-card
             :bordered="false"
             size="huge"
           >
             <SubSelect :modal="true" />
-            <n-button type="primary" round @click="showModal = false" style="width: 100%; margin: 12px 0px">Pronto</n-button>
+            <div class="filter-mobile-button">
+              <n-button
+                type="primary"
+                round @click="showModal = false"
+                style="width: 240px; margin-top: 32px;"
+              >Pronto
+              </n-button>
+            </div>
           </n-card>
         </n-modal>
       </template>
       <template v-else>
         <SubSelect />
       </template>
-      <div style="position: relative;">
+      <div class="main-content">
         <n-spin :show="show.loading">
-          <h2 v-if="mainTitle" style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem">
-            {{ mainTitle }}
+          <h2
+            v-if="mainTitle"
+            style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem"
+          >{{ mainTitle }}
           </h2>
-          <n-skeleton v-else height="30px" width="40%" :animated="false" style="margin-top: 6px" />
+          <n-skeleton
+            v-else
+            height="33px"
+            width="40%" :animated="false"
+            style="margin-top: 6px"
+          />
           <div style="margin-top: 0px; margin-bottom: 16px">
-            <h3 v-if="subTitle" style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem">
-             {{ subTitle }}
+            <h3
+              v-if="subTitle"
+              style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem"
+            >{{ subTitle }}
             </h3>
-            <n-skeleton v-else height="30px" width="45%" :animated="false" style="margin-top: 4px;" />
+            <n-skeleton
+              v-else
+              height="33px"
+              width="45%"
+              :animated="false"
+              style="margin-top: 4px;"
+            />
           </div>
           <section style="min-height:520px">
             <template v-if="tab === 'map'">
@@ -241,10 +276,12 @@ export const mainCard = {
               <Table />
             </template>
           </section>
+          <FilterSuggestion v-if="formPopulated" />
         </n-spin>
-        <FilterSuggestion v-if="formPopulated" />
       </div>
-      <SubButtons />
-    </n-card>
+      <div class="main-content main-content--sub">
+        <SubButtons />
+      </div>
+    </section>
   `,
 }

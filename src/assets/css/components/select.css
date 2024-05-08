@@ -100,23 +100,19 @@
   z-index: 0;
 }
 
-.mct-select--modal {
-  width: 100%;
-}
-
 .mct-select-dose {
   width: 140px;
   z-index: 0;
-}
-
-.mct-select-dose--modal {
-  width: 100%;
 }
 
 .mct-selects {
   display:flex;
   gap: 14px;
   align-items: center;
+  background-color: var(--embed-color);
+  padding-left: var(--padding-container);
+  padding-right: var(--padding-container);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px -2px 36px -28px inset;
 }
 
 .mct-selects--modal {
@@ -125,4 +121,12 @@
 
 .n-base-select-option__content {
   z-index: 0 !important;
+}
+
+@media (max-width: 1368px) {
+  .mct-selects {
+    background-color: white;
+    gap: 12px;
+    box-shadow: none;
+  }
 }

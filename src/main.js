@@ -1,6 +1,6 @@
 import "./assets/css/style.css";
-import logo from "./assets/images/logo-vacinabr.svg";
 import { createApp, computed, ref, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import logo from "./assets/images/logo-vacinabr.svg";
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
@@ -8,7 +8,6 @@ import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NScrollbar, NT
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
-import { biInfoCircle } from "./icons.js";
 import { modalWithTabs as Modal } from "./components/modalWithTabs.js";
 
 export default class MCT {
@@ -74,9 +73,8 @@ export default class MCT {
           tab,
           tabBy,
           api: self.api,
-          logo,
-          biInfoCircle,
           showModal,
+          logo,
           disableMap,
           disableChart,
           modalContent,
@@ -88,28 +86,26 @@ export default class MCT {
       },
       template: `
         <Config>
-          <main class="main" style="max-width: 1500px; margin: 0px auto;">
+          <section class="main">
             <n-message-provider>
               <section class="main-header">
-                <div style="display:flex; align-items: end; gap: 10px">
-                  <div>
-                    <img :src="logo" width="150">
+                <div class="main-header-container mct-scrollbar">
+                  <div class="main-header-form">
+                    <label class="main-header__label">Pesquisar por:</label>
+                    <n-tabs type="segment" v-model:value="tabBy">
+                      <n-tab name="sicks" tab="Doença" :disabled="disableAll" />
+                      <n-tab name="immunizers" tab="Vacina" :disabled="disableAll" />
+                    </n-tabs>
                   </div>
-                </div>
-                <div style="display:flex; gap: 32px; overflow: auto; max-width: 100%; align-items: center" class="mct-scrollbar">
-                  <n-button v-if="modalContent" text color="#e96f5f" @click="showModal = true">
-                    <template #icon><n-icon v-html="biInfoCircle" /></template>
-                    Sobre o projeto
-                  </n-button>
-                  <n-tabs type="segment" v-model:value="tabBy">
-                    <n-tab name="sicks" tab="Por doença" :disabled="disableAll" />
-                    <n-tab name="immunizers" tab="Vacina" :disabled="disableAll" />
-                  </n-tabs>
-                  <n-tabs v-model:value="tab" type="segment">
-                    <n-tab name="map" tab="Mapa" :disabled="disableMap || disableAll" />
-                    <n-tab name="chart" tab="Gráfico" :disabled="disableChart || disableAll" />
-                    <n-tab name="table" tab="Tabela" :disabled="disableAll" />
-                  </n-tabs>
+                  <hr class="custom-hr">
+                  <div class="main-header-form">
+                    <label class="main-header__label">Visualizar por:</label>
+                    <n-tabs v-model:value="tab" type="segment">
+                      <n-tab name="map" tab="Mapa" :disabled="disableMap || disableAll" />
+                      <n-tab name="chart" tab="Gráfico" :disabled="disableChart || disableAll" />
+                      <n-tab name="table" tab="Tabela" :disabled="disableAll" />
+                    </n-tabs>
+                  </div>
                 </div>
               </section>
               <div>
@@ -122,7 +118,7 @@ export default class MCT {
                 :data="modalContent"
               />
             </n-message-provider>
-          </main>
+          </section>
         </Config>
       `,
     };

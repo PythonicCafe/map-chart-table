@@ -26,6 +26,7 @@
 
 .n-tabs-nav .n-tabs-rail .n-tabs-tab {
   background-color: var(--gray-color);
+  color: black;
 }
 
 .n-tabs-nav .n-tabs-rail .n-tabs-tab--disabled {
@@ -51,10 +52,11 @@
   background-color: var(--primary-color);
   transition: background-color 0.3s;
   color: white;
+  font-weight: 600;
 }
 
 .n-tabs-tab__label {
-  font-weight: 500;
+  font-size: 0.9em;
 }
 
 .n-tabs.n-tabs--line-type .n-tabs-tab {

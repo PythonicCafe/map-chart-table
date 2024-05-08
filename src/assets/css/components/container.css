@@ -3,8 +3,16 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding: 25px 85px 60px;
+}
+
+.main-content {
+  position: relative; 
+  padding-left: var(--padding-container);
+  padding-right: var(--padding-container);
+}
+
+.main-content--sub {
+  margin-bottom: 64px;
 }
 
 .container-elements {
@@ -34,9 +42,6 @@
 }
 
 @media (max-width: 800px) {
-  .main {
-    padding: 15px 12px;
-  }
   .container-elements--table {
     display: flex;
     flex-direction: column;

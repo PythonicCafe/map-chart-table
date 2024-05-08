@@ -5,4 +5,16 @@
   --gray-color-light: #fafafa;
   --primary-color: #e96f5f;
   --label-color: #827e7e;
+  --embed-color: #fafafa;
+
+  --padding-container: 200px;
+}
+
+
+/* MediaQuery */
+
+@media (max-width: 1368px) {
+  :root {
+    --padding-container: 20px;
+  }
 }

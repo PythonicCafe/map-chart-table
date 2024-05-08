@@ -1,19 +1,32 @@
 .filter-suggestion {
-  width: 100%;
   height:100%;
   position: absolute;
   top: 0;
   bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   background-color: rgb(254, 254, 254);
 }
 
+.filter-suggestion-title {
+  text-align: center;
+  font-size: 24px;
+  padding-bottom: 48px;
+  font-weight: 400;
+}
+
 .filters-container {
-  display: grid;
   gap: 8px;
-  grid-template-columns: auto auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)) ;
+  grid-gap: 10px;
+}
+
+.filter-container-suggestion {
+  overflow: hidden;
 }
 
 .filter-title {
@@ -21,10 +34,9 @@
 }
 .filter-text-suggestion {
   text-align: initial;
-  max-width: 490px;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .filter-description {
@@ -36,19 +48,7 @@
 
 @media (max-width: 1300px) {
   .filters-container {
-    grid-template-columns: auto;
+    display: flex;
+    flex-direction: column;
   }
 }
-
-@media (max-width: 900px) {
-  .filter-text-suggestion {
-    max-width: 375px;
-  }
-}
-
-@media (max-width: 800px) {
-  .filter-text-suggestion {
-    max-width: 324px;
-  }
-}
-

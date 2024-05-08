@@ -36,15 +36,16 @@ export const filterSuggestion = {
   },
   template: `
     <div v-if="elements" class="filter-suggestion">
-      <div style="text-align: center; font-size: 24px; padding-bottom: 48px">
+      <h2 class="filter-suggestion-title">
         Explore a plataforma usando os filtros acima, ou selecione um dos exemplos abaixo
-      </div>
+      </h2>
       <div class="filters-container">
         <n-button
           v-for="element in elements"
-          style="display: flex; justify-content: initial; height: 80px;" @click="selectFilter(element)"
+          style="display: flex; justify-content: initial; height: 80px;"
+          @click="selectFilter(element)"
         >
-          <div style="display: flex; flex-direction: column; gap: 4px">
+          <div class="filter-container-suggestion">
             <div class="filter-text-suggestion filter-title">
              {{ element.title }}
             </div>
