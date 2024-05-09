@@ -30,6 +30,10 @@
   gap: 24px;
 }
 
+.main-header-form .n-tabs-tab__label {
+ height: 20.5167px;
+}
+
 .custom-hr {
   height: 48px;
   border-left: 0px;
@@ -42,17 +46,29 @@
   justify-content: center;
 }
 
+.main-header__tab-label {
+  display: block;
+}
+
+.main-header__tab-icon {
+  display: none;
+}
+
 @media (max-width: 1368px) {
   .main-header-container {
-    flex-direction: column;
     gap: 12px;
   }
   .main-header-form {
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
   }
   .custom-hr {
-    height: 1px;
-    width: 120px;
+    height: 70px;
+  }
+  .main-header__tab-label {
+    display: none;
+  }
+  .main-header__tab-icon {
+    display: block;
   }
 }

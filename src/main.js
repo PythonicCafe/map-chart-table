@@ -4,11 +4,22 @@ import logo from "./assets/images/logo-vacinabr.svg";
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
-import { NTabs, NTabPane, NTab, NMessageProvider, NButton, NIcon, NScrollbar, NTooltip } from "naive-ui";
+import
+{
+  NTabs,
+  NTabPane,
+  NTab,
+  NMessageProvider,
+  NButton,
+  NIcon,
+  NScrollbar,
+  NTooltip
+} from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
 import { modalWithTabs as Modal } from "./components/modalWithTabs.js";
+import { biMap, biGraphUp, biTable } from "./icons.js";
 
 export default class MCT {
   constructor({ api = "", baseAddress = "" }) {
@@ -20,7 +31,20 @@ export default class MCT {
   render() {
     const self = this;
     const App = {
-      components: { NTabs, NTabPane, NTab, Config, MainCard, NMessageProvider, NButton, NIcon, Modal, NScrollbar, NTooltip },
+      components:
+      {
+        NTabs,
+        NTabPane,
+        NTab,
+        Config,
+        MainCard,
+        NMessageProvider,
+        NButton,
+        NIcon,
+        Modal,
+        NScrollbar,
+        NTooltip
+      },
       setup() {
         const store = useStore();
         const showModal = ref(false);
@@ -79,6 +103,9 @@ export default class MCT {
           disableChart,
           modalContent,
           disableAll: computed(() => store.state.content.yearSlideAnimation),
+          biMap,
+          biGraphUp,
+          biTable,
           bodyStyle: {
             maxWidth: '900px'
           },
@@ -101,9 +128,18 @@ export default class MCT {
                   <div class="main-header-form">
                     <label class="main-header__label">Visualizar por:</label>
                     <n-tabs v-model:value="tab" type="segment">
-                      <n-tab name="map" tab="Mapa" :disabled="disableMap || disableAll" />
-                      <n-tab name="chart" tab="Gráfico" :disabled="disableChart || disableAll" />
-                      <n-tab name="table" tab="Tabela" :disabled="disableAll" />
+                      <n-tab name="map" :disabled="disableMap || disableAll">
+                       <n-icon class="main-header__tab-icon" v-html="biMap" />
+                       <span class="main-header__tab-label">Mapa</span>
+                      </n-tab>
+                      <n-tab name="chart" :disabled="disableChart || disableAll">
+                       <n-icon class="main-header__tab-icon" v-html="biGraphUp" />
+                       <span class="main-header__tab-label">Gráfico</span>
+                      </n-tab>
+                      <n-tab name="table" :disabled="disableAll">
+                       <n-icon class="main-header__tab-icon" v-html="biTable" />
+                       <span class="main-header__tab-label">Tabela</span>
+                      </n-tab>
                     </n-tabs>
                   </div>
                 </div>
