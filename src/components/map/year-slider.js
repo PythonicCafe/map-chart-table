@@ -177,7 +177,7 @@ export const yearSlider = {
               :max="max"
               placement="top"
               disabled
-              :range="max && min"
+              :range="!!max && !!min"
               :format-tooltip="formatTooltip"
             >
               <template #thumb>
