@@ -1,9 +1,10 @@
-import { ref, computed } from "vue/dist/vue.esm-bundler";
+import { ref, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
 import { formatToTable, formatDatePtBr } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
+import { computedVar } from "../utils";
 import sbim from "../assets/images/sbim.png";
 import cc from "../assets/images/cc.png";
 import riAlertLine from "../assets/images/ri-alert-line.svg";
@@ -33,7 +34,6 @@ export const subButtons = {
     const chart = ref(null);
     const store = useStore();
     const showModal = ref(false);
-    const showModalGloss = ref(false);
     const showModalVac = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
     const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
@@ -145,10 +145,6 @@ export const subButtons = {
       showModalVac.value = !showModalVac.value;
     }
 
-    const clickShowGloss = () => {
-      showModalGloss.value = !showModalGloss.value;
-    }
-
     const clickShowModal = () => {
       const map = document.querySelector("#canvas");
       svg.value = map?.innerHTML;
@@ -226,8 +222,6 @@ export const subButtons = {
       chartPNG,
       tab: computed(() => store.state.content.tab),
       goToCCLink,
-      showModalGloss,
-      clickShowGloss,
       showModalVac,
       clickShowVac,
       modalGlossary,
@@ -289,12 +283,6 @@ export const subButtons = {
         title="Sobre as Vacinas"
         :data="aboutVaccines"
       />
-      <modal
-        v-model:show="showModalGloss"
-        title="Glossário"
-      >
-        <div v-html="modalGlossary"></div>
-      </modal>
       <modal
         v-model:show="showModal"
         title="Download"

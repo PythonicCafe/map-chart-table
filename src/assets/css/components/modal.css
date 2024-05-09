@@ -20,6 +20,10 @@
   overflow-y: hidden;
 }
 
+.custom-card-body--tabs {
+  height: calc(100vh - 170px);
+}
+
 .custom-card-body>.n-scrollbar-container>.n-scrollbar-content {
   padding: 0px;
 }

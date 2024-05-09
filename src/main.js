@@ -13,12 +13,14 @@ import
   NButton,
   NIcon,
   NScrollbar,
-  NTooltip
+  NTooltip,
+  NSkeleton
 } from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
-import { modalWithTabs as Modal } from "./components/modalWithTabs.js";
+import { modalWithTabs as ModalWithTabs } from "./components/modalWithTabs.js";
+import { modal as Modal } from "./components/modal.js";
 import { biMap, biGraphUp, biTable } from "./icons.js";
 
 export default class MCT {
@@ -42,16 +44,42 @@ export default class MCT {
         NButton,
         NIcon,
         Modal,
+        ModalWithTabs,
         NScrollbar,
-        NTooltip
+        NTooltip,
+        NSkeleton
       },
       setup() {
         const store = useStore();
-        const showModal = ref(false);
         const tab = computed(computedVar({ store,  mutation: "content/UPDATE_TAB", field: "tab" }));
         const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
         const disableMap = computed(() => store.state.content.disableMap);
         const disableChart = computed(() => store.state.content.disableChart);
+        const genericModal = computed(computedVar({
+            store,
+            mutation: "content/UPDATE_GENERIC_MODAL",
+            field: "genericModal"
+          })
+        );
+        const genericModalShow = computed(computedVar({
+            store,
+            mutation: "content/UPDATE_GENERIC_MODAL_SHOW",
+            field: "genericModalShow"
+          })
+        );
+        const genericModalTitle = ref(null);
+
+        // external callbacks
+        self.genericModal = async (title, slug) => {
+          genericModal.value = null;
+          genericModalShow.value = !genericModalShow.value;
+          genericModalTitle.value = title;
+          await store.dispatch(
+            "content/requestPage",
+            ["UPDATE_GENERIC_MODAL", slug]
+          );
+        }
+
         // Define apiUrl in store state
         onBeforeMount(async () => {
           store.commit("content/SET_API", self.api);
@@ -67,37 +95,40 @@ export default class MCT {
                 ["UPDATE_ACRONYMS", "acronyms"]
               ].map(request => store.dispatch("content/requestJson", request)),
               [
-                ["UPDATE_ABOUT", "?slug=sobre-vacinabr"],
                 ["UPDATE_ABOUT_VACCINES", "?slug=sobre-vacinas-vacinabr"],
-                ["UPDATE_GLOSSARY", "?slug=glossario-vacinabr"]
               ].map(request => store.dispatch("content/requestPage", request)),
              ]
           );
         });
 
         const modalContent = computed(() => {
-          const text = store.state.content.about;
+          const text = store.state.content.genericModal;
           if (!text || !text.length) {
             return
           }
           const div = document.createElement("div");
-          div.innerHTML = text[0].content.rendered
-          const result = [...div.querySelectorAll("table>tbody>tr")].map(
-            tr => {
-              return {
-                header: tr.querySelectorAll("td")[0].innerHTML,
-                content: tr.querySelectorAll("td")[1].innerHTML
+          div.innerHTML = text[0].content.rendered;
+
+          if (div.querySelector("table")) {
+            const result = [...div.querySelectorAll("table>tbody>tr")].map(
+              tr => { return {
+                  header: tr.querySelectorAll("td")[0].innerHTML,
+                  content: tr.querySelectorAll("td")[1].innerHTML
+                }
               }
-            }
-          )
-          return result;
+            )
+            return result;
+          }
+
+          return text[0].content.rendered;
         })
 
         return {
           tab,
           tabBy,
           api: self.api,
-          showModal,
+          genericModalShow,
+          genericModalTitle,
           logo,
           disableMap,
           disableChart,
@@ -147,12 +178,35 @@ export default class MCT {
               <div>
                 <MainCard :api="api" />
               </div>
-              <modal
-                v-if="modalContent"
-                v-model:show="showModal"
-                title="Sobre o projeto"
+              <modalWithTabs
+                v-if="Array.isArray(modalContent)"
+                v-model:show="genericModalShow"
+                :title="genericModalTitle"
                 :data="modalContent"
               />
+              <modal
+                v-else
+                v-model:show="genericModalShow"
+                :title="genericModalTitle"
+              >
+                <template v-if="modalContent">
+                  <div v-html="modalContent"></div>
+                </template>
+                <template v-else>
+                  <n-skeleton
+                    :height="48"
+                    :sharp="false"
+                    size="medium"
+                    style="margin-bottom: 24px; margin-top: 12px;"
+                  />
+                  <n-skeleton text :repeat="6" style="margin-bottom: 8px;" />
+                  <n-skeleton text style="width: 40%; margin-bottom: 24px;" />
+                  <n-skeleton text :repeat="6" style="margin-bottom: 8px;" />
+                  <n-skeleton text style="width: 60%; margin-bottom: 24px;" />
+                  <n-skeleton text :repeat="8" style="margin-bottom: 8px;" />
+                  <n-skeleton text style=" width: 60%; margin-bottom: 24px;" />
+                </template>
+              </modal>
             </n-message-provider>
           </section>
         </Config>

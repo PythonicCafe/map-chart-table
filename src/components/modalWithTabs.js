@@ -1,12 +1,13 @@
 import { computed } from "vue/dist/vue.esm-bundler";
-import { NModal, NScrollbar, NTabs, NTabPane } from "naive-ui";
+import { NModal, NScrollbar, NTabs, NTabPane, NSpin } from "naive-ui";
 
 export const modalWithTabs = {
   components:  {
     NModal,
     NScrollbar,
     NTabs,
-    NTabPane
+    NTabPane,
+    NSpin
   },
   props: {
     data: {
@@ -29,13 +30,13 @@ export const modalWithTabs = {
       }
     });
 
-    const aboutVaccines = computed(() => props.data);
+    const items = computed(() => props.data);
     return {
       bodyStyle: {
         maxWidth: '900px',
       },
       showModal,
-      aboutVaccines
+      items
     }
   },
   template: `
@@ -49,10 +50,10 @@ export const modalWithTabs = {
       size="medium"
       transform-origin="center"
     >
-      <n-scrollbar class="custom-card-body">
-        <n-tabs type="line">
+      <n-scrollbar class="custom-card-body custom-card-body--height">
+        <n-tabs v-if="items" type="line">
           <n-tab-pane
-            v-for="item in aboutVaccines"
+            v-for="item in items"
             :name="item.header.replaceAll('&amp;', '').replaceAll('amp;', '&')"
             :tab="item.header.replaceAll('&amp;', '').replaceAll('amp;', '&')"
           >
@@ -61,6 +62,9 @@ export const modalWithTabs = {
             </n-scrollbar>
           </n-tab-pane>
         </n-tabs>
+        <div v-else>
+          <n-spin  :show="true" />
+        </div>
       </n-scrollbar>
     </n-modal>
   `,

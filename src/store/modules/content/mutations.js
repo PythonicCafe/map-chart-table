@@ -117,9 +117,6 @@ export default {
   UPDATE_AUTO_FILTERS(state, payload) {
     state.autoFilters = payload;
   },
-  UPDATE_ABOUT(state, payload) {
-    state.about = payload;
-  },
   UPDATE_ABOUT_VACCINES(state, payload) {
     state.aboutVaccines = payload;
   },
@@ -155,8 +152,11 @@ export default {
   UPDATE_LOADING(state, payload) {
     state.loading = payload;
   },
-  UPDATE_GLOSSARY(state, payload) {
-    state.glossary = payload;
+  UPDATE_GENERIC_MODAL(state, payload) {
+    state.genericModal = payload;
+  },
+  UPDATE_GENERIC_MODAL_SHOW(state, { genericModalShow }) {
+    state.genericModalShow = genericModalShow;
   },
   UPDATE_TAB(state, payload) {
     state.loading = true;
