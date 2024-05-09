@@ -250,16 +250,6 @@ export const subButtons = {
               <template #icon><n-icon v-html="biBook" /></template>
               Sobre as vacinas
             </n-button>
-            <n-button
-              v-if="modalGlossary && modalGlossary.length"
-              quaternary
-              type="primary"
-              style="font-weight: 500"
-              @click="clickShowGloss"
-            >
-              <template #icon><n-icon v-html="biListUl" /></template>
-              Glossário
-            </n-button>
             <n-button quaternary type="primary" style="font-weight: 500" @click="clickShowModal">
               <template #icon><n-icon v-html="biDownload" /></template>
               Download
@@ -283,7 +273,7 @@ export const subButtons = {
             <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
           </div>
         </div>
-        <div v-if="lastUpdate" style="display: flex; flex-direction: column; gap: 4px">
+        <div v-if="lastUpdate" class="main-card-footer-dates">
           <div v-if="lastUpdate.data" style="display: flex; gap: 12px">
             <div class="main-card-footer__legend">Dados coletados em: </div>
             <span>{{ formatDatePtBr(lastUpdate.data) }}</span>
@@ -291,59 +281,6 @@ export const subButtons = {
           <div v-if="lastUpdate.platform" style="display: flex; gap: 12px">
             <div class="main-card-footer__legend">Última atualização da plataforma: </div>
             <span>{{ formatDatePtBr(lastUpdate.platform) }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="main-card-footer-container-mobile">
-        <div class="main-card-footer main-card-footer--mobile">
-          <div class="main-card-footer__buttons main-card-footer__buttons--mobile">
-            <n-button
-              v-if="aboutVaccines && aboutVaccines.length"
-              text type="primary"
-              style="font-weight: 500"
-              @click="clickShowVac"
-            >
-              Sobre a vacina
-            </n-button>
-            <n-button
-              v-if="modalGlossary && modalGlossary.length"
-              text
-              type="primary"
-              style="font-weight: 500"
-              @click="clickShowGloss"
-            >
-              Glossário
-            </n-button>
-            <n-button text type="primary" style="font-weight: 500" @click="clickShowModal">
-              Download
-            </n-button>
-            <n-button text type="primary" style="font-weight: 500" @click="copyCurrentLink">
-              Compartilhar
-            </n-button>
-          </div>
-          <div style="display: flex; gap: 12px;">
-            <div class="main-card-footer__legend">Apoio: </div>
-            <img :src="sbim" width="100" >
-          </div>
-        </div>
-        <div class="main-card-footer main-card-footer--mobile">
-          <span class="main-card-footer__legend">{{ legend }}</span>
-          <div v-if="lastUpdate">
-            <div v-if="lastUpdate.data" style="display: flex; gap: 12px">
-              <div class="main-card-footer__legend">Dados coletados em:  </div>
-              <span>{{ formatDatePtBr(lastUpdate.data) }}</span>
-            </div>
-            <div v-if="lastUpdate.platform" style="display: flex; gap: 12px">
-              <div class="main-card-footer__legend">Última atualização da plataforma:  </div>
-              <span>{{ formatDatePtBr(lastUpdate.platform) }}</span>
-            </div>
-          </div>
-          <div
-            style="background-color: #f7f7f7; padding: 6px 12px; border-radius: .23rem; display: flex; align-items: center; gap: 8px"
-          >
-            <img :src="riAlertLine">
-            Achou um erro? Escreva para
-            <n-button type="primary" text :onClick="sendMail">vacinabr@iqc.org.br</n-button>
           </div>
         </div>
       </div>

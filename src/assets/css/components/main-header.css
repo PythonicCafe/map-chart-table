@@ -72,3 +72,14 @@
     display: block;
   }
 }
+
+@media (max-width: 475px) {
+  .main-header-container {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .custom-hr {
+    height: 0px;
+    width: 70px;
+  }
+}

@@ -252,7 +252,7 @@ export const mainCard = {
               style="margin-top: 4px;"
             />
           </div>
-          <section style="min-height:520px">
+          <section style="map-section">
             <template v-if="tab === 'map'">
               <div>
                 <div style="display: flex; gap: 12px">
