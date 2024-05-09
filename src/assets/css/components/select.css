@@ -95,6 +95,11 @@
 
 /* Selects styles */
 
+.sub-select-container {
+  background-color: var(--embed-color);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px -2px 36px -28px inset;
+}
+
 .mct-select {
   width: 200px;
   z-index: 0;
@@ -107,12 +112,12 @@
 
 .mct-selects {
   display:flex;
+  justify-content: center;
   gap: 14px;
   align-items: center;
-  background-color: var(--embed-color);
-  padding-left: var(--padding-container);
-  padding-right: var(--padding-container);
-  box-shadow: rgba(0, 0, 0, 0.35) 0px -2px 36px -28px inset;
+  max-width: 1368px;
+  margin: 0px auto;
+  padding: 0px 24px;
 }
 
 .mct-selects--modal {

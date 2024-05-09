@@ -222,9 +222,9 @@ export const mainCard = {
           </n-card>
         </n-modal>
       </template>
-      <template v-else>
+      <div class="sub-select-container" v-else>
         <SubSelect />
-      </template>
+      </div>
       <div class="main-content">
         <n-spin :show="show.loading">
           <h2

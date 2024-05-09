@@ -6,9 +6,10 @@
 }
 
 .main-content {
-  position: relative; 
-  padding-left: var(--padding-container);
-  padding-right: var(--padding-container);
+  position: relative;
+  max-width: 1368px;
+  margin: 0px auto;
+  padding: 0px 24px;
 }
 
 .main-content--sub {
@@ -41,6 +42,10 @@
   justify-content: end;
 }
 
+.element-hidden {
+  display: none !important;
+}
+
 @media (max-width: 800px) {
   .container-elements--table {
     display: flex;
@@ -50,8 +55,4 @@
   .container-input-card {
     flex-direction: column;
   }
-}
-
-.element-hidden {
-  display: none !important;
 }
