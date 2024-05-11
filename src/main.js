@@ -14,7 +14,8 @@ import
   NIcon,
   NScrollbar,
   NTooltip,
-  NSkeleton
+  NSkeleton,
+  NEmpty
 } from "naive-ui";
 import { useStore } from "vuex";
 import { computedVar } from "./utils";
@@ -47,7 +48,8 @@ export default class MCT {
         ModalWithTabs,
         NScrollbar,
         NTooltip,
-        NSkeleton
+        NSkeleton,
+        NEmpty
       },
       setup() {
         const store = useStore();
@@ -68,16 +70,23 @@ export default class MCT {
           })
         );
         const genericModalTitle = ref(null);
+        const genericModalLoading = ref(true);
 
         // external callbacks
         self.genericModal = async (title, slug) => {
+          genericModalLoading.value = true;
           genericModal.value = null;
           genericModalShow.value = !genericModalShow.value;
           genericModalTitle.value = title;
-          await store.dispatch(
-            "content/requestPage",
-            ["UPDATE_GENERIC_MODAL", slug]
-          );
+          try {
+            await store.dispatch(
+              "content/requestPage",
+              ["UPDATE_GENERIC_MODAL", slug]
+            );
+          } catch {
+            // Do Nothing
+          }
+          genericModalLoading.value = false;
         }
 
         // Define apiUrl in store state
@@ -128,6 +137,7 @@ export default class MCT {
           tabBy,
           api: self.api,
           genericModalShow,
+          genericModalLoading,
           genericModalTitle,
           logo,
           disableMap,
@@ -147,7 +157,7 @@ export default class MCT {
           <section class="main">
             <n-message-provider>
               <section class="main-header">
-                <div class="main-header-container mct-scrollbar">
+                <div class="main-header-container">
                   <div class="main-header-form">
                     <label class="main-header__label">Pesquisar por:</label>
                     <n-tabs type="segment" v-model:value="tabBy">
@@ -189,10 +199,7 @@ export default class MCT {
                 v-model:show="genericModalShow"
                 :title="genericModalTitle"
               >
-                <template v-if="modalContent">
-                  <div v-html="modalContent"></div>
-                </template>
-                <template v-else>
+                <template v-if="genericModalLoading">
                   <n-skeleton
                     :height="48"
                     :sharp="false"
@@ -205,6 +212,21 @@ export default class MCT {
                   <n-skeleton text style="width: 60%; margin-bottom: 24px;" />
                   <n-skeleton text :repeat="8" style="margin-bottom: 8px;" />
                   <n-skeleton text style=" width: 60%; margin-bottom: 24px;" />
+                </template>
+                <template v-else-if="modalContent">
+                  <div v-html="modalContent"></div>
+                </template>
+                <template v-else>
+                  <n-empty
+                    description="Nada para ser exibido."
+                    style="min-height: 70vh; display: flex; justify-content: center;"
+                  >
+                    <template #extra>
+                      <span
+                       style="color: #c5c5c5; font-size: .95rem; font-weight: 500"
+                      >Página não existe ou não tem conteúdo para ser exibido.</span>
+                    </template>
+                  </n-empty>
                 </template>
               </modal>
             </n-message-provider>
