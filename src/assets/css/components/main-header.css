@@ -17,6 +17,7 @@
   max-width: 100%;
   align-items: center;
   height: 70px;
+  overflow: hidden;
 }
 
 .main-header__label {
@@ -39,6 +40,8 @@
   border-left: 0px;
   border-top: 0px;
   opacity: 50%;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
 }
 
 .filter-mobile-button {
