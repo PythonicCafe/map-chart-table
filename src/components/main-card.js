@@ -227,18 +227,18 @@ export const mainCard = {
       </div>
       <div class="main-content">
         <n-spin :show="show.loading">
-          <h2
-            v-if="mainTitle"
-            style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem"
-          >{{ mainTitle }}
-          </h2>
-          <n-skeleton
-            v-else
-            height="33px"
-            width="40%" :animated="false"
-            style="margin-top: 6px"
-          />
-          <div style="margin-top: 0px; margin-bottom: 16px">
+          <div style="min-height: 4.8rem">
+            <h2
+              v-if="mainTitle"
+              style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem"
+            >{{ mainTitle }}
+            </h2>
+            <n-skeleton
+              v-else
+              height="2.3rem"
+              width="60%"
+              :animated="false"
+            />
             <h3
               v-if="subTitle"
               style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem"
@@ -246,10 +246,10 @@ export const mainCard = {
             </h3>
             <n-skeleton
               v-else
-              height="33px"
+              height="2rem"
               width="45%"
               :animated="false"
-              style="margin-top: 4px;"
+              style="margin-top: 4px"
             />
           </div>
           <section style="map-section">

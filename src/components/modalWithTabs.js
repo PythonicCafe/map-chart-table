@@ -11,7 +11,7 @@ export const modalWithTabs = {
   },
   props: {
     data: {
-      type: Array 
+      type: Array
     },
     show: {
       type: Boolean
@@ -50,22 +50,22 @@ export const modalWithTabs = {
       size="medium"
       transform-origin="center"
     >
-      <n-scrollbar class="custom-card-body custom-card-body--height">
+      <div class="custom-card-body custom-card-body--height">
         <n-tabs v-if="items" type="line">
           <n-tab-pane
             v-for="item in items"
             :name="item.header.replaceAll('&amp;', '').replaceAll('amp;', '&')"
             :tab="item.header.replaceAll('&amp;', '').replaceAll('amp;', '&')"
           >
-            <n-scrollbar style="height: 75vh; line-height: 26px;">
-              <div v-html="item.content"></div>
+            <n-scrollbar style="height: 75vh; line-height: 26px; font-size: .95rem">
+              <div v-html="item.content" style="padding-bottom: 120px;"></div>
             </n-scrollbar>
           </n-tab-pane>
         </n-tabs>
         <div v-else>
           <n-spin  :show="true" />
         </div>
-      </n-scrollbar>
+      </div>
     </n-modal>
   `,
 }
