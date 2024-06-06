@@ -1,5 +1,3 @@
-import { formatDate } from "./utils";
-
 export const formatToApi = ({
   form,
   tab,
@@ -40,10 +38,14 @@ export const formatToApi = ({
 
   if (tab) {
     routerResult.tab = tab;
+  } else {
+    delete routerResult.tab
   }
 
   if (tabBy) {
     routerResult.tabBy = tabBy;
+  } else {
+    delete routerResult.tabBy
   }
 
   return routerResult;
