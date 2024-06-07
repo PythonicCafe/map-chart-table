@@ -355,7 +355,38 @@ export const chart = {
         }
       }
 
-      const colors = [
+      const getRandomColor = () => {
+        // Define a function to generate a random integer between min and max (inclusive)
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Generate random RGB values, ensuring they are not all 255 (to avoid white)
+        let r, g, b;
+        do {
+          r = getRandomInt(0, 255);
+          g = getRandomInt(0, 255);
+          b = getRandomInt(0, 255);
+        } while (r === 255 && g === 255 && b === 255);
+
+        // Return the color in RGB format
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      const generateUniqueColors = (numColors) => {
+        const colors = new Set();
+
+        while (colors.size < numColors) {
+          const color = getRandomColor();
+          colors.add(color);
+        }
+
+        return Array.from(colors);
+      }
+
+      const chartResultEntries = Object.entries(chartResult);
+
+      const colorsBase = [
         '#e96f5f', // Base color
         '#5f9fe9', // Blue
         '#558e5a', // Darker Green
@@ -366,10 +397,15 @@ export const chart = {
         '#666666', // Gray
         '#e9a35f'  // Orange
       ];
+
+      const colors = chartResultEntries.length > 9 ?
+        [ ...colorsBase, ...generateUniqueColors(chartResultEntries.length - 9)] :
+        colorsBase ;
+
       const dataChart = [];
       let i = 0;
-      for(let [key, value] of Object.entries(chartResult)) {
-        const color = colors[i % colors.length];
+      for(let [key, value] of chartResultEntries) {
+        const color =  colors[i % colors.length];
         dataChart.push({
           label: key,
           data: value,
