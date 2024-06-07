@@ -110,7 +110,7 @@ export const chart = {
       let lastLabel = labelSplited[labelSplited.length -1];
       const vaccineName = labelSplited.slice(0 ,labelSplited.length - 1).join(" ");
       const acronym = tabBy.value === "immunizers" ?
-        acronyms.value.find(acronym => acronym["nome_vacinabr"] === vaccineName) :
+        acronyms.value.find(acronym => vaccineName.includes(acronym["nome_vacinabr"])) :
         undefined;
       let labelAcronym = acronym ? acronym["sigla_vacinabr"] : (labelSplited[0].substr(0, 3) + ".");
 
