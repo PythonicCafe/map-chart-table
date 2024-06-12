@@ -1,10 +1,9 @@
-import { ref, computed, watch } from "vue/dist/vue.esm-bundler";
+import { ref, computed } from "vue/dist/vue.esm-bundler";
 import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
 import { formatToTable, formatDatePtBr } from "../utils.js";
 import { useStore } from "vuex";
 import CsvWriterGen from "csvwritergen";
-import { computedVar } from "../utils";
 import sbim from "../assets/images/sbim.png";
 import cc from "../assets/images/cc.png";
 import riAlertLine from "../assets/images/ri-alert-line.svg";
@@ -127,13 +126,16 @@ export const subButtons = {
       const currentResult = await store.dispatch("content/requestData", { detail: true });
 
       if (!currentResult) {
-        store.commit('message/ERROR', "Preencha os seletores para gerar csv")
+        store.commit('message/ERROR', "Preencha os seletores para gerar csv");
         return;
       }
 
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
 
-      const csvwriter = new CsvWriterGen(tableData.header.map(x => Object.values(x)[0]), tableData.rows.map(x => Object.values(x)));
+      const header = tableData.header.map(x => Object.values(x)[0])
+      header[header.findIndex(head => head === "Valor")] = currentResult.metadata.type
+      const rows = tableData.rows.map(x => Object.values(x))
+      const csvwriter = new CsvWriterGen(header, rows);
       csvwriter.anchorElement('tabela');
     }
 
