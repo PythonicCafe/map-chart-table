@@ -30,9 +30,12 @@ export const table = {
 
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
       columns.value = tableData.header;
-      const columnValue = columns.value.find(column => column.key === "valor")
-      columnValue.minWidth = "160px"
-      columnValue.title = currentResult.metadata.type
+      if (currentResult.metadata.type == "Doses aplicadas") {
+        columns.value.splice(columns.value.findIndex(column => column.title === 'Doses'), 1);
+      }
+      const columnValue = columns.value.find(column => column.key === "valor");
+      columnValue.minWidth = "160px";
+      columnValue.title = currentResult.metadata.type;
       rows.value = tableData.rows;
 
       const arraySortColumns = currentResult.metadata.type == "Meta atingida" ? [4, 5] : [3, 4, 5];

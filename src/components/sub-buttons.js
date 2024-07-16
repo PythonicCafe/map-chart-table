@@ -135,6 +135,11 @@ export const subButtons = {
       const header = tableData.header.map(x => Object.values(x)[0])
       header[header.findIndex(head => head === "Valor")] = currentResult.metadata.type
       const rows = tableData.rows.map(x => Object.values(x))
+      if (currentResult.metadata.type == "Doses aplicadas") {
+        const index = header.findIndex(column => column === 'Doses')
+        header.splice(index, 1)
+        rows.forEach(row => row.splice(index, 1))
+      }
       const csvwriter = new CsvWriterGen(header, rows);
       csvwriter.anchorElement('tabela');
     }
