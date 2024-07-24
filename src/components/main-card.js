@@ -130,7 +130,16 @@ export const mainCard = {
           } else {
             removeQueryFromRouter(key);
           }
-        } else if (key === "granularity") {
+        } else if (key === "dose") {
+          const values = value.split(",")
+          const doses = formState["doses"].map(el => el.value)
+          if (values.every(val => doses.includes(val))) {
+              routerResult[key] = values;
+          } else {
+            removeQueryFromRouter(key);
+          }
+        }
+        else if (key === "granularity") {
           formState["granularities"].some(el => el.value === value) ?
             routerResult[key] = value : removeQueryFromRouter(key);
         } else if (key === "dose") {
@@ -174,6 +183,9 @@ export const mainCard = {
       });
       if (Array.isArray(stateResult.sickImmunizer) && stateResult.sickImmunizer.length) {
         stateResult.sickImmunizer = [...stateResult?.sickImmunizer].join(",");
+      }
+      if (Array.isArray(stateResult.dose) && stateResult.dose.length) {
+        stateResult.dose = [...stateResult?.dose].join(",");
       }
       if (Array.isArray(stateResult.local) && stateResult.local.length) {
         stateResult.local = [...stateResult?.local].join(",");

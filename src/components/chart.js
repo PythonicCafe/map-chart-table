@@ -108,11 +108,13 @@ export const chart = {
     const splitTextToChart = (label) => {
       let labelSplited = label.split(" ");
       let lastLabel = labelSplited[labelSplited.length -1];
-      const vaccineName = labelSplited.slice(0 ,labelSplited.length - 1).join(" ");
+      const vaccineName = label.replace("1ª dose", "").replace("1° reforço", "");
       const acronym = tabBy.value === "immunizers" ?
         acronyms.value.find(acronym => vaccineName.includes(acronym["nome_vacinabr"])) :
         undefined;
-      let labelAcronym = acronym ? acronym["sigla_vacinabr"] : (labelSplited[0].substr(0, 3) + ".");
+      let labelAcronym = acronym ? acronym["sigla_vacinabr"] : (
+      labelSplited[2].substr(0, 3) + " " + labelSplited[0] + labelSplited[1].substr(0, 1) + "." 
+      );
 
       if (label.includes(",")) {
         labelSplited = label.split(",");
@@ -308,8 +310,14 @@ export const chart = {
       // Loop through the dataArray starting from the second element to not get header
       let localNames = [];
       let counter = 0;
+      const header = dataArray[0];
       for (let i = 1; i < dataArray.length; i++) {
-        let [year, local, value, population, doses, sickImmunizer] = dataArray[i];
+        let year = dataArray[i][header.findIndex(y => y === 'ano')]
+        let local = dataArray[i][header.findIndex(l => l === 'local')]
+        let value = dataArray[i][header.findIndex(v => v === 'valor')]
+        let sickImmunizer = dataArray[i][header.findIndex(d => d === 'dose')] +
+          " " + dataArray[i][header.findIndex(sI => sI === 'doenca' || sI === 'imunizante')];
+
         if (!isNaN(local)) {
           local = result.localNames.find(x => x[0] == local)
         }
