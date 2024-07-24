@@ -241,6 +241,7 @@ export const subSelect = {
           filterable
           max-tag-count="responsive"
           placeholder="Selecione dose"
+          :multiple="tab !== 'map'"
           :options="doses"
           :style="styleWidth"
           :render-option="renderOption"

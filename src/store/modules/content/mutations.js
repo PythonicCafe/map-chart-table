@@ -161,12 +161,19 @@ export default {
   UPDATE_TAB(state, payload) {
     state.loading = true;
     state.tab = Object.values(payload)[0];
+    let showMessage = false;
     if (["table", "chart"].includes(Object.values(payload)[0])) {
       if (!state.form.sickImmunizer) {
         state.form.sickImmunizer = [];
       } else if (!Array.isArray(state.form.sickImmunizer)) {
         state.form.sickImmunizer = [state.form.sickImmunizer];
-        this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
+        showMessage = true;
+      }
+      if (!state.form.dose) {
+        state.form.dose = [];
+      } else if (!Array.isArray(state.form.dose)) {
+        state.form.dose = [state.form.dose];
+        showMessage = true;
       }
     } else if (
       state.form.sickImmunizer &&
@@ -177,9 +184,34 @@ export default {
       disableOptionsByDoseOrSick(state, { ["sickImmunizer"]: state.form.sickImmunizer });
       this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
     } else {
-      state.form.sickImmunizer = null;
+      if (
+        state.form.sickImmunizer &&
+        Array.isArray(state.form.sickImmunizer) &&
+        state.form.sickImmunizer.length > 0
+      ) {
+        state.form.sickImmunizer = state.form.sickImmunizer[0];
+        showMessage = true;
+      } else {
+        state.form.sickImmunizer = null;
+      }
+      if (
+        state.form.dose &&
+        Array.isArray(state.form.dose) &&
+        state.form.dose.length > 0
+      ) {
+        state.form.dose = state.form.dose[0];
+        showMessage = true;
+      } else {
+        state.form.dose = null;
+      }
     }
-
+    if (showMessage) {
+      this.commit(
+        "message/INFO",
+        "Seletores atualizados para tipo de exibição selecionada",
+        { root: true }
+      );
+    }
     this.commit("content/CHECK_GRAN_WITH_LOCAL");
     state.loading = false;
   },
@@ -206,6 +238,8 @@ export default {
           if (Array.isArray(state.form[formKey])) {
             state.form[formKey] = state.form[formKey].concat( ...state.form[formKey], formValue );
           } else if (formKey === "sickImmunizer" && state.tab !== "map") {
+            state.form[formKey] =  Array.isArray(formValue) ? formValue : [formValue];
+          } else if (formKey === "dose" && state.tab !== "map") {
             state.form[formKey] =  Array.isArray(formValue) ? formValue : [formValue];
           } else {
             state.form[formKey] = formValue;

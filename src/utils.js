@@ -52,7 +52,7 @@ export const formatToTable = (data, localNames, metadata) => {
     let width = null;
     let align = 0;
     let minWidth = 200;
-    if (["ano", "valor", "população", "doses", "código"].includes(column)) {
+    if (!["doenca", "local", "imunizante"].includes(column)) {
       align = "right";
       width = 120;
       minWidth = null;

@@ -45,6 +45,14 @@ export default {
     ) {
       return;
     }
+    // Return if form field dose is a multiple select and is empty
+    if (
+      form.dose &&
+      Array.isArray(form.dose) &&
+      !form.dose.length
+    ) {
+      return;
+    }
     // Return if form fields not filled
     if (
       !form.type ||
@@ -60,8 +68,9 @@ export default {
     // TODO: Add encodeURI to another fields
     const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
     const loc = Array.isArray(form.local) ? form.local.join("|") : form.local;
+    const dos = Array.isArray(form.dose) ? form.dose.join("|") : form.dose;
     let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
-      "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc + "&dose=" + form.dose;
+      "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc + "&dose=" + dos;
 
     request += form.periodStart ? "&periodStart=" + form.periodStart : "";
     request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";

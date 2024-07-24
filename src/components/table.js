@@ -41,7 +41,11 @@ export const table = {
       columnValue.title = currentResult.metadata.type;
       rows.value = tableData.rows;
 
-      const arraySortColumns = currentResult.metadata.type == "Meta atingida" ? [4, 5] : [3, 4, 5];
+      const coberturaCol = columns.value.findIndex(column => column.title === 'Cobertura')
+      const populationCol = columns.value.findIndex(column => column.title === 'População')
+      const dosesCol = columns.value.findIndex(column => column.title === 'Doses')
+      const arraySortColumns = currentResult.metadata.type == "Meta atingida" ?
+        [populationCol, dosesCol] : [coberturaCol, populationCol, dosesCol];
       arraySortColumns.forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
     }
 
