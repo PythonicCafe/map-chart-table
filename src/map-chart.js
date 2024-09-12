@@ -425,7 +425,6 @@ export class MapChart {
       } else if (percentage > 20 && percentage <= 50) {
         return cPalette0[4];
       } else if (percentage > 50 && percentage <= 70) {
-        console.log(cPalette0[2])
         return cPalette0[3];
       } else if (percentage > 70 && percentage <= 95) {
         return  cPalette0[2];

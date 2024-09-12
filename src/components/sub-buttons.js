@@ -15,6 +15,7 @@ import Abandono from "../assets/images/abandono.svg"
 import Cobertura from "../assets/images/cobertura.svg"
 import HomGeo from "../assets/images/hom_geo.svg"
 import HomVac from "../assets/images/hom_vac.svg"
+import Meta from "../assets/images/meta.svg"
 
 export const subButtons = {
   components:  {
@@ -82,7 +83,7 @@ export const subButtons = {
 
       const images = [
         { image: svgUrl, height: 650, width: 650 },
-        { image: logo, posX: 5, posY: 642 },
+        { image: logo, height: 53, width: 218, posX: 5, posY: 642 },
       ]
 
       const type = store.state.content.form.type;
@@ -96,10 +97,14 @@ export const subButtons = {
         legendSvg = HomGeo;
       } else if (type === "Homogeneidade entre vacinas") {
         legendSvg = HomVac;
+      } else if (type === "Meta atingida") {
+        legendSvg = Meta;
       }
 
       if (legendSvg && store.state.content.tab === "map") {
-        images.push({ image: legendSvg, width: 293, height: 88, posX: 1080, posY: 622 });
+        images.push(
+          { image: legendSvg, width: 293, height: 88, posX: 1080, posY: 622 }
+        );
       }
       const canvasDownload = new CanvasDownload(
         images,
@@ -136,7 +141,7 @@ export const subButtons = {
       header[header.findIndex(head => head === "Valor")] = currentResult.metadata.type
       const rows = tableData.rows.map(x => Object.values(x))
       if (currentResult.metadata.type == "Doses aplicadas") {
-        const index = header.findIndex(column => column === 'Doses')
+        const index = header.findIndex(column => column === 'Doses (qtd)')
         header.splice(index, 1)
         rows.forEach(row => row.splice(index, 1))
       }
@@ -181,12 +186,14 @@ export const subButtons = {
       const canvasDownload = new CanvasDownload(
         [
           { image: chartPNG.value },
-          { image: logo, posX: 5, posY: 642 }
+          { image: logo, height: 53, width: 218, posX: 5, posY: 842 },
         ],
         {
           title: store.getters['content/mainTitle'],
           subTitle: store.getters['content/subTitle'],
           source: store.state.content.legend + ".",
+          canvasHeight: 900,
+          yTextSource: 894
         }
       );
       await canvasDownload.download();

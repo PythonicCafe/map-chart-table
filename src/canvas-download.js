@@ -1,14 +1,14 @@
 class CanvasDownload {
-  constructor(images, { title, subTitle, message, source } = {}) {
-    const self = this;
+  constructor(images, { title, subTitle, message, source, canvasWidth, canvasHeight, yTextSource } = {}) {
     this.images = images;
     this.title = title;
     this.subTitle = subTitle;
     this.source = source;
     this.message = message;
 
-    this.canvasWidth = 1400;
-    this.canvasHeight = 720;
+    this.canvasWidth = canvasWidth ?? 1400;
+    this.canvasHeight = canvasHeight ?? 720;
+    this.yTextSource = yTextSource ?? 694;
   }
 
   async setCanvas() {
@@ -52,6 +52,7 @@ class CanvasDownload {
         const x = posX ? posX : canvas.width / 2 - img.width / 2;
         const y = posY ? posY : canvas.height / 2 - img.height / 2;
         // Assuming 'ctx' is a 2D rendering context of the canvas
+        console.log(img, x, y, img.width, img.height)
         ctx.drawImage(img, x, y, img.width, img.height);
         resolve();
       };
@@ -118,7 +119,7 @@ class CanvasDownload {
     if (self.source) {
       self.ctx.font = "12px Arial";
       self.ctx.fillStyle = "#222";
-      yText = 694;
+      yText = self.yTextSource;
       xText = 230;
       self.drawTextWithLineBreaks(self.source, xText, yText);
     }
