@@ -30,8 +30,11 @@ export const table = {
 
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
       columns.value = tableData.header;
+      const dosesQtd = columns.value.findIndex(column => column.title === 'Doses (qtd)');
       if (currentResult.metadata.type == "Doses aplicadas") {
-        columns.value.splice(columns.value.findIndex(column => column.title === 'Doses'), 1);
+        columns.value.splice(dosesQtd, 1);
+      } else {
+        columns.value[dosesQtd].minWidth = "130px";
       }
       const columnValue = columns.value.find(column => column.key === "valor");
       columnValue.minWidth = "160px";
