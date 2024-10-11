@@ -255,7 +255,7 @@ export const disableOptionsByTab = (state, payload) => {
 const blockHeaderName = (value) => {
   const firstLetter = value[0];
   const lastLetter = value[value.length - 1];
-  return (lastLetter === "o" ? "R" : "") + firstLetter;
+  return (lastLetter === "o" ? "r" : "") + firstLetter;
 }
 
 export const disableOptionsByDoseOrSick = (state, payload) => {
@@ -277,6 +277,9 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
   const selected = Object.entries(payload)[0];
   const selectedValue = selected[1];
 
+  const listIndexType = blockedListHeader.findIndex(el => el === "tipo");
+  const type = state.tabBy === "immunizers" ? "vacina" : "doenca";
+  const listIndexSickImmuno = blockedListHeader.findIndex(el => el === "doenca_imuno");
   if (selected[0] === "dose") {
     if(!selectedValue) { // CLEAR_STATE
       resetOptions(sicksImmunizers);
@@ -284,7 +287,10 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
     }
     const listIndex = blockedListHeader.findIndex(el => el === blockHeaderName(selectedValue));
     for (let i=0; i < sicksImmunizers.length; i++) {
-      const blockedListRow = blockedListRows.find(blr => blr[0] === sicksImmunizers[i].label);
+      const blockedListRow = blockedListRows.find(blr =>
+        blr[listIndexSickImmuno] === sicksImmunizers[i].label &&
+        blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
+      );
       const disabled = blockedListRow && blockedListRow[listIndex] === false ? true : false;
       sicksImmunizers[i] = {
         ...sicksImmunizers[i],
@@ -297,13 +303,18 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
       resetOptions(doses);
       return;
     }
-    const listIndex = blockedListHeader.findIndex(el => el === 'doenca_imuno');
     let resultToBlock;
 
     if (Array.isArray(selectedValue)) {
-      resultToBlock = blockedListRows.filter(el => selectedValue.includes(el[listIndex]));
+      resultToBlock = blockedListRows.filter(blr =>
+        selectedValue.includes(blr[listIndexSickImmuno]) &&
+        blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
+      );
     } else {
-      resultToBlock = blockedListRows.find(el => el[listIndex] === selectedValue);
+      resultToBlock = blockedListRows.find(blr =>
+        blr[listIndexSickImmuno] === selectedValue &&
+        blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
+      );
     }
 
     for (let i=0; i < doses.length; i++) {
