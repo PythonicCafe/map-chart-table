@@ -174,6 +174,7 @@ export default {
       state.form.sickImmunizer.length > 0
     ) {
       state.form.sickImmunizer = state.form.sickImmunizer[0];
+      disableOptionsByDoseOrSick(state, { ["sickImmunizer"]: state.form.sickImmunizer });
       this.commit("message/INFO", "Seletores atualizados para tipo de exibição selecionada", { root: true });
     } else {
       state.form.sickImmunizer = null;
