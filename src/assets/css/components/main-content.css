@@ -1,0 +1,13 @@
+.main-content {
+  margin-top: 16px;
+}
+
+.map-section {
+  min-height: 520px
+}
+
+@media (max-width: 475px) {
+  .map-section {
+    min-height: 420px
+  }
+}

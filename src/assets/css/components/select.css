@@ -1,0 +1,137 @@
+/*
+
+.select .n-base-selection-label {
+  background: var(--gray-color);
+}
+
+.select .n-base-selection-label:hover {
+  background-color: var(--primary-color);
+}
+
+.select .n-base-selection--active .n-base-selection-label,
+.select .n-base-selection--active.n-base-selection--focus
+{
+  background-color: var(--primary-color) !important;
+}
+
+.select .n-base-selection-label,
+.n-base-selection-placeholder__inner {
+  color: black;
+  font-weight: 600;
+}
+
+.select .n-base-selection--active .n-base-selection-label .n-base-selection-placeholder__inner,
+.select .n-base-selection--active.n-base-selection--focus .n-base-selection-placeholder__inner,
+.select .n-base-selection--active .n-base-selection-label .n-base-icon.n-base-suffix__arrow,
+.select .n-base-selection--active.n-base-selection--focus .n-base-icon.n-base-suffix__arrow,
+.select .n-base-selection-label:hover .n-base-selection-placeholder__inner,
+.select .n-base-selection-label:hover .n-base-icon.n-base-suffix__arrow,
+.select .n-base-selection--active.n-base-selection--focus .n-base-selection-input {
+  color:  white;
+}
+
+.select .n-base-selection__border {
+  border: 0px solid;
+}
+
+.select .n-base-icon.n-base-suffix__arrow {
+  color: var(--primary-color);
+}
+
+.n-base-select-menu .n-base-select-option.n-base-select-option--pending::before {
+  background-color: var(--primary-color);
+}
+
+.n-base-icon.n-base-select-option__check {
+  outline: 2px solid white;
+  outline-offset: 1px;
+}
+
+.n-base-select-option.n-base-select-option--selected.n-base-select-option--show-checkmark,
+.n-base-select-menu .n-base-select-option .n-base-select-option__check,
+.n-base-selection .n-base-loading,
+.n-base-select-menu .n-base-select-option.n-base-select-option--selected,
+.n-base-select-menu .n-base-select-option
+{
+  color: white;
+}
+
+.n-base-selection.n-base-selection--active.n-base-selection--focus  {
+  box-shadow: none;
+}
+
+.n-base-select-menu .n-base-select-option.n-base-select-option--selected.n-base-select-option--pending::before {
+  background-color: var(--primary-color);
+}
+
+.v-vl-items {
+  background-color: var(--primary-color);
+}
+
+.n-select-menu {
+  margin: 0px;
+  box-shadow: none;
+}
+
+*/
+
+.start-datepicker .n-base-selection__border {
+  border-right-color: transparent;
+}
+
+.end-datepicker .n-base-selection__border {
+  border-left-color: transparent;
+}
+
+.start-datepicker .n-input.n-input--resizable.n-input--stateful {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.end-datepicker .n-input.n-input--resizable.n-input--stateful {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Selects styles */
+
+.sub-select-container {
+  background-color: var(--embed-color);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px -2px 36px -28px inset;
+}
+
+.mct-select {
+  width: 200px;
+  z-index: 0;
+}
+
+.mct-select-dose {
+  width: 140px;
+  z-index: 0;
+}
+
+.mct-selects {
+  display:flex;
+  justify-content: center;
+  gap: 14px;
+  align-items: center;
+  max-width: 1368px;
+  margin: 0px auto;
+  padding: 0px 24px;
+}
+
+.mct-selects--modal {
+  flex-direction: column;
+}
+
+.n-base-select-option__content {
+  z-index: 0 !important;
+}
+
+@media (max-width: 1368px) {
+  .mct-selects {
+    background-color: white;
+    gap: 12px;
+    box-shadow: none;
+  }
+}

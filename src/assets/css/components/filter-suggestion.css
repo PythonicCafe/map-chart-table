@@ -1,0 +1,54 @@
+.filter-suggestion {
+  height:100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: rgb(254, 254, 254);
+}
+
+.filter-suggestion-title {
+  text-align: center;
+  font-size: 24px;
+  padding-bottom: 48px;
+  font-weight: 400;
+}
+
+.filters-container {
+  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)) ;
+  grid-gap: 10px;
+}
+
+.filter-container-suggestion {
+  overflow: hidden;
+}
+
+.filter-title {
+  height: 18px;
+}
+.filter-text-suggestion {
+  text-align: initial;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-description {
+  font-size: 11px;
+  height: 14px;
+}
+
+/* MediaQuery */
+
+@media (max-width: 1300px) {
+  .filters-container {
+    display: flex;
+    flex-direction: column;
+  }
+}

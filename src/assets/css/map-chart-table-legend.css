@@ -1,0 +1,75 @@
+/* Map Legend */
+
+.mct-legend {
+  position: absolute;
+  bottom: 15px;
+  right: 60px;
+  user-select: none;
+  pointer-events: none;
+  height: 52px;
+}
+
+.mct-legend-svg {
+  width: 220px;
+}
+
+.mct-legend__gradient {
+  position: relative;
+  box-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 2px white;
+}
+
+@media (max-width: 800px) {
+  .mct-legend {
+    bottom: 0px;
+    right: 0px;
+  }
+  .mct-legend-svg {
+    width: 190px;
+  }
+}
+
+/* Tooltip map */
+
+.mct-tooltip {
+  display: none;
+  position: fixed;
+  opacity: 95%;
+  background-color: var(--primary-color);
+  border-radius: 5px;
+  padding: 12px 12px;
+  font-size: 14px;
+  z-index: 1000;
+  user-select: none;
+  pointer-events: none;
+  min-width: 100px;
+  max-width: 400px;
+}
+
+.mct-tooltip__title {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.mct-tooltip__title--sub {
+  font-size: x-small;
+  font-weight: 600;
+  color: white;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.mct-tooltip__result {
+  font-weight: 600;
+  color: white;
+  font-size: 12px;
+  margin: -3px 0px;
+}
+
+.mct-tooltip__result--sub {
+  font-size: 11px;
+}
+
+.mct-tooltip__result--sub:last-child {
+  margin-bottom: 1px;
+}

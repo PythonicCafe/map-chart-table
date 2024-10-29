@@ -3,28 +3,26 @@ export class DataFetcher {
     this.api = api;
   }
 
-  async requestData(endPoint) {
+  async requestData(endPoint, apiPoint = "/wp-json/api/v1/") {
     const self = this;
+
     try {
-      const response = await fetch(self.api + endPoint);
+      const response = await fetch(self.api + apiPoint + endPoint);
       const data = await response.json();
       return data;
     } catch (error) {
-      // Do Nothing
+      return { error }
     }
   }
 
   async request(endPoint) {
-    const self = this;
-    const result = await self.requestData(endPoint);
+    const result = await this.requestData(endPoint);
     return result;
   }
 
-  async requestState(endPoint) {
-    const self = this;
-    const result = await self.requestData("UF/" + endPoint);
+  async requestSettingApiEndPoint(endPoint, apiEndpoint) {
+    const result = await this.requestData(endPoint, apiEndpoint);
     return result;
   }
-
 }
 

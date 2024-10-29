@@ -7,11 +7,32 @@ export const config = {
   setup () {
     const lightThemeOverrides = {
       common: {
-        primaryColor: "#2563eb",
-        primaryColorHover: "#1d4ed8"
-      }
+        primaryColor: "#e96f5f",
+        primaryColorHover: "#e96f5f",
+        primaryColorPressed: "#e96f5f",
+        fontSizeMedium: ".95rem",
+      },
+      Slider: {
+        indicatorColor: "#e96f5f"
+      },
+      Pagination: {
+        itemBorderRadius: "50%"
+      },
+      Button: {
+        fontSizeMedium: ".95rem",
+      },
+      Tabs: {
+        tabFontSizeMedium: ".95rem",
+      },
+      DataTable: {
+        fontSizeMedium: ".95rem",
+        thColorHover: "#e96f5f",
+        thColor: "#ececec",
+        tdColorStriped: "#ececec",
+        thFontWeight:  "500",
+        thIconColor: "#e96f5f",
+      },
     };
-
     return {
       // Config-provider setup
       ptBR: ptBR,

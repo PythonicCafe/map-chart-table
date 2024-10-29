@@ -1,7 +1,7 @@
 {
   "name": "dashboard",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.4.0",
   "type": "module",
   "main": "dist/dashboard.js",
   "scripts": {
@@ -9,17 +9,26 @@
     "dev": "vite --host",
     "start": "nodemon server.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:unit": "vitest --environment jsdom --root src/ run",
+    "test-watch:unit": "vitest --environment jsdom --root src/ watch"
   },
   "devDependencies": {
     "chart.js": "^4.2.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "naive-ui": "^2.34.3",
+    "naive-ui": "^2.34.4",
     "nodemon": "^2.0.22",
     "npm-run-all": "^4.1.5",
     "vite": "^4.2.0",
-    "vue": "^3.2.47"
+    "vue": "^3.2.47",
+    "vuex": "^4.1.0",
+    "vuex-map-fields": "^1.4.1"
+  },
+  "dependencies": {
+    "csvwritergen": "^0.0.4",
+    "vue-router": "^4.2.4"
   }
 }

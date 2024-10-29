@@ -1,0 +1,64 @@
+.n-slider-mark {
+  color: var(--label-color);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.n-slider .n-slider-marks .n-slider-mark {
+  transform: translateX(-50%) translateY(-20%);
+}
+
+.year-slider {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+  align-items: center;
+}
+
+.n-slider-handle-indicator.n-slider-handle-indicator--top {
+   background-color: #32a1e6;
+   font-weight: 500;
+}
+
+.mandatory-vaccine-years {
+  opacity: 100%;
+  cursor: auto !important;
+}
+
+.mandatory-vaccine-years .n-slider-rail {
+  background-color: white;
+  height: 1px;
+}
+.mandatory-vaccine-years:hover .n-slider-rail {
+  background-color: white;
+}
+
+.mandatory-vaccine-years.n-slider .n-slider-rail__fill {
+  background-color: #32a1e6;
+}
+
+.mandatory-vaccine-years.n-slider:hover .n-slider-rail__fill {
+  background-color: #32a1e6;
+}
+
+.mandatory-vaccine-years.n-slider.n-slider--disabled {
+  opacity: 100%;
+}
+
+.mandatory-vaccine-years.n-slider.n-slider--active .n-slider-rail {
+  background-color: white;
+}
+
+.mandatory-vaccine-years.n-slider.n-slider--active .n-slider-rail__fill {
+  background-color: #32a1e6;
+}
+
+.span-date {
+  white-space: nowrap;
+  padding: 0px 6px;
+  font-size: 14px;
+}
+
+.span-date--more-padding {
+  padding: 12px 6px;
+}

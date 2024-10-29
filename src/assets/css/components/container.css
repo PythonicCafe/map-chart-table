@@ -1,0 +1,58 @@
+/* Components Styles */
+
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  position: relative;
+  max-width: 1368px;
+  margin: 0px auto;
+  padding: 0px 24px;
+}
+
+.main-content--sub {
+  margin-bottom: 64px;
+}
+
+.container-elements {
+  display: flex;
+  justify-content: end;
+}
+
+.container-elements--table {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.container-elements--theme {
+  padding: 15px 65px;
+}
+
+.container-elements__selects {
+  display: flex;
+  gap: 12px;
+}
+
+.container-input-card {
+  display: flex;
+  gap: 8px;
+  justify-content: end;
+}
+
+.element-hidden {
+  display: none !important;
+}
+
+@media (max-width: 800px) {
+  .container-elements--table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .container-input-card {
+    flex-direction: column;
+  }
+}

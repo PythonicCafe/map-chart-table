@@ -1,0 +1,88 @@
+.n-data-table-th.n-data-table-th--hover {
+  color: white;
+}
+
+.n-data-table-th.n-data-table-th--sortable:hover {
+  color: white;
+}
+
+.n-data-table .n-data-table-th.n-data-table-th--sortable:hover .n-data-table-sorter {
+  color: var(--gray-color);
+}
+
+.n-data-table-tr .n-data-table-tr--striped,
+.n-data-table-tr .n-data-table-tr--striped:hover,
+.n-data-table .n-data-table-tr.n-data-table-tr--striped,
+.n-data-table .n-data-table-tr:not(.n-data-table-tr--summary):hover,
+.n-data-table-tr {
+  background: white;
+}
+
+.n-data-table-tr .n-data-table-th:first-child,
+.n-data-table-tr .n-data-table-td:first-child {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+}
+
+.n-data-table-tr .n-data-table-th:last-child,
+.n-data-table-tr .n-data-table-td:last-child {
+  border-top-right-radius: .25rem;
+  border-bottom-right-radius: .25rem;
+}
+
+.n-data-table .n-data-table-tr.n-data-table-tr--striped .n-data-table-td.n-data-table-td--hover {
+  background: #fadfdb;
+}
+
+
+.n-data-table .n-data-table-tr:not(.n-data-table-tr--summary):hover > .n-data-table-td {
+  background: #f6f6f6;
+}
+
+.n-data-table .n-data-table-th .n-data-table-sorter.n-data-table-sorter--desc,
+.n-data-table .n-data-table-th .n-data-table-sorter.n-data-table-sorter--asc {
+  color: white;
+}
+
+.n-data-table-tr {
+  font-weight: 500;
+}
+
+.table-custom .n-data-table__pagination {
+  justify-content: flex-start;
+}
+
+
+/* MediaQuery */
+
+@media (max-width: 800px) {
+  .table-custom .n-pagination {
+    justify-content: space-between;
+    min-width: 100%;
+  }
+}
+
+/* Collapsable */
+
+.collapse-table  {
+  margin-top: 12px;
+}
+.collapse-table table {
+  border-spacing: 0 8px !important;
+}
+
+.collapse-table .n-data-table-thead {
+  display: none;
+}
+
+.collapse-table .n-data-table-tr td:first-child {
+  border-left: 1px solid #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+  border-top: 1px solid #d1d1d1;
+}
+
+.collapse-table .n-data-table-tr td:last-child {
+  border-right: 1px solid #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+  border-top: 1px solid #d1d1d1;
+}

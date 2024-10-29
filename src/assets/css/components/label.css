@@ -1,0 +1,10 @@
+/* Label */
+.n-form-item.n-form-item--top-labelled .n-form-item-label {
+  align-items: center;
+  padding: 0px;
+}
+
+.n-form-item-label__text {
+  color: var(--label-color);
+  font-size: .65rem;
+}

@@ -1,153 +1,104 @@
-import { DataFetcher } from "../data-fetcher";
-import { ref, onMounted } from "vue/dist/vue.esm-bundler";
-import { NButton, NDataTable, NSelect } from "naive-ui";
+import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
+import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
+import { computedVar, formatToTable } from "../utils";
+import { useStore } from 'vuex';
 
 export const table = {
   components: {
     NButton,
     NDataTable,
-    NSelect
+    NSelect,
+    NEmpty
   },
   props: {
-    api: {
-      type: String,
-      required: true
+    form: {
+      type: Object,
     },
   },
-  setup(props) {
-    const loading = ref(true);
-    const api = new DataFetcher(props.api);
+  setup() {
+    const store = useStore();
     const rows =  ref([]);
     const columns = ref([]);
-    const optionsSick = ref(null);
-    const valueSick = ref(null);
-    const optionsState = ref([null, 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'].map((state) =>  { return { label: state, value: state } } ));
-    const valueState = ref(null);
-
-    onMounted(async () => {
-      loading.value = false;
-
-      let sicks = [];
-      sicks = await api.request("options");
-      optionsSick.value = sicks.result.map((sick) =>  { return { label: sick, value: sick } } );
-      valueSick.value = valueSick.value && sicks.result.includes(valueSick.value) ? valueSick.value : sicks.result[0];
-
-      await setTableData();
-    });
+    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
 
     const setTableData = async () => {
-      const currentResult = await api.request(valueSick.value);
-
-      columns.value = [];
-      const tableData = convertObjectToArray(currentResult);
-      for (const column of tableData[0]){
-        columns.value.push(
-          {
-            title: column.charAt(0).toUpperCase() + column.slice(1),
-            key: column,
-            sorter: 'default'
-          }
-        )
+      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      if (!currentResult || !currentResult.data ) {
+        rows.value = [];
+        return;
       }
 
-      rows.value = [];
-      for (let i = 1; i < tableData.length; i++) {
-        const cells = {};
-        for (let j = 0; j < tableData[i].length; j++) {
-          cells[columns.value[j].key] = tableData[i][j];
-        }
-        rows.value.push(cells)
+      const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
+      columns.value = tableData.header;
+      const dosesQtd = columns.value.findIndex(column => column.title === 'Doses (qtd)');
+      if (currentResult.metadata.type == "Doses aplicadas") {
+        columns.value.splice(dosesQtd, 1);
+      } else {
+        columns.value[dosesQtd].minWidth = "130px";
       }
+      const columnValue = columns.value.find(column => column.key === "valor");
+      columnValue.minWidth = "160px";
+      columnValue.title = currentResult.metadata.type;
+      rows.value = tableData.rows;
+
+      const arraySortColumns = currentResult.metadata.type == "Meta atingida" ? [4, 5] : [3, 4, 5];
+      arraySortColumns.forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
     }
 
-    const convertObjectToArray = (externalObj) => {
-      const result = [];
-      let obj = externalObj;
+    const sortNumericValue = (column) => (a, b) =>
+       parseFloat(a[column.key].replace(/[%,.]/g, "")) - parseFloat(b[column.key].replace(/[%,.]/g, ""));
 
-      const state = valueState.value;
-      if (state) {
-        const filteredData = {};
-        Object.keys(obj).forEach(year => {
-          const stateData = obj[year][state];
-          if (stateData) {
-            filteredData[year] = {[state]: stateData};
-          }
-        });
-        obj = filteredData;
-      }
+    onMounted(async () => {
+      loading.value = true;
+      await setTableData();
+      loading.value = false;
+    });
 
-      // Get the keys of the object and sort them in ascending order
-      const years = Object.keys(obj).sort();
-
-      // Push the headers (year, acronym, value) to the result array
-      result.push(['Ano', 'Sigla', 'Contaminação']);
-
-      // Loop through each year
-      for (const year of years) {
-        // Loop through each state in the year
-        for (const [acronym, value] of Object.entries(obj[year])) {
-          // Push the year, acronym, and value to the result array as an array
-          result.push([year, acronym, value]);
+    watch(
+      () =>  {
+        const form = store.state.content.form;
+        return [form.sickImmunizer, form.dose, form.type, form.local, form.granularity, form.periodStart, form.periodEnd];
+      },
+      async () => {
+        // Avoid render before change tab
+        if (Array.isArray(store.state.content.form.sickImmunizer)) {
+          loading.value = true;
+          await setTableData();
+          loading.value = false;
         }
       }
-
-      return result;
-    }
-
-    const handleUpdateValueSick = async (e) => {
-      valueSick.value = e;
-      await setTableData();
-    }
-
-    const handleUpdateValueState = async (e) => {
-      valueState.value = e;
-      await setTableData();
-    }
+    );
 
     return {
       columns,
       loading,
       rows,
-      handleUpdateValueSick,
-      optionsSick,
-      valueSick,
-      optionsState,
-      valueState,
-      handleUpdateValueState
+      formPopulated: computed(() => store.getters["content/selectsPopulated"])
     };
   },
   template: `
     <section>
-      <div class="container-elements container-elements--table">
-        <div class="container-elements__selects">
-          <NSelect
-            v-model:value="valueState"
-            filterable
-            :options="optionsState"
-            style="width: 100px"
-            placeholder="Estado"
-            @update:value="handleUpdateValueState"
-          />
-        </div>
-        <div class="container-elements__selects">
-          <NSelect
-            v-model:value="valueSick"
-            filterable
-            :options="optionsSick"
-            style="width: 200px"
-            placeholder="Doença"
-            @update:value="handleUpdateValueSick"
-          />
-        </div>
-      </div>
-      <NDataTable
+      <n-data-table
+        v-if="rows.length > 0"
+        striped
+        class="table-custom"
         :columns="columns"
         :data="rows"
         :bordered="false"
-        :loading="loading"
         :pagination="{ pageSlot:7 }"
         :scrollbar-props="{ trigger: 'none', xScrollable: true }"
       />
+      <section v-else>
+        <n-empty
+          v-if="!loading.loading"
+          style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px; border-radius: .25rem"
+          :description="formPopulated ? 'Não existem dados para os filtros selecionados': 'Selecione os filtros desejados para iniciar a visualização dos dados'"
+        />
+        <div
+          v-else
+          style="justify-content: center; border: 1px dashed gray; width: 100%; height: 557px;"
+        ></div>
+      </section>
     </section>
   `
 };

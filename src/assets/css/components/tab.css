@@ -1,0 +1,68 @@
+/* Tabs */
+.n-tabs.n-tabs--segment-type.n-tabs--medium-size.n-tabs--top {
+  width: fit-content;
+}
+
+.n-tabs-nav .n-tabs-rail {
+  width: fit-content;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+  padding: 0px;
+}
+
+
+.n-tabs-nav .n-tabs-rail .n-tabs-tab:first-child {
+  border-top-left-radius: 22px !important;
+  border-bottom-left-radius: 22px !important;
+}
+
+.n-tabs-nav .n-tabs-rail .n-tabs-tab[data-name="table"],
+.n-tabs-nav .n-tabs-rail .n-tabs-tab[data-name="immunizers"]  {
+  border-top-right-radius: 22px !important;
+  border-bottom-right-radius: 22px !important;
+}
+
+.n-tabs-nav .n-tabs-rail .n-tabs-tab {
+  background-color: var(--gray-color);
+  color: black;
+}
+
+.n-tabs-nav .n-tabs-rail .n-tabs-tab--disabled {
+  color: #ccc;
+  background-color: var(--gray-color-light);
+}
+
+.n-tabs-nav .n-tabs-rail .n-tabs-tab--disabled:hover {
+  color: #ccc !important;
+}
+
+
+.n-tabs-tab-wrapper .n-tabs-tab {
+  padding: 8px 24px;
+}
+
+.n-tabs-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.n-tabs .n-tabs-rail .n-tabs-tab-wrapper .n-tabs-tab.n-tabs-tab--active {
+  background-color: var(--primary-color);
+  transition: background-color 0.3s;
+  color: white;
+  font-weight: 600;
+}
+
+.n-tabs-tab__label {
+  font-size: 0.9em;
+}
+
+.n-tabs.n-tabs--line-type .n-tabs-tab {
+  padding: 2px 0px;
+}
+
+.n-tabs-nav-scroll-content {
+  border-bottom-width: 3px;
+}
