@@ -83,7 +83,7 @@ export const mainCard = {
       mapTooltip.value = tooltip;
     };
 
-    const URLquery = { ...route.query };
+    const URLquery = route?.query ? { ...route.query } : {};
     const removeQueryFromRouter = (key) => {
         delete URLquery[key];
         message.warning('URL contém valor inválido para filtragem')

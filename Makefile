@@ -36,3 +36,6 @@ restart:  stop start dev ## Stop and restart container
 
 clear:	stop $(ROOT_DIR)/compose.yml ## Stop and remove container and orphans
 	$(DOCKER_COMPOSE) down -v --remove-orphans
+
+cypress-test: ## Cypress tests
+	docker run -it --network host -v $$PWD:/e2e -v /tmp/.X11-unix:/tmp/.X11-unix  -w /e2e -e DISPLAY=$$DISPLAY --entrypoint cypress cypress/included:12.8.1 run

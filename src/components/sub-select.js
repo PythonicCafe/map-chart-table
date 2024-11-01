@@ -217,6 +217,7 @@ export const subSelect = {
     <section class="mct-selects" :class="modal ? 'mct-selects--modal' : ''">
       <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Vacina'">
         <n-select
+          id="sickImmunizer"
           v-model:value="sickTemp"
           max-tag-count="responsive"
           class="mct-select"
@@ -236,6 +237,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Dose">
         <n-select
+          id="dose"
           v-model:value="dose"
           class="mct-select-dose"
           filterable
@@ -251,6 +253,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Tipo de dado">
         <n-select
+          id="type"
           v-model:value="type"
           :consistent-menu-width="false"
           :options="types"
@@ -267,6 +270,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Estados">
         <n-select
+          id="locals"
           v-model:value="localTemp"
           :options="locals"
           class="mct-select"
@@ -283,6 +287,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Abrangência temporal" :style="modal ? 'max-width: 400px;' : 'max-width: 200px;'">
         <n-select
+         id="year-start"
          class="start-datepicker"
          v-model:value="periodStart"
          :options="years"
@@ -294,6 +299,7 @@ export const subSelect = {
           :disabled="disableAll"
         />
         <n-select
+         id="year-end"
          class="end-datepicker"
          v-model:value="periodEnd"
          :options="years"
@@ -307,6 +313,7 @@ export const subSelect = {
       </n-form-item>
       <n-form-item label="Granularidade">
         <n-select
+          id="granularity"
           v-model:value="granularity"
           :options="granularities"
           class="mct-select"
@@ -318,7 +325,7 @@ export const subSelect = {
           :disabled="disableAll"
         />
       </n-form-item>
-      <n-button title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm" :disabled="disableAll">
+      <n-button id="eraser" title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm" :disabled="disableAll">
         <template #icon><n-icon v-html="biEraser" /></template>
       </n-button>
     </section>

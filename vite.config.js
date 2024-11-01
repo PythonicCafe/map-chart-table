@@ -26,5 +26,6 @@ export default defineConfig({
     'process.env.NODE_ENV': '"production"',
     '__VUE_OPTIONS_API__': true,
     '__VUE_PROD_DEVTOOLS__': true,
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': true
   },
 });
