@@ -48,11 +48,15 @@
   justify-content: space-between;
 }
 
+.n-tabs .n-tabs-rail .n-tabs-capsule {
+  display: none;
+}
+
 .n-tabs .n-tabs-rail .n-tabs-tab-wrapper .n-tabs-tab.n-tabs-tab--active {
   background-color: var(--primary-color);
   transition: background-color 0.3s;
   color: white;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .n-tabs-tab__label {
