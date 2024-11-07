@@ -52,7 +52,6 @@ class CanvasDownload {
         const x = posX ? posX : canvas.width / 2 - img.width / 2;
         const y = posY ? posY : canvas.height / 2 - img.height / 2;
         // Assuming 'ctx' is a 2D rendering context of the canvas
-        console.log(img, x, y, img.width, img.height)
         ctx.drawImage(img, x, y, img.width, img.height);
         resolve();
       };
