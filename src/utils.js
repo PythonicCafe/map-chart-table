@@ -69,7 +69,7 @@ export const formatToTable = (data, localNames, metadata) => {
       {
         title,
         key: column,
-        sorter: 'default',
+        sorter: ["código"].includes(column) ? false : "default",
         width,
         titleAlign: "left",
         align,
