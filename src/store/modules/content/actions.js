@@ -34,7 +34,9 @@ export default {
     {
       detail = false,
       stateNameAsCode = true,
-      stateTotal = false
+      stateTotal = false,
+      page = null,
+      sorter = null
     } = {}
   ) {
     const api = new DataFetcher(state.apiUrl);
@@ -63,11 +65,13 @@ export default {
     // TODO: Add encodeURI to another fields
     const sI = Array.isArray(form.sickImmunizer) ? form.sickImmunizer.join("|") : form.sickImmunizer;
     const loc = Array.isArray(form.local) ? form.local.join("|") : form.local;
-    let request ="?tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
+    let request ="?tab=" + state.tab + "&tabBy=" + state.tabBy + "&type=" + form.type + "&granularity=" + form.granularity +
       "&sickImmunizer=" + encodeURIComponent(sI) + "&local=" + loc + "&dose=" + form.dose;
 
     request += form.periodStart ? "&periodStart=" + form.periodStart : "";
     request += form.periodEnd ? "&periodEnd=" + form.periodEnd : "";
+    request += page ? "&page=" + page : "";
+    request += sorter ? "&sCol=" + sorter.columnKey + "&sOrder=" + sorter.order : "";
 
     if (detail) {
       request += "&detail=true";

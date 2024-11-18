@@ -19,10 +19,26 @@ export const table = {
     const store = useStore();
     const rows =  ref([]);
     const columns = ref([]);
+    const page = ref(1);
+    const pageCount = ref(0);
+    const pageTotalItems = ref(10);
     const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
+    const sorter = ref(null);
+
+    const pagination = computed(() => ({
+        page: page.value,
+        pageCount: pageCount.value,
+        pageSize: 10,
+        pageSlot: 7,
+        pageTotalItems: pageTotalItems.value,
+      }
+    ));
 
     const setTableData = async () => {
-      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      const currentResult = await store.dispatch("content/requestData", { detail: true, page: page.value, sorter: sorter.value });
+      pageCount.value = currentResult.metadata.pages.total_pages;
+      pageTotalItems.value = currentResult.metadata.pages.total_records;
+
       if (!currentResult || !currentResult.data ) {
         rows.value = [];
         return;
@@ -40,18 +56,16 @@ export const table = {
       columnValue.minWidth = "160px";
       columnValue.title = currentResult.metadata.type;
       rows.value = tableData.rows;
-
-      const arraySortColumns = currentResult.metadata.type == "Meta atingida" ? [4, 5] : [3, 4, 5];
-      arraySortColumns.forEach(col => columns.value[col].sorter = sortNumericValue(columns.value[col]));
     }
 
-    const sortNumericValue = (column) => (a, b) =>
-       parseFloat(a[column.key].replace(/[%,.]/g, "")) - parseFloat(b[column.key].replace(/[%,.]/g, ""));
-
-    onMounted(async () => {
+    const updateTableContent = async () => {
       loading.value = true;
       await setTableData();
       loading.value = false;
+    }
+
+    onMounted(async () => {
+      updateTableContent()
     });
 
     watch(
@@ -62,17 +76,32 @@ export const table = {
       async () => {
         // Avoid render before change tab
         if (Array.isArray(store.state.content.form.sickImmunizer)) {
-          loading.value = true;
-          await setTableData();
-          loading.value = false;
+          page.value = 1
+          updateTableContent()
         }
       }
     );
+
+    const handlePageChange = async (newPage) => {
+      page.value = newPage
+      updateTableContent()
+    }
+
+    const handleSorterChange = async (newSorter) => { // { columnKey: string; order: string }
+      sorter.value = newSorter;
+      if (!newSorter.order) {
+        sorter.value = null;
+      }
+      updateTableContent();
+    }
 
     return {
       columns,
       loading,
       rows,
+      pagination,
+      handlePageChange,
+      handleSorterChange,
       formPopulated: computed(() => store.getters["content/selectsPopulated"])
     };
   },
@@ -85,8 +114,11 @@ export const table = {
         :columns="columns"
         :data="rows"
         :bordered="false"
-        :pagination="{ pageSlot:7 }"
+        :pagination="pagination"
+        :remote="true"
         :scrollbar-props="{ trigger: 'none', xScrollable: true }"
+        @update:page="handlePageChange"
+        @update:sorter="handleSorterChange"
       />
       <section v-else>
         <n-empty
