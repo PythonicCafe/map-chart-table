@@ -31,6 +31,9 @@ export const table = {
         pageSize: 10,
         pageSlot: 7,
         pageTotalItems: pageTotalItems.value,
+        simple: true,
+        prev: () =>  "🠐 anterior",
+        next: () =>  "seguinte 🠒",
       }
     ));
 
