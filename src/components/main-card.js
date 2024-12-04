@@ -1,5 +1,5 @@
 import { NCard, NSkeleton, useMessage, NModal, NButton, NSpin } from "naive-ui";
-import { ref, computed, onBeforeMount, watch } from "vue/dist/vue.esm-bundler";
+import { ref, computed, onMounted, watch } from "vue/dist/vue.esm-bundler";
 import { chart as Chart } from "./chart";
 import { map as Map } from "./map/map";
 import { table as Table } from "./table";
@@ -197,7 +197,7 @@ export const mainCard = {
       }
     )
 
-    onBeforeMount(async () => {
+    onMounted(async () => {
       getWindowWidth();
       await store.dispatch("content/updateFormSelect");
       setStateFromUrl();
