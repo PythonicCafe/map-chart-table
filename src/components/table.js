@@ -39,13 +39,14 @@ export const table = {
 
     const setTableData = async () => {
       const currentResult = await store.dispatch("content/requestData", { detail: true, page: page.value, sorter: sorter.value });
-      pageCount.value = currentResult.metadata.pages.total_pages;
-      pageTotalItems.value = currentResult.metadata.pages.total_records;
 
       if (!currentResult || !currentResult.data ) {
         rows.value = [];
         return;
       }
+
+      pageCount.value = Number(currentResult.metadata.pages.total_pages);
+      pageTotalItems.value = currentResult.metadata.pages.total_records;
 
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
       columns.value = tableData.header;
