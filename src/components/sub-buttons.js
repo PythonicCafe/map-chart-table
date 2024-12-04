@@ -410,7 +410,7 @@ export const subButtons = {
         <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <n-card embedded :bordered="false">
-            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
+            <div v-if="tab !== 'table'" style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px; align-items: center">
                 <div style="padding: 0px 24px">
                   <n-icon v-html="biFiletypeCsv" size="50" />
