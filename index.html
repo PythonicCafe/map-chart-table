@@ -7,11 +7,27 @@
     <title>Map Chart Table</title>
   </head>
   <body>
+    <button class="glossary">glossary</button>
+    <button class="about">about</button>
+    <button class="error-example">error example</button>
     <div id="app"></div>
     <!-- Main App -->
+    <script>
+    </script>
     <script type="module">
       import Mct from "./src/main.js";
-      const dashboard = new Mct("http://localhost:5000/");
+      const dashboard = new Mct({ api: "http://localhost" });
+      document.querySelector(".glossary").addEventListener("click", () => {
+        dashboard.genericModal("Glossário", "?slug=glossario-vacinabr")
+      });
+
+      document.querySelector(".about").addEventListener("click", () => {
+        dashboard.genericModal("Sobre", "?slug=sobre-vacinabr")
+      });
+
+      document.querySelector(".error-example").addEventListener("click", () => {
+        dashboard.genericModal("Error example", "?slug=sobre-vacinabr2")
+      });
     </script>
   </body>
 </html>

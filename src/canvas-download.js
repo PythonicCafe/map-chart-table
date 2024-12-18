@@ -138,6 +138,7 @@ class CanvasDownload {
     await self.setCanvas();
     const link = document.createElement("a");
     link.href = self.canvas.toDataURL('image/png');
+    console.log(self.canvas.toDataURL('image/png'));
     link.download = "image";
     link.click();
   }

@@ -110,6 +110,7 @@ export default {
       return { result: {}, localNames: {} }
     } else if (!result || result.data && result.data.length <= 1) {
       commit("UPDATE_TITLES", null);
+
       this.commit(
           "message/WARNING",
           "Não há dados disponíveis para os parâmetros selecionados.",
@@ -118,6 +119,8 @@ export default {
       return { result: {}, localNames: {} }
     } else {
       commit("UPDATE_TITLES", result.metadata.titles);
+      commit("UPDATE_CSV_ROWS_EXCEED", result.metadata.csv_rows_exceeded);
+      commit("UPDATE_CSV_MAX_EXPORT_ROWS", result.metadata.max_csv_export_rows);
     }
 
     if (form.type !== "Doses aplicadas") {

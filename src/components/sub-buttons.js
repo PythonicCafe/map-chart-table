@@ -37,6 +37,8 @@ export const subButtons = {
     const showModalVac = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
     const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
+    const csvRowsExceeded = ref(computed(() => store.state.content.csvRowsExceeded));
+    const maxCsvExportRows = ref(computed(() => store.state.content.maxCsvExportRows));
 
     const aboutVaccines = computed(() => {
       const text = store.state.content.aboutVaccines;
@@ -129,6 +131,7 @@ export const subButtons = {
       }
 
       const currentResult = await store.dispatch("content/requestData", { detail: true });
+      console.log({ currentResult })
 
       if (!currentResult) {
         store.commit('message/ERROR', "Preencha os seletores para gerar csv");
@@ -239,7 +242,9 @@ export const subButtons = {
       showModalVac,
       clickShowVac,
       modalGlossary,
-      formatDatePtBr
+      formatDatePtBr,
+      csvRowsExceeded,
+      maxCsvExportRows
     };
   },
   template: `
@@ -367,7 +372,7 @@ export const subButtons = {
         <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <n-card embedded :bordered="false">
-            <div v-if="tab !== 'table'" style="display: flex; align-items: center; justify; justify-content: space-between;">
+            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px; align-items: center">
                 <div style="padding: 0px 24px">
                   <n-icon v-html="biFiletypeCsv" size="50" />
@@ -377,7 +382,13 @@ export const subButtons = {
                   <p>Os dados que estão sendo utilizados nesta interface</p>
                 </div>
               </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+              <n-button
+                quaternary type="primary"
+                style="font-weight: 500"
+                @click="downloadCsv"
+                :disabled="tab === 'table' && csvRowsExceeded"
+                :title="csvRowsExceeded ? 'Excedido limite máximo de ' + maxCsvExportRows + ' para download de dados contidos na interface' : ''"
+              >
                 <template #icon><n-icon v-html="biDownload" /></template>
                 &nbsp;&nbsp;Baixar
               </n-button>

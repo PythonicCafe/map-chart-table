@@ -123,6 +123,12 @@ export default {
   UPDATE_LAST_UPDATE_DATE(state, payload) {
     state.lastUpdateDate = payload;
   },
+  UPDATE_CSV_ROWS_EXCEED(state, payload) {
+    state.csvRowsExceeded = payload;
+  },
+  UPDATE_CSV_MAX_EXPORT_ROWS(state, payload) {
+    state.maxCsvExportRows = payload;
+  },
   UPDATE_ACRONYMS(state, payload) {
     const result = [];
     const acronymsHeader = payload[0];
