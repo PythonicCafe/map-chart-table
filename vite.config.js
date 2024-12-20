@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import path from "path";
+import { version } from "./package.json";
 
 export default defineConfig({
   resolve: {
@@ -12,13 +13,13 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, "src/main.js"),
       name: "MCT",
-      fileName: () => `mct.js`,
+      fileName: () => `mct-${version}.js`,
 
       formats: ['umd']
     },
     rollupOptions: {
       output: {
-        assetFileNames: "mct.[ext]",
+        assetFileNames: `mct-${version}.[ext]`,
       },
     },
   },
