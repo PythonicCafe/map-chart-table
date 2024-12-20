@@ -11,11 +11,12 @@ import { modalWithTabs as ModalWithTabs } from "./modalWithTabs.js";
 import { modal as Modal } from "./modal.js";
 import CanvasDownload from "../canvas-download.js";
 import logo from "../assets/images/logo-vacinabr.svg";
-import Abandono from "../assets/images/abandono.svg"
-import Cobertura from "../assets/images/cobertura.svg"
-import HomGeo from "../assets/images/hom_geo.svg"
-import HomVac from "../assets/images/hom_vac.svg"
-import Meta from "../assets/images/meta.svg"
+import Abandono from "../assets/images/abandono.svg";
+import Cobertura from "../assets/images/cobertura.svg";
+import HomGeo from "../assets/images/hom_geo.svg";
+import HomVac from "../assets/images/hom_vac.svg";
+import Meta from "../assets/images/meta.svg";
+import { event } from 'vue-gtag';
 
 export const subButtons = {
   components:  {
@@ -62,6 +63,12 @@ export const subButtons = {
     })
 
     const downloadSvg = () => {
+      // GA Event
+      event('file_download', {
+        'file_extension': 'svg',
+        'link_text': 'Mapa SVG',
+        'file_name': 'mapa.svg'
+      });
       const svgData = document.querySelector("#canvas").innerHTML;
       const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
       const svgUrl = URL.createObjectURL(svgBlob);
@@ -74,6 +81,12 @@ export const subButtons = {
     }
 
     const downloadPng = async () => {
+      // GA Event
+      event('file_download', {
+        'file_extension': 'png',
+        'link_text': 'Mapa PNG',
+        'file_name': 'mapa.png'
+      });
       const svgElement = document.querySelector("#canvas>svg");
       const svgContent = new XMLSerializer().serializeToString(svgElement);
 
@@ -134,7 +147,12 @@ export const subButtons = {
         store.commit('message/ERROR', "Preencha os seletores para gerar csv");
         return;
       }
-
+      // GA Event
+      event('file_download', {
+        'file_extension': 'csv',
+        'link_text': 'Dados utilizados na interface em CSV',
+        'file_name': 'tabela.csv'
+      });
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
 
       const header = tableData.header.map(x => Object.values(x)[0])
@@ -150,7 +168,14 @@ export const subButtons = {
     }
 
     const openInNewTab = () => {
-       window.open(csvAllDataLink.value["url"], '_blank');
+      // GA Event
+      event('file_download', {
+        'file_extension': 'zip',
+        'link_text': 'Dados completos em CSV',
+        'file_name': 'vacinabr.zip',
+        'link_url': '/wp-content/uploads/vacinabr/vacinabr.zip'
+      });
+      window.open(csvAllDataLink.value["url"], '_blank');
     }
 
     const clickShowVac = () => {
@@ -182,7 +207,12 @@ export const subButtons = {
         store.commit('message/ERROR', "Preencha os seletores para gerar imagem")
         return;
       }
-
+      // GA Event
+      event('file_download', {
+        'file_extension': 'png',
+        'link_text': 'Chart PNG',
+        'file_name': 'image.png'
+      });
       const canvasDownload = new CanvasDownload(
         [
           { image: chartPNG.value },
