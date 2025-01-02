@@ -36,7 +36,8 @@ export default {
       stateNameAsCode = true,
       stateTotal = false,
       page = null,
-      sorter = null
+      sorter = null,
+      csv = false
     } = {}
   ) {
     const api = new DataFetcher(state.apiUrl);
@@ -100,7 +101,7 @@ export default {
     }
 
     const [result, localNames] = await Promise.all([
-      api.request(`data/${request}`),
+      api.request((csv ? `export-csv/` :  `data/`) + request),
       api.request(isStateData)
     ]);
 
@@ -113,14 +114,17 @@ export default {
       return { result: {}, localNames: {} }
     } else if (!result || result.data && result.data.length <= 1) {
       commit("UPDATE_TITLES", null);
+
       this.commit(
           "message/WARNING",
           "Não há dados disponíveis para os parâmetros selecionados.",
           { root: true }
       );
       return { result: {}, localNames: {} }
-    } else {
+    } else if (result.metadata) {
       commit("UPDATE_TITLES", result.metadata.titles);
+      commit("UPDATE_CSV_ROWS_EXCEED", result.metadata.csv_rows_exceeded);
+      commit("UPDATE_CSV_MAX_EXPORT_ROWS", result.metadata.max_csv_export_rows);
     }
 
     if (form.type !== "Doses aplicadas") {

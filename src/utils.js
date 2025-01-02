@@ -61,8 +61,7 @@ export const formatToTable = (data, localNames, metadata) => {
     let title = column.charAt(0).toUpperCase() + column.slice(1);
     if (title === "Doenca") {
       title = "Doença";
-    }
-    if (title === "Doses") {
+    } else if (title === "Doses") {
       title = "Doses (qtd)";
     }
     header.push(
@@ -109,7 +108,7 @@ export const formatToTable = (data, localNames, metadata) => {
       } else if (["população", "doses"].includes(key)) {
         row[header[j].key] = value.toLocaleString("pt-BR");
         continue
-      } else if (metadata.type == "Meta atingida" && key == "valor") {
+      } else if (metadata && metadata.type == "Meta atingida" && key == "valor") {
         row[header[j].key] = parseInt(value) === 1 ? "Sim" : "Não";
         continue
       }

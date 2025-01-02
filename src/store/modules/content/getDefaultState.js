@@ -37,6 +37,8 @@ export const getDefaultState = () => {
     granularityBlocks: null,
     disableMap: false,
     disableChart: false,
-    loading: false
+    loading: false,
+    maxCsvExportRows: 10000,
+    csvRowsExceeded: false
   }
 }

@@ -1,5 +1,5 @@
 import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane } from "naive-ui";
+import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane, NSpin } from "naive-ui";
 import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
 import { formatToTable, formatDatePtBr } from "../utils.js";
 import { useStore } from "vuex";
@@ -37,6 +37,10 @@ export const subButtons = {
     const showModalVac = ref(false);
     const legend = ref(computed(() => store.state.content.legend));
     const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
+    const csvRowsExceeded = ref(computed(() => store.state.content.csvRowsExceeded));
+    const maxCsvExportRows = ref(computed(() => store.state.content.maxCsvExportRows));
+    const loadingDownload = ref(false)
+    const formPopulated = computed(() => store.getters["content/selectsPopulated"])
 
     const aboutVaccines = computed(() => {
       const text = store.state.content.aboutVaccines;
@@ -62,6 +66,11 @@ export const subButtons = {
     })
 
     const downloadSvg = () => {
+      if (!formPopulated.value) {
+        store.commit('message/ERROR', "Preencha os seletores para gerar mapa");
+        return;
+      }
+
       // GA Event
       if (window.gtag) {
         window.gtag('event', 'file_download', {
@@ -91,6 +100,12 @@ export const subButtons = {
           'file_name': 'mapa.png'
         });
       }
+
+      if (!formPopulated.value) {
+        store.commit('message/ERROR', "Preencha os seletores para gerar mapa");
+        return;
+      }
+
       const svgElement = document.querySelector("#canvas>svg");
       const svgContent = new XMLSerializer().serializeToString(svgElement);
 
@@ -135,6 +150,7 @@ export const subButtons = {
     }
 
     const downloadCsv = async () => {
+      loadingDownload.value = true;
       const periodStart = store.state.content.form.periodStart;
       const periodEnd = store.state.content.form.periodEnd;
       let years = [];
@@ -145,10 +161,11 @@ export const subButtons = {
         }
       }
 
-      const currentResult = await store.dispatch("content/requestData", { detail: true });
+      const currentResult = await store.dispatch("content/requestData", { detail: true, csv: true });
 
       if (!currentResult) {
         store.commit('message/ERROR', "Preencha os seletores para gerar csv");
+        loadingDownload.value = false;
         return;
       }
       // GA Event
@@ -163,15 +180,17 @@ export const subButtons = {
       const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
 
       const header = tableData.header.map(x => Object.values(x)[0])
-      header[header.findIndex(head => head === "Valor")] = currentResult.metadata.type
+      const type = store.state.content.form.type
+      header[header.findIndex(head => head === "Valor")] = type
       const rows = tableData.rows.map(x => Object.values(x))
-      if (currentResult.metadata.type == "Doses aplicadas") {
+      if (type == "Doses aplicadas") {
         const index = header.findIndex(column => column === 'Doses (qtd)')
         header.splice(index, 1)
         rows.forEach(row => row.splice(index, 1))
       }
       const csvwriter = new CsvWriterGen(header, rows);
       csvwriter.anchorElement('tabela');
+      loadingDownload.value = false;
     }
 
     const openInNewTab = () => {
@@ -282,7 +301,10 @@ export const subButtons = {
       showModalVac,
       clickShowVac,
       modalGlossary,
-      formatDatePtBr
+      formatDatePtBr,
+      csvRowsExceeded,
+      maxCsvExportRows,
+      loadingDownload
     };
   },
   template: `
@@ -343,6 +365,7 @@ export const subButtons = {
       <modal
         v-model:show="showModal"
         title="Download"
+        :mask-closable="!loadingDownload"
       >
         <div style="margin: 0px 0px 12px"> Faça o download de conteúdos</div>
         <div style="display: flex; flex-direction: column; gap: 12px">
@@ -410,7 +433,7 @@ export const subButtons = {
         <div style="padding: 14px 0px 12px; gap: 12px">Dados</div>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <n-card embedded :bordered="false">
-            <div v-if="tab !== 'table'" style="display: flex; align-items: center; justify; justify-content: space-between;">
+            <div style="display: flex; align-items: center; justify; justify-content: space-between;">
               <div style="display: flex; gap: 12px; align-items: center">
                 <div style="padding: 0px 24px">
                   <n-icon v-html="biFiletypeCsv" size="50" />
@@ -420,7 +443,14 @@ export const subButtons = {
                   <p>Os dados que estão sendo utilizados nesta interface</p>
                 </div>
               </div>
-              <n-button quaternary type="primary" style="font-weight: 500" @click="downloadCsv">
+              <n-button
+                quaternary type="primary"
+                style="font-weight: 500"
+                @click="downloadCsv"
+                :disabled="tab === 'table' && csvRowsExceeded && !loadingDownload"
+                :title="csvRowsExceeded ? 'Excedido limite máximo de ' + maxCsvExportRows + ' para download de dados contidos na interface' : ''"
+                :loading="loadingDownload"
+              >
                 <template #icon><n-icon v-html="biDownload" /></template>
                 &nbsp;&nbsp;Baixar
               </n-button>
