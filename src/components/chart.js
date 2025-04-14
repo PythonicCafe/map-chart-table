@@ -131,11 +131,12 @@ export const chart = {
       }
       if (context.dataIndex === dataset.length - count) {
         const label = splitTextToChart(context.dataset.label);
-        return `${label} ${value}${signal}`;
+        return signal ? `${label} ${value}${signal}` : `${label} ${value.toLocaleString('pt-BR')}`;
       }
 
       return null;
     }
+
     const formatterTooltip = (context, signal) => {
       let label = context.dataset.label || '';
       if (label.includes(",")) {
@@ -147,9 +148,13 @@ export const chart = {
       }
       label += ': ';
       if (context.parsed.y !== null) {
-        label += context.parsed.y + signal;
+        label += signal ? context.parsed.y + signal : context.parsed.y.toLocaleString('pt-BR');
       }
       return label;
+    }
+
+    const chartTicks = (value, signal = null) => {
+      return signal ? String(value) + signal: value.toLocaleString('pt-BR');
     }
 
     let chart = null;
@@ -167,14 +172,19 @@ export const chart = {
       let signal = "";
       if (store.state.content.form.type !== "Doses aplicadas") {
         signal =  "%";
-        datasets[0].data = datasets[0].data.map(x => Number(x).toFixed(2));
+        for (const dataset of datasets) {
+          dataset.data = dataset.data.map(number => Number(number).toFixed(2));
+        }
+      } else {
+        for (const dataset of datasets) {
+          dataset.data = dataset.data.map(number => number ? Number(number.replace(/\./g, "")) : number);
+        }
       }
+
       if (chart) {
         chart.data.labels = labels;
         chart.data.datasets = datasets;
-        chart.options.scales.y.ticks.callback = function(value) {
-          return value + signal;
-        };
+        chart.options.scales.y.ticks.callback = (value) => chartTicks(value, signal);
         chart.options.plugins.datalabels.formatter = (value, context) => formatter(value, context, signal);
         chart.options.plugins.tooltip.callbacks.label = (context) => formatterTooltip(context, signal);
         chart.update();
@@ -232,9 +242,7 @@ export const chart = {
                   color: "rgba(127,127,127, .2)",
                 },
                 ticks: {
-                  callback: function(value) {
-                    return value + signal;
-                  },
+                  callback: (value) => chartTicks(value, signal),
                   color: "rgba(127,127,127, 1)",
                   padding: 20,
                   font: {
