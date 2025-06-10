@@ -155,6 +155,15 @@ export default {
   UPDATE_GENERIC_MODAL(state, payload) {
     state.genericModal = payload;
   },
+  UPDATE_GENERIC_MODAL_TITLE(state, { genericModalTitle }) {
+    state.genericModalTitle = genericModalTitle;
+  },
+  UPDATE_GENERIC_MODAL_LOADING(state, { genericModalLoading }) {
+    state.genericModalLoading = genericModalLoading;
+  },
+  UPDATE_GENERIC_MODAL_WITH_FILTER_BUTTON(state, payload) {
+    state.extraFilterButton = payload;
+  },
   UPDATE_GENERIC_MODAL_SHOW(state, { genericModalShow }) {
     state.genericModalShow = genericModalShow;
   },

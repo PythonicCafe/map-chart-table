@@ -22,7 +22,7 @@ import { useStore } from "vuex";
 import { computedVar } from "./utils";
 import router from "./router";
 import { modalWithTabs as ModalWithTabs } from "./components/modalWithTabs.js";
-import { modal as Modal } from "./components/modal.js";
+import { modalGeneric as ModalGeneric } from "./components/modalGeneric.js";
 import { biMap, biGraphUp, biTable } from "./icons.js";
 
 export default class MCT {
@@ -46,7 +46,7 @@ export default class MCT {
         NMessageProvider,
         NButton,
         NIcon,
-        Modal,
+        ModalGeneric,
         ModalWithTabs,
         NScrollbar,
         NTooltip,
@@ -59,6 +59,12 @@ export default class MCT {
         const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
         const disableMap = computed(() => store.state.content.disableMap);
         const disableChart = computed(() => store.state.content.disableChart);
+        const genericModalTitle = computed(computedVar({
+            store,
+            mutation: "content/UPDATE_GENERIC_MODAL_TITLE",
+            field: "genericModalTitle"
+          })
+        );
         const genericModal = computed(computedVar({
             store,
             mutation: "content/UPDATE_GENERIC_MODAL",
@@ -71,8 +77,12 @@ export default class MCT {
             field: "genericModalShow"
           })
         );
-        const genericModalTitle = ref(null);
-        const genericModalLoading = ref(true);
+        const genericModalLoading = computed(computedVar({
+            store,
+            mutation: "content/UPDATE_GENERIC_MODAL_LOADING",
+            field: "genericModalLoading"
+          })
+        );
 
         // external callbacks
         self.genericModal = async (title, slug) => {
@@ -89,6 +99,14 @@ export default class MCT {
             // Do Nothing
           }
           genericModalLoading.value = false;
+        }
+
+        // Define extra button in filters
+        self.genericModalWithFilterButton = async (title, slug) => {
+          await store.dispatch(
+            "content/updateExtraFilterButton",
+            [title, slug]
+          );
         }
 
         // Define apiUrl in store state
@@ -196,41 +214,13 @@ export default class MCT {
                 :title="genericModalTitle"
                 :data="modalContent"
               />
-              <modal
+              <modalGeneric
                 v-else
                 v-model:show="genericModalShow"
                 :title="genericModalTitle"
-              >
-                <template v-if="genericModalLoading">
-                  <n-skeleton
-                    :height="48"
-                    :sharp="false"
-                    size="medium"
-                    style="margin-bottom: 24px; margin-top: 12px;"
-                  />
-                  <n-skeleton text :repeat="6" style="margin-bottom: 8px;" />
-                  <n-skeleton text style="width: 40%; margin-bottom: 24px;" />
-                  <n-skeleton text :repeat="6" style="margin-bottom: 8px;" />
-                  <n-skeleton text style="width: 60%; margin-bottom: 24px;" />
-                  <n-skeleton text :repeat="8" style="margin-bottom: 8px;" />
-                  <n-skeleton text style=" width: 60%; margin-bottom: 24px;" />
-                </template>
-                <template v-else-if="modalContent">
-                  <div v-html="modalContent"></div>
-                </template>
-                <template v-else>
-                  <n-empty
-                    description="Nada para ser exibido."
-                    style="min-height: 70vh; display: flex; justify-content: center;"
-                  >
-                    <template #extra>
-                      <span
-                       style="color: #c5c5c5; font-size: .95rem; font-weight: 500"
-                      >Página não existe ou não tem conteúdo para ser exibido.</span>
-                    </template>
-                  </n-empty>
-                </template>
-              </modal>
+                :loading="genericModalLoading"
+                :modalContent="modalContent"
+              />
             </n-message-provider>
           </section>
         </Config>

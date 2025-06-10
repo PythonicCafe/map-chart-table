@@ -1,5 +1,6 @@
 .filter-suggestion {
-  height:100%;
+  height: 100%;
+  overflow-y: auto;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -7,8 +8,11 @@
   right: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   background-color: rgb(254, 254, 254);
+}
+
+.filter-suggestion-center {
+  justify-content: center;
 }
 
 .filter-suggestion-title {
@@ -52,3 +56,10 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 768px) {
+  .filter-suggestion {
+    display: block;
+  }
+}
+
