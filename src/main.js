@@ -4,7 +4,6 @@ import logo from "./assets/images/logo-vacinabr.svg";
 import store from "./store/";
 import { config as Config } from "./components/config";
 import { mainCard as MainCard } from "./components/main-card";
-import VueGtag from "vue-gtag";
 import
 {
   NTabs,
@@ -26,10 +25,9 @@ import { modalGeneric as ModalGeneric } from "./components/modalGeneric.js";
 import { biMap, biGraphUp, biTable } from "./icons.js";
 
 export default class MCT {
-  constructor({ api = "", baseAddress = "", gaMeasurementId = "" }) {
+  constructor({ api = "", baseAddress = "" }) {
     this.api = api;
     this.baseAddress = baseAddress;
-    this.gaMeasurementId = gaMeasurementId;
     this.render();
   }
 
@@ -229,9 +227,6 @@ export default class MCT {
 
     const app = createApp(App);
     app.use(store);
-    if (self.gaMeasurementId) {
-      app.use(VueGtag, { config: { id: self.gaMeasurementId } });
-    }
     app.use(router(self.baseAddress));
     app.mount("#app");
   }
