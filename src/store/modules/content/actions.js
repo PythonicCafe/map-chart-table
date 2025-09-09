@@ -9,6 +9,9 @@ export default {
     const result = await api.request(`map/${map}`);
     return result;
   },
+  async updateExtraFilterButton({ commit }, [ title, slug ]) {
+    commit("UPDATE_GENERIC_MODAL_WITH_FILTER_BUTTON", { title, slug });
+  },
   async updateFormSelect(
     { commit, state }
   ) {
