@@ -163,6 +163,10 @@ export const subButtons = {
 
       const currentResult = await store.dispatch("content/requestData", { detail: true, csv: true });
 
+      if (currentResult && currentResult.error) {
+        loadingDownload.value = false;
+      }
+
       if (!currentResult) {
         store.commit('message/ERROR', "Preencha os seletores para gerar csv");
         loadingDownload.value = false;

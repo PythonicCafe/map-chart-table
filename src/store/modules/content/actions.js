@@ -111,7 +111,7 @@ export default {
           "Não foi possível carregar os dados. Tente novamente mais tarde.",
           { root: true }
       );
-      return { result: {}, localNames: {} }
+      return { result: {}, localNames: {}, error: result.error }
     } else if (!result || result.data && result.data.length <= 1) {
       commit("UPDATE_TITLES", null);
 
