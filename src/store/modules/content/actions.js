@@ -166,7 +166,15 @@ export default {
     [ mutation, endpoint ]
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const payload = await api.request(endpoint);
-    commit(mutation, payload);
+    try {
+      const payload = await api.request(endpoint);
+      commit(mutation, payload);
+    } catch(e){
+      this.commit(
+          "message/ERROR",
+          `Não foi possível carregar os dados de '/${endpoint}'`,
+          { root: true }
+      );
+    }
   },
 }
