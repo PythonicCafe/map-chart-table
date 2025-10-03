@@ -40,6 +40,10 @@ export const table = {
     const setTableData = async () => {
       const currentResult = await store.dispatch("content/requestData", { detail: true, page: page.value, sorter: sorter.value });
 
+      if (currentResult && currentResult.aborted) {
+        return;
+      }
+
       if (!currentResult || !currentResult.data ) {
         rows.value = [];
         return;

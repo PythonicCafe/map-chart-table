@@ -1,12 +1,23 @@
 import { DataFetcher } from "../../../data-fetcher";
 
+let currentController;
+let currentControllerMap;
+
 export default {
   async requestMap(
     { state },
     { map } = {}
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const result = await api.request(`map/${map}`);
+
+    if (currentControllerMap) {
+      currentControllerMap.abort();
+    }
+
+    currentControllerMap = new AbortController();
+    const signal = currentControllerMap.signal;
+
+    const result = await api.request(`map/${map}`, signal);
     return result;
   },
   async updateExtraFilterButton({ commit }, [ title, slug ]) {
@@ -40,8 +51,15 @@ export default {
       csv = false
     } = {}
   ) {
+    if (currentController) {
+      currentController.abort();
+    }
+
     const api = new DataFetcher(state.apiUrl);
     const form = state.form;
+
+    currentController = new AbortController();
+    const signal = currentController.signal;
 
     // Return if form field sickImmunizer is a multiple select and is empty
     if (
@@ -101,9 +119,13 @@ export default {
     }
 
     const [result, localNames] = await Promise.all([
-      api.request((csv ? `export-csv/` :  `data/`) + request),
+      api.request((csv ? `export-csv/` :  `data/`) + request, signal),
       api.request(isStateData)
     ]);
+
+    if (result.aborted) {
+      return result;
+    }
 
     if (result.error) {
       this.commit(

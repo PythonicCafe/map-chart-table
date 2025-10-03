@@ -303,6 +303,10 @@ export const chart = {
         stateTotal: true,
       });
 
+      if (result && result.aborted) {
+        return;
+      }
+
       if (!result || !result.data) {
         renderChart();
         return {};

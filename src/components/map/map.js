@@ -15,6 +15,7 @@ export const map = {
     const map = ref(null);
     const yearMapElement = ref(null);
     const mapChart = ref(null);
+    const timeOutId = ref(null);
     const store = useStore();
     const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
     const datasetStates = ref(null);
@@ -95,6 +96,11 @@ export const map = {
 
       loading.value = true;
       const results = await store.dispatch("content/requestData");
+
+      if (results && results.aborted) {
+        return;
+      }
+
       try {
         let mapSetup = {
           element: mapElement,
@@ -137,10 +143,16 @@ export const map = {
         if (local+granularity !== currentLocal.value) {
           map.value = await queryMap(local);
         }
+        if (map.value.aborted) {
+          return;
+        }
         currentLocal.value = local + granularity;
       } else if (local+granularity !== currentLocal.value) {
         const mapElement = document.querySelector('#map');
         map.value = await queryMap("BR");
+        if (map.value.aborted) {
+          return;
+        }
         renderMap({ element: mapElement, map: map.value });
         currentLocal.value = "BR" + granularity;
       }
@@ -179,16 +191,28 @@ export const map = {
       }
     )
 
+    watch(
+      () => store.state.content.tab,
+      async (tab) => {
+        if (tab & tab !== 'map') {
+          clearTimeout(timeOutId.value)
+        }
+      }
+    )
+
     onMounted(async () => {
       // Avoiding wrong map loading
-      setTimeout(async () => {
+      // TODO: Centralize tables contents requests to better requests code
+      timeOutId.value = setTimeout(async () => {
+        const tab = store.state.content.tab
+        const tabIsMap = !tab || tab === 'map';
         // If map not setted by watcher
         const mapElement = document.querySelector('#map');
-        if(mapElement && !mapElement.innerHTML) {
+        if (mapElement && !mapElement.innerHTML && tabIsMap) {
           await updateMap(store.state.content.form.local);
           await setMap();
         }
-      }, 500);
+      }, 2000);
     });
 
     return {

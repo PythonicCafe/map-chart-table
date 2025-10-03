@@ -163,6 +163,9 @@ export const subButtons = {
 
       const currentResult = await store.dispatch("content/requestData", { detail: true, csv: true });
 
+      if (currentResult && currentResult.aborted) {
+        return;
+      }
       if (currentResult && currentResult.error) {
         loadingDownload.value = false;
       }

@@ -53,7 +53,7 @@ export default class MCT {
       },
       setup() {
         const store = useStore();
-        const tab = computed(computedVar({ store,  mutation: "content/UPDATE_TAB", field: "tab" }));
+        const tab = computed(computedVar({ store, mutation: "content/UPDATE_TAB", field: "tab" }));
         const tabBy = computed(computedVar({ store, mutation: "content/UPDATE_TABBY", field: "tabBy" }));
         const disableMap = computed(() => store.state.content.disableMap);
         const disableChart = computed(() => store.state.content.disableChart);
