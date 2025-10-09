@@ -89,3 +89,9 @@
     opacity: 0;
   }
 }
+
+.vbr,
+.vbr ::before,
+.vbr ::after {
+  box-sizing: unset !important;
+}

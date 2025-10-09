@@ -126,7 +126,7 @@ export const subSelect = {
       }
     }
 
-    const styleWidth = props.modal ? "width: 400px;"  : "width: 225px;";
+    const styleWidth = props.modal ? "width: 400px;"  : "width: 200px;";
 
     watch(
       () => store.state.content.form.local,

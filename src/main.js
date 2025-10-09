@@ -172,7 +172,7 @@ export default class MCT {
       },
       template: `
         <Config>
-          <section class="main">
+          <section class="main vbr">
             <n-message-provider>
               <section class="main-header">
                 <div class="main-header-container">
