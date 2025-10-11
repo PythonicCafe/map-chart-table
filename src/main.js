@@ -1,5 +1,5 @@
 import "./assets/css/style.css";
-import { createApp, computed, ref, onBeforeMount } from "vue/dist/vue.esm-bundler";
+import { createApp, computed, onBeforeMount } from "vue/dist/vue.esm-bundler";
 import logo from "./assets/images/logo-vacinabr.svg";
 import store from "./store/";
 import { config as Config } from "./components/config";

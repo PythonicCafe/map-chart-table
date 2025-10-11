@@ -2,7 +2,7 @@ import { NConfigProvider, ptBR } from "naive-ui";
 
 export const config = {
   components:  {
-    NConfigProvider,
+    NConfigProvider
   },
   setup () {
     const lightThemeOverrides = {
@@ -32,6 +32,15 @@ export const config = {
         thFontWeight:  "500",
         thIconColor: "#e96f5f",
       },
+      Select: {
+        peers: {
+          InternalSelectMenu: {
+            clearTransition: null,
+            fadeTransition: null,
+            slideUpTransition: null,
+          }
+        }
+      }
     };
     return {
       // Config-provider setup

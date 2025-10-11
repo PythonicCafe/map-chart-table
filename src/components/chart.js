@@ -114,8 +114,12 @@ export const chart = {
         undefined;
       let labelAcronym = acronym ? acronym["sigla_vacinabr"] : (labelSplited[0].substr(0, 3) + ".");
 
-      if (label.includes(",")) {
+      if (store.state.content.form.granularity.toLowerCase() === 'municípios'){
         labelSplited = label.split(",");
+        lastLabel =  " " + labelSplited[1] + ", " + labelSplited[2].substr(0, 6) + ".";
+      } else if (label.includes(",")) {
+        labelSplited = label.split(",");
+        lastLabel = labelSplited[1].split(" ")[0] + " " + labelSplited[1].split(" ")[2].substr(0, 3);
       }
       return `${labelAcronym} ${lastLabel}`;
     }
@@ -172,11 +176,15 @@ export const chart = {
       if (store.state.content.form.type !== "Doses aplicadas") {
         signal =  "%";
         for (const dataset of datasets) {
-          dataset.data = dataset.data.map(number => Number(number).toFixed(2));
+          dataset.data = dataset.data.map((number, index) => {
+            return Number(number).toFixed(2)
+          });
         }
       } else {
         for (const dataset of datasets) {
-          dataset.data = dataset.data.map(number => number ? Number(number.replace(/\./g, "")) : number);
+          dataset.data = dataset.data.map((number, index) => {
+            return number ? Number(number.replace(/\./g, "")) : number
+          });
         }
       }
 
@@ -415,7 +423,12 @@ export const chart = {
 
       const dataChart = [];
       let i = 0;
-      for(let [key, value] of chartResultEntries) {
+
+      for (let [key, value] of chartResultEntries) {
+        if (i > 99) {
+          store.commit('message/INFO', "Essa filtragem excedeu o máximo de 100 linhas")
+          break;
+        }
         const color =  colors[i % colors.length];
         dataChart.push({
           label: key,

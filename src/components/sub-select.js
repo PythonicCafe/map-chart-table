@@ -22,6 +22,7 @@ export const subSelect = {
     const store = useStore();
     const tab = computed(() => store.state.content.tab);
     const tabBy = computed(() => store.state.content.tabBy);
+    const cityTemp = ref(null);
     const sickTemp = ref(null);
     const localTemp = ref(null);
     const citiesTemp = ref([]);
@@ -66,22 +67,25 @@ export const subSelect = {
       }
     }
 
-    const selectAllLocals = (options) => {
-      const allOptions = toRaw(options).filter((option) => option.value !== "Todos")
+    const selectAllLocals = (field) => {
+      const allOptions = toRaw(locals.value);
       const selectLength = Array.isArray(localTemp.value) ? localTemp.value.length : null
       if (selectLength == allOptions.length) {
         localTemp.value = [];
+        handleShowUpdate(true, field);
         return;
       }
 
-      localTemp.value = allOptions.map(x => x.value);
+      localTemp.value = allOptions.map(option => option.value);
+      handleShowUpdate(true, field);
     }
 
-    const handleLocalsUpdateShow = (show) => {
+    const handleLocalsUpdateShow = (show, field) => {
       showingLocalsOptions.value = show;
       if (!showingLocalsOptions.value && localTemp.value) {
         local.value = localTemp.value;
       }
+      handleShowUpdate(show, field);
     };
 
     const handleLocalsUpdateValue = (value) => {
@@ -100,12 +104,13 @@ export const subSelect = {
       }
     };
 
-    const handleSicksUpdateShow = (show) => {
+    const handleSicksUpdateShow = (show, field) => {
       showingSicksOptions.value = show;
 
       if (!showingSicksOptions.value && sickTemp.value && tab.value !== "map") {
         sick.value = sickTemp.value;
       }
+      handleShowUpdate(show, field);
     };
 
     const handleSicksUpdateValue = (value) => {
@@ -149,16 +154,31 @@ export const subSelect = {
 
     watch(
       () => store.state.content.form.local,
-      (loc) => {
+      async (loc) => {
         if (!loc.length) {
           city.value = [];
+          cityTemp.value = [];
+          cities.value.forEach(item => {
+            item.disabled = false;
+            item.disabledText = ""
+          });
         } else {
           citiesTemp.value = cities.value.filter(city => loc.includes(city.uf));
           if (city.value?.length) {
             city.value = city.value.filter(itemA => citiesTemp.value.find(itemB => itemB.value === itemA));
+            cityTemp.value = city.value;
           }
+          disableStateCitiesSelector(cityTemp.value);
         }
         localTemp.value = loc;
+        await showCitiesSelectUpdate();
+      }
+    );
+
+    watch(
+      () => tab.value,
+      () => {
+        disableStateCitiesSelector(cityTemp.value);
       }
     );
 
@@ -166,6 +186,13 @@ export const subSelect = {
       () => store.state.content.form.sickImmunizer,
       (sic) => {
         sickTemp.value = sic
+      }
+    );
+
+    watch(
+      () => granularity.value,
+      async () => {
+        await showCitiesSelectUpdate();
       }
     );
 
@@ -185,8 +212,9 @@ export const subSelect = {
     const updateDropdownPosition = () => {
       const key = activeSelectKey.value;
 
-      if (key && selectRefsMap[key]) {
-        const activeSelect = selectRefsMap[key];
+      const selectedRef =  selectRefsMap[key];
+      if (key && selectedRef) {
+        const activeSelect = selectedRef;
         activeSelect.blur();
         nextTick(() => {
           activeSelect.handleTriggerClick();
@@ -194,18 +222,89 @@ export const subSelect = {
       }
     };
 
+    const disableStateCitiesSelector = (value) => {
+      if (tab.value === "table") {
+        city.value = value;
+        if (cities.value.some(item => item.disabled === true)) {
+          cities.value.forEach(item => {
+            item.disabled = false;
+            item.disabledText = ""
+          });
+        }
+        return;
+      }
+
+      if (!value) {
+        return;
+      }
+
+      const valueLength = value.length;
+
+      const maxSelection = 100;
+
+      if (valueLength <= maxSelection) {
+        city.value = value;
+        if (cities.value.some(item => item.disabled === true)) {
+          cities.value.forEach(item => {
+            item.disabled = false;
+            item.disabledText = ""
+          });
+        }
+        if (valueLength === maxSelection) {
+          cities.value.forEach(item => {
+            if (!value.includes(item.codigo6)) {
+              item.disabled = true;
+              item.disabledText = "Limite de seleções atingido"
+            }
+          });
+        }
+      }
+
+      if (valueLength >= maxSelection) {
+        city.value = value.slice(0, maxSelection);
+        cityTemp.value = city.value;
+        store.commit("message/INFO", "Valores de seletor de municípios foram atualizado para limites de gráfico");
+      }
+
+    }
+
+    const handleCitiesUpdateValue = (value) => {
+      disableStateCitiesSelector(value);
+
+      return;
+    }
+
     onMounted(() => {
       if (formRef.value) {
         resizeObserver.value = new ResizeObserver(updateDropdownPosition);
         resizeObserver.value.observe(formRef.value.closest('.main'));
       }
     });
+    const wait = (timeInMs) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, timeInMs);
+      });
+    }
+
+    const showCitiesSelect = ref(false);
+
+    const showCitiesSelectUpdate = async () => {
+      await wait(100);
+      if (granularity.value.toLowerCase() === 'municípios' && local.value.length) {
+        showCitiesSelect.value = true;
+        return;
+      }
+      showCitiesSelect.value = false;
+    }
 
     return {
       biEraser,
       cities,
       citiesTemp,
       city,
+      cityTemp,
       clear,
       disableAll: computed(() => store.state.content.yearSlideAnimation),
       disableLocalSelect,
@@ -215,6 +314,7 @@ export const subSelect = {
       formRef,
       granularities,
       granularity,
+      handleCitiesUpdateValue,
       handleLocalsUpdateShow,
       handleLocalsUpdateValue,
       handleShowUpdate,
@@ -239,6 +339,7 @@ export const subSelect = {
       types,
       updateDatePosition,
       years,
+      showCitiesSelect,
       modalContentGlossary: computed(() => {
         const text = store.state.content.about;
         let result = "";
@@ -285,7 +386,7 @@ export const subSelect = {
           :style="styleWidth"
           :consistent-menu-width="false"
           :multiple="tab !== 'map'"
-          :on-update:show="handleSicksUpdateShow"
+          :on-update:show="show => handleSicksUpdateShow(show, 'field1')"
           :on-update:value="handleSicksUpdateValue"
           :options="tabBy === 'sicks' ? sicks : immunizers"
           :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
@@ -293,7 +394,6 @@ export const subSelect = {
           clearable
           :disabled="disableAll"
           :on-clear="() => clear('sickImmunizer')"
-          @update:show="show => handleShowUpdate(show, 'field1')"
         />
       </n-form-item>
       <n-form-item label="Dose">
@@ -343,10 +443,14 @@ export const subSelect = {
           filterable
           :disabled="disableAll || disableLocalSelect"
           max-tag-count="responsive"
-          :on-update:show="handleLocalsUpdateShow"
+          :on-update:show="show => handleLocalsUpdateShow(show, 'field4')"
           :on-update:value="handleLocalsUpdateValue"
-          @update:show="show => handleShowUpdate(show, 'field4')"
         >
+          <template #action>
+            <n-button :on-click="() => selectAllLocals('field4')">
+              {{ (localTemp.length && localTemp.length === locals.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
+            </n-button>
+          </template>
         </n-select>
       </n-form-item>
       <n-form-item label="Abrangência temporal" :style="modal ? 'max-width: 400px;' : 'max-width: 200px;'">
@@ -393,21 +497,23 @@ export const subSelect = {
             @update:show="show => handleShowUpdate(show, 'field7')"
           />
         </n-form-item>
-        <n-form-item label="Município" v-if="granularity === 'Municípios' && localTemp.length">
+        <n-form-item label="Município" v-if="showCitiesSelect">
           <n-select
             :consistent-menu-width="false"
             :disabled="disableAll"
             :options="citiesTemp"
             :ref="el => (selectRefsMap['field8'] = el)"
             :style="styleWidth"
+            @update:value="value => handleCitiesUpdateValue(value)"
             @update:show="show => handleShowUpdate(show, 'field8')"
             class="mct-select"
             clearable
             filterable
             max-tag-count="responsive"
             placeholder="Selecione Município"
-            v-model:value="city"
+            v-model:value="cityTemp"
             :multiple="true"
+            :render-option="renderOption"
           />
         </n-form-item>
       </section>

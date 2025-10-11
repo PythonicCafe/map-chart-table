@@ -40,8 +40,6 @@ export default {
         payload[key] = value.map(item => { return { label: item, value: item } });
       }
     }
-    // Select all in locals select
-    payload.locals.unshift({ label: "Todos", value: "Todos" });
     commit("UPDATE_FORM_SELECTS", payload);
   },
   async requestData(
