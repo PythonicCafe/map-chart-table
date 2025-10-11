@@ -33,8 +33,12 @@ export default {
       return;
     }
     for (let [key, value] of Object.entries(options)) {
-      value.sort();
-      payload[key] = value.map(x => { return { label: x, value: x } });
+      if (key === 'cities') {
+        payload[key] = value.map(item => { return { ...item, label: `${item.uf} - ${item.nome}`, value: item.codigo6 } });
+      } else {
+        value.sort();
+        payload[key] = value.map(item => { return { label: item, value: item } });
+      }
     }
     // Select all in locals select
     payload.locals.unshift({ label: "Todos", value: "Todos" });

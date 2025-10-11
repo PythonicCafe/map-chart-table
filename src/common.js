@@ -12,12 +12,18 @@ export const formatToApi = ({
             routerResult[formField] = form[formField];
           }
           break;
+        case "city":
+          if (form[formField] && form[formField].length) {
+            routerResult[formField] = form[formField];
+          }
+          break;
         case "periodEnd":
         case "periodStart":
           if (form[formField]) {
             routerResult[formField] = form[formField];
           }
           break;
+        case "cities":
         case "doses":
         case "granularities":
         case "immunizers":

@@ -116,7 +116,6 @@ export const chart = {
 
       if (label.includes(",")) {
         labelSplited = label.split(",");
-        lastLabel = labelSplited[1].split(" ")[0] + " " + labelSplited[1].split(" ")[2].substr(0, 3);
       }
       return `${labelAcronym} ${lastLabel}`;
     }

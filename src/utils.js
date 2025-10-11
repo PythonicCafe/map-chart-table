@@ -311,8 +311,10 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
       );
     } else {
       resultToBlock = blockedListRows.find(blr =>
-        blr[listIndexSickImmuno] === selectedValue &&
-        blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
+        {
+          return blr[listIndexSickImmuno] === selectedValue &&
+          blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
+        }
       );
     }
 

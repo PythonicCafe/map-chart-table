@@ -20,6 +20,8 @@ export const getDefaultState = () => {
       periodEnd: null,
       granularity: null,
       granularities: [],
+      city: null,
+      cities: []
     },
     yearSlideAnimation: false,
     autoFilters: null,

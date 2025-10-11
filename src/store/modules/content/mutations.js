@@ -83,20 +83,15 @@ export default {
       state.form.granularity === "Municípios" &&
       state.form.local.length > 1
     ) {
-      if (["map", "chart"].includes(state.tab)) {
+      if (["map"].includes(state.tab)) {
         this.commit("content/UPDATE_TAB", { tab: "table" });
       }
       state.disableMap = true;
-      state.disableChart = true;
     } else if (
       state.form.granularity === "Municípios" ||
       state.form.type === "Meta atingida"
     ) {
-      if (state.tab === "chart") {
-        this.commit("content/UPDATE_TAB", { tab: "table" });
-      }
       state.disableMap = false;
-      state.disableChart = true;
     } else {
       state.disableMap = false;
       state.disableChart = false;

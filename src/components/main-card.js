@@ -122,6 +122,15 @@ export const mainCard = {
           } else {
             removeQueryFromRouter(key);
           }
+        } else if (key === "city") {
+          // TODO: define if cities will be in URL state
+          // const values = value.split(",")
+          // const cities = formState["cities"].map(el => el.value)
+          // if (values.every(val => cities.includes(val))) {
+          //     routerResult[key] = values;
+          // } else {
+          //   removeQueryFromRouter(key);
+          // }
         } else if (key === "local") {
           const values = value.split(",")
           const locals = formState["locals"].map(el => el.value)
@@ -178,6 +187,11 @@ export const mainCard = {
       if (Array.isArray(stateResult.local) && stateResult.local.length) {
         stateResult.local = [...stateResult?.local].join(",");
       }
+      // TODO: define if cities will be in URL state
+      // if (Array.isArray(stateResult.city) && stateResult.city.length) {
+      //   stateResult.city = [...stateResult?.city].join(",");
+      // }
+      delete stateResult.city
 
       if (!JSON.stringify(routeArgs) == JSON.stringify(stateResult)) {
         return;
@@ -188,9 +202,21 @@ export const mainCard = {
 
     watch(() => {
         const form = store.state.content.form;
-        return [form.sickImmunizer, form.type, form.dose, form.local,
-          form.period, form.periodStart, form.periodEnd,
-          form.granularity, store.state.content.tab, store.state.content.tabBy]
+        return [
+          form.dose,
+          form.granularity,
+          form.granularity,
+          form.local,
+          form.period,
+          form.periodEnd,
+          form.periodStart,
+          form.sickImmunizer,
+          form.type,
+          // TODO: define if cities will be in URL state
+          // form.city,
+          store.state.content.tab,
+          store.state.content.tabBy
+        ]
       },
       async () => {
         setUrlFromState();
