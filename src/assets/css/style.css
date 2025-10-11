@@ -95,3 +95,15 @@
 .vbr ::after {
   box-sizing: unset !important;
 }
+
+/* Remove fade/scale selects animations */
+.fade-in-scale-up-transition-enter-active,
+.fade-in-scale-up-transition-leave-active {
+  transition: none !important;
+}
+
+.fade-in-scale-up-transition-enter-from,
+.fade-in-scale-up-transition-leave-to {
+  opacity: 1 !important;
+  transform: none !important;
+}
