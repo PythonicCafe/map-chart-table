@@ -1,5 +1,5 @@
 import { ref, watch, computed, toRaw, onBeforeMount, onMounted, h, reactive, nextTick } from "vue/dist/vue.esm-bundler";
-import { NSelect, NFormItem, NDatePicker, NButton, NTooltip, NIcon } from "naive-ui";
+import { NSelect, NFormItem, NDatePicker, NButton, NTooltip, NIcon, NSpin } from "naive-ui";
 import { useStore } from 'vuex';
 import { computedVar } from "../utils";
 import { biEraser } from "../icons.js";
@@ -10,7 +10,8 @@ export const subSelect = {
     NFormItem,
     NDatePicker,
     NButton,
-    NIcon
+    NIcon,
+    NSpin
   },
   props: {
     modal: {
@@ -46,6 +47,7 @@ export const subSelect = {
     const cities = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "cities" }))
     const selectRefsMap = reactive({});
     const resizeObserver = ref(null);
+    const isLoadingCities = ref(false);
 
     const activeSelectKey = ref(null);
     const formRef = ref(null);
@@ -80,6 +82,27 @@ export const subSelect = {
       handleShowUpdate(true, field);
     }
 
+    const selectAllCities = (field, uncheckAll = false) => {
+      if (isLoadingCities.value) {
+        return;
+      }
+      isLoadingCities.value = true;
+      setTimeout(() => {
+        const allOptions = toRaw(citiesTemp.value);
+        const selectLength = Array.isArray(cityTemp.value) ? cityTemp.value.length : null
+        if ((selectLength == allOptions.length) || uncheckAll) {
+          cityTemp.value = [];
+          handleShowUpdate(true, field);
+          isLoadingCities.value = false;
+          return;
+        }
+
+        cityTemp.value = allOptions.map(option => option.value);
+        handleShowUpdate(true, field);
+        isLoadingCities.value = false;
+      }, 0)
+    }
+
     const handleLocalsUpdateShow = (show, field) => {
       showingLocalsOptions.value = show;
       if (!showingLocalsOptions.value && localTemp.value) {
@@ -89,19 +112,15 @@ export const subSelect = {
     };
 
     const handleLocalsUpdateValue = (value) => {
-      if (toRaw(value).includes("Todos")) {
-        selectAllLocals(locals.value);
-        return;
-      }
-
       localTemp.value = value;
       if (!showingLocalsOptions.value && localTemp.value){
         local.value = localTemp.value;
       }
-      const nPopover = document.querySelector(".n-popover");
-      if (nPopover) {
-       nPopover.innerHTML = "<!---->";
-      }
+      // Close hover box options remover
+      // const nPopover = document.querySelector(".n-popover");
+      // if (nPopover) {
+      //  nPopover.innerHTML = "<!---->";
+      // }
     };
 
     const handleSicksUpdateShow = (show, field) => {
@@ -118,10 +137,11 @@ export const subSelect = {
       if (!showingSicksOptions.value && sickTemp.value) {
         sick.value = value;
       }
-      const nPopover = document.querySelector(".n-popover");
-      if (nPopover) {
-       nPopover.innerHTML = "<!---->";
-      }
+      // Close hover box options remover
+      // const nPopover = document.querySelector(".n-popover");
+      // if (nPopover) {
+      //  nPopover.innerHTML = "<!---->";
+      // }
     };
 
     const eraseForm = () => {
@@ -177,8 +197,9 @@ export const subSelect = {
 
     watch(
       () => tab.value,
-      () => {
+      async () => {
         disableStateCitiesSelector(cityTemp.value);
+        await showCitiesSelectUpdate();
       }
     );
 
@@ -240,7 +261,7 @@ export const subSelect = {
 
       const valueLength = value.length;
 
-      const maxSelection = 100;
+      const maxSelection = 30;
 
       if (valueLength <= maxSelection) {
         city.value = value;
@@ -260,7 +281,7 @@ export const subSelect = {
         }
       }
 
-      if (valueLength >= maxSelection) {
+      if (valueLength > maxSelection) {
         city.value = value.slice(0, maxSelection);
         cityTemp.value = city.value;
         store.commit("message/INFO", "Valores de seletor de municípios foram atualizado para limites de gráfico");
@@ -292,12 +313,29 @@ export const subSelect = {
 
     const showCitiesSelectUpdate = async () => {
       await wait(100);
-      if (granularity.value.toLowerCase() === 'municípios' && local.value.length) {
+      const granValue = granularity.value;
+      if (
+        (granValue && granValue.toLowerCase() === 'municípios') &&
+        local.value.length &&
+        tab.value !== 'map'
+      ) {
         showCitiesSelect.value = true;
         return;
       }
       showCitiesSelect.value = false;
     }
+
+    const removeAccents = (str) => {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+
+    const customFilter = (pattern, option) => {
+      const optionLabel = option.label || '';
+      const normalizedPattern = removeAccents(pattern).toLowerCase();
+      const normalizedLabel = removeAccents(optionLabel).toLowerCase();
+
+      return normalizedLabel.includes(normalizedPattern);
+    };
 
     return {
       biEraser,
@@ -306,6 +344,7 @@ export const subSelect = {
       city,
       cityTemp,
       clear,
+      customFilter,
       disableAll: computed(() => store.state.content.yearSlideAnimation),
       disableLocalSelect,
       dose,
@@ -321,12 +360,14 @@ export const subSelect = {
       handleSicksUpdateShow,
       handleSicksUpdateValue,
       immunizers,
+      isLoadingCities,
       local,
       localTemp,
       locals,
       period,
       periodEnd,
       periodStart,
+      selectAllCities,
       selectAllLocals,
       selectRefsMap,
       sick,
@@ -447,9 +488,11 @@ export const subSelect = {
           :on-update:value="handleLocalsUpdateValue"
         >
           <template #action>
-            <n-button :on-click="() => selectAllLocals('field4')">
-              {{ (localTemp.length && localTemp.length === locals.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
-            </n-button>
+            <n-form-item label="Ação">
+              <n-button :on-click="() => selectAllLocals('field4')" size="small">
+                {{ (localTemp && localTemp.length === locals.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
+              </n-button>
+            </n-form-item>
           </template>
         </n-select>
       </n-form-item>
@@ -514,7 +557,28 @@ export const subSelect = {
             v-model:value="cityTemp"
             :multiple="true"
             :render-option="renderOption"
-          />
+            :filter="customFilter"
+          >
+            <template #action v-if="tab === 'table'">
+              <n-form-item label="Ação">
+                <n-button :on-click="() => selectAllCities('field8')" size="small">
+                  {{ (cityTemp && cityTemp.length === citiesTemp.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
+                  <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
+                </n-button>
+              </n-form-item>
+            </template>
+            <template #action v-else-if="tab === 'chart' && (cityTemp && cityTemp.length)">
+              <n-form-item label="Ação">
+                <n-button
+                  :on-click="() => selectAllCities('field8', true)"
+                  size="small"
+                >
+                  Desmarcar todos
+                  <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
+                </n-button>
+              </n-form-item>
+            </template>
+          </n-select>
         </n-form-item>
       </section>
       <n-form-item>

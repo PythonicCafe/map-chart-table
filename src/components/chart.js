@@ -426,7 +426,7 @@ export const chart = {
 
       for (let [key, value] of chartResultEntries) {
         if (i > 99) {
-          store.commit('message/INFO', "Essa filtragem excedeu o máximo de 100 linhas")
+          store.commit('message/INFO', "Essa filtragem excedeu o máximo de 30 linhas, apenas 30 linhas serão exibidas")
           break;
         }
         const color =  colors[i % colors.length];
