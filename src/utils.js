@@ -287,7 +287,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
     const listIndex = blockedListHeader.findIndex(el => el === blockHeaderName(selectedValue));
     for (let i=0; i < sicksImmunizers.length; i++) {
       const blockedListRow = blockedListRows.find(blr =>
-        blr[listIndexSickImmuno] === sicksImmunizers[i].label &&
+        blr[listIndexSickImmuno] === sicksImmunizers[i].label && blr[listIndexType] &&
         blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
       );
       const disabled = blockedListRow && blockedListRow[listIndex] === false ? true : false;
@@ -306,13 +306,13 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
 
     if (Array.isArray(selectedValue)) {
       resultToBlock = blockedListRows.filter(blr =>
-        selectedValue.includes(blr[listIndexSickImmuno]) &&
+        selectedValue.includes(blr[listIndexSickImmuno]) && blr[listIndexType] &&
         blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
       );
     } else {
       resultToBlock = blockedListRows.find(blr =>
         {
-          return blr[listIndexSickImmuno] === selectedValue &&
+          return blr[listIndexSickImmuno] === selectedValue && blr[listIndexType] &&
           blr[listIndexType].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === type
         }
       );
