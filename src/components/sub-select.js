@@ -540,7 +540,7 @@ export const subSelect = {
             @update:show="show => handleShowUpdate(show, 'field7')"
           />
         </n-form-item>
-        <n-form-item label="Município" v-if="showCitiesSelect">
+        <n-form-item label="Municípios" v-if="showCitiesSelect">
           <n-select
             :consistent-menu-width="false"
             :disabled="disableAll"
