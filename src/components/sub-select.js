@@ -87,6 +87,8 @@ export const subSelect = {
         return;
       }
       isLoadingCities.value = true;
+
+      // We use setTimeout to run this code after Vue render process
       setTimeout(() => {
         const allOptions = toRaw(citiesTemp.value);
         const selectLength = Array.isArray(cityTemp.value) ? cityTemp.value.length : null
@@ -177,7 +179,7 @@ export const subSelect = {
       async (loc) => {
         if (!loc.length) {
           city.value = [];
-          cityTemp.value = [];
+          citiesTemp.value = cities.value;
           cities.value.forEach(item => {
             item.disabled = false;
             item.disabledText = ""
@@ -194,6 +196,13 @@ export const subSelect = {
         await showCitiesSelectUpdate();
       }
     );
+
+    watch(
+      () => store.state.content.form.cities,
+      (cities) => {
+        citiesTemp.value = cities;
+      }
+    )
 
     watch(
       () => tab.value,
@@ -316,7 +325,6 @@ export const subSelect = {
       const granValue = granularity.value;
       if (
         (granValue && granValue.toLowerCase() === 'municípios') &&
-        local.value.length &&
         tab.value !== 'map'
       ) {
         showCitiesSelect.value = true;
