@@ -1,5 +1,5 @@
 import { ref, watch, computed, toRaw, onBeforeMount, onMounted, h, reactive, nextTick } from "vue/dist/vue.esm-bundler";
-import { NSelect, NFormItem, NDatePicker, NButton, NTooltip, NIcon, NSpin } from "naive-ui";
+import { NSelect, NFormItem, NDatePicker, NButton, NTooltip, NIcon, NSpin, NSpace } from "naive-ui";
 import { useStore } from 'vuex';
 import { computedVar } from "../utils";
 import { biEraser } from "../icons.js";
@@ -11,7 +11,8 @@ export const subSelect = {
     NDatePicker,
     NButton,
     NIcon,
-    NSpin
+    NSpin,
+    NSpace
   },
   props: {
     modal: {
@@ -20,6 +21,7 @@ export const subSelect = {
     },
   },
   setup (props) {
+    const allCitiesValues = [];
     const store = useStore();
     const tab = computed(() => store.state.content.tab);
     const tabBy = computed(() => store.state.content.tabBy);
@@ -48,6 +50,7 @@ export const subSelect = {
     const selectRefsMap = reactive({});
     const resizeObserver = ref(null);
     const isLoadingCities = ref(false);
+    const firstLoadCities = ref(true);
 
     const activeSelectKey = ref(null);
     const formRef = ref(null);
@@ -92,17 +95,21 @@ export const subSelect = {
       setTimeout(() => {
         const allOptions = toRaw(citiesTemp.value);
         const selectLength = Array.isArray(cityTemp.value) ? cityTemp.value.length : null
+
         if ((selectLength == allOptions.length) || uncheckAll) {
+          city.value = [];
           cityTemp.value = [];
           handleShowUpdate(true, field);
           isLoadingCities.value = false;
           return;
         }
 
-        cityTemp.value = allOptions.map(option => option.value);
+        city.value = allCitiesValues;
+        cityTemp.value = allCitiesValues;
+
         handleShowUpdate(true, field);
         isLoadingCities.value = false;
-      }, 0)
+      }, 0);
     }
 
     const handleLocalsUpdateShow = (show, field) => {
@@ -176,31 +183,50 @@ export const subSelect = {
 
     watch(
       () => store.state.content.form.local,
-      async (loc) => {
-        if (!loc.length) {
-          city.value = [];
-          citiesTemp.value = cities.value;
-          cities.value.forEach(item => {
-            item.disabled = false;
-            item.disabledText = ""
-          });
-        } else {
-          citiesTemp.value = cities.value.filter(city => loc.includes(city.uf));
-          if (city.value?.length) {
-            city.value = city.value.filter(itemA => citiesTemp.value.find(itemB => itemB.value === itemA));
-            cityTemp.value = city.value;
-          }
-          disableStateCitiesSelector(cityTemp.value);
-        }
+      (loc) => {
         localTemp.value = loc;
-        await showCitiesSelectUpdate();
+
+        isLoadingCities.value = true;
+
+        setTimeout(async () => {
+          if (!loc.length) {
+            citiesTemp.value = cities.value;
+            cityTemp.value = [];
+            city.value = [];
+          } else {
+            const rawCities = toRaw(cities.value);
+            const locSet = new Set(loc);
+
+            citiesTemp.value = rawCities.filter(city => locSet.has(city.uf));
+
+            if (city.value?.length) {
+              const citiesTempSet = new Set(citiesTemp.value.map(item => item.value));
+
+              const rawCityValue = toRaw(city.value);
+
+              city.value = rawCityValue.filter(itemA => citiesTempSet.has(itemA));
+              cityTemp.value = city.value;
+            }
+
+            disableStateCitiesSelector(cityTemp.value);
+          }
+
+          await showCitiesSelectUpdate();
+          isLoadingCities.value = false;
+        }, 0);
       }
     );
 
     watch(
       () => store.state.content.form.cities,
       (cities) => {
-        citiesTemp.value = cities;
+        if (firstLoadCities.value) {
+          citiesTemp.value = cities;
+          firstLoadCities.value = false;
+          for (let i = 0; i < cities.length; i++) {
+            allCitiesValues.push(cities[i].value);
+          }
+        }
       }
     )
 
@@ -549,44 +575,45 @@ export const subSelect = {
           />
         </n-form-item>
         <n-form-item label="Municípios" v-if="showCitiesSelect">
-          <n-select
-            :consistent-menu-width="false"
-            :disabled="disableAll"
-            :options="citiesTemp"
-            :ref="el => (selectRefsMap['field8'] = el)"
-            :style="styleWidth"
-            @update:value="value => handleCitiesUpdateValue(value)"
-            @update:show="show => handleShowUpdate(show, 'field8')"
-            class="mct-select"
-            clearable
-            filterable
-            max-tag-count="responsive"
-            placeholder="Selecione Município"
-            v-model:value="cityTemp"
-            :multiple="true"
-            :render-option="renderOption"
-            :filter="customFilter"
-          >
-            <template #action v-if="tab === 'table'">
-              <n-form-item label="Ação">
-                <n-button :on-click="() => selectAllCities('field8')" size="small">
-                  {{ (cityTemp && cityTemp.length === citiesTemp.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
-                  <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
-                </n-button>
-              </n-form-item>
-            </template>
-            <template #action v-else-if="tab === 'chart' && (cityTemp && cityTemp.length)">
-              <n-form-item label="Ação">
-                <n-button
-                  :on-click="() => selectAllCities('field8', true)"
-                  size="small"
-                >
-                  Desmarcar todos
-                  <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
-                </n-button>
-              </n-form-item>
-            </template>
-          </n-select>
+          <n-space vertical>
+            <n-select
+              :consistent-menu-width="true"
+              :disabled="disableAll"
+              :options="citiesTemp"
+              :ref="el => (selectRefsMap['field8'] = el)"
+              :style="styleWidth"
+              @update:value="value => handleCitiesUpdateValue(value)"
+              @update:show="show => handleShowUpdate(show, 'field8')"
+              class="mct-select"
+              clearable
+              filterable
+              max-tag-count="responsive"
+              placeholder="Selecione Município"
+              v-model:value="cityTemp"
+              :multiple="true"
+              :filter="customFilter"
+            >
+              <template #action v-if="tab === 'table'">
+                <n-form-item label="Ação">
+                  <n-button :on-click="() => selectAllCities('field8')" size="small">
+                    {{ (cityTemp && cityTemp.length === citiesTemp.length  ? 'Desmarcar' : 'Marcar') + ' todos' }}
+                    <n-spin v-show="isLoadingCities" size="tiny" :stroke-width="20" style="margin-left: 4px;" />
+                  </n-button>
+                </n-form-item>
+              </template>
+              <template #action v-else-if="tab === 'chart' && (cityTemp && cityTemp.length)">
+                <n-form-item label="Ação">
+                  <n-button
+                    :on-click="() => selectAllCities('field8', true)"
+                    size="small"
+                  >
+                    Desmarcar todos
+                    <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
+                  </n-button>
+                </n-form-item>
+              </template>
+            </n-select>
+          </n-space>
         </n-form-item>
       </section>
       <n-form-item>
