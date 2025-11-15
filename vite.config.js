@@ -9,7 +9,6 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         'chartjs': 'chart.js',
-        'vue': 'vue/dist/vue.esm-bundler.js',
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       }
     },
