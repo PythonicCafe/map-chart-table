@@ -1,9 +1,7 @@
-version: "3.4"
-
 services:
- vite_docker:
-   image: node:alpine
-   container_name: "${DOCKER_NAME}"
+ mct_web:
+   build: .
+   image: mct:latest
    entrypoint: /bin/sh
    env_file:
      - .env

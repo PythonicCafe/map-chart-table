@@ -5,34 +5,42 @@ help:	## List all make commands
 	@echo ' '
 
 build:		## Build the project with -d and --no-recreate flags
-	$(DOCKER_COMPOSE) up --build --no-recreate -d
+	docker compose up --build --no-recreate -d
 
 install:	## Exec container and make npm install commands
-	$(DOCKER_EXEC_TOOLS_APP) -c $(NODE_INSTALL)
+	docker compose exec mct_web npm install
 
-bundle:		## Run build npm command script
-	$(DOCKER_EXEC_TOOLS_APP) -c $(BUNDLE_RUN)
+bundle:
+	docker compose exec mct_web npm run bundle
 
 clean:		## Remove all dist/ files
-	$(DOCKER_EXEC_TOOLS_APP) -c $(CLEAN_RUN)
+	docker compose exec mct_web rm -r dist/*
 
-interact:	## Interact to install new packages or run specific commands in container
-	$(DOCKER_EXEC_TOOLS_APP)
+bash:	## Interact to install new packages or run specific commands in container
+	docker compose exec -it mct_web bash
 
 dev:		# Internal command to run dev npm command script
-	$(DOCKER_EXEC_TOOLS_APP) -c $(SERVER_RUN)
+	docker compose exec -it mct_web npm run development
 
 up:		## Run up -d Docker command container will wait for interactions
-	$(DOCKER_COMPOSE) up -d
+	docker compose up -d
 
 start:	up dev ## Up the docker env and run the npm run dev it to
 
 first:	build install dev ## Build the env, up it and run the npm install and then run npm run dev it to
 
-stop:	$(ROOT_DIR)/compose.yml	## Stop and remove containers
-	$(DOCKER_COMPOSE) kill
-	$(DOCKER_COMPOSE) rm --force
+stop:	./compose.yml	## Stop and remove containers
+	docker compose kill
+	docker compose rm --force
 restart:  stop start dev ## Stop and restart container
 
-clear:	stop $(ROOT_DIR)/compose.yml ## Stop and remove container and orphans
-	$(DOCKER_COMPOSE) down -v --remove-orphans
+types:   ## Run type check and generator
+	docker compose exec mct_web npm run types
+
+types-watch:   ## Run type check and generator
+	docker compose exec mct_web npm run types-watch
+
+clear:	stop ./compose.yml ## Stop and remove container and orphans
+	docker compose down -v --remove-orphans
+
+.PHONY: bash build clean help logs start stop types types-watch
