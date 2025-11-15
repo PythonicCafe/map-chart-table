@@ -37,10 +37,13 @@ restart:  stop start dev ## Stop and restart container
 types:   ## Run type check and generator
 	docker compose exec mct_web npm run types
 
+prettier:   ## Run prettier the opinionated code formatter in code
+	docker compose exec mct_web npm run prettier
+
 types-watch:   ## Run type check and generator
 	docker compose exec mct_web npm run types-watch
 
 clear:	stop ./compose.yml ## Stop and remove container and orphans
 	docker compose down -v --remove-orphans
 
-.PHONY: bash build clean help logs start stop types types-watch
+.PHONY: bash build clean help logs start stop types types-watch prettier
