@@ -20,6 +20,7 @@ export const yearSlider = {
     const showTooltip = ref(false);
     const mapPlaying = computed(computedVar({ store, mutation: "content/UPDATE_YEAR_SLIDER_ANIMATION",  field: "yearSlideAnimation" }));
     const stopPlayMap = ref(false);
+
     const setSliderValue = (period) => {
       const form = store.state.content.form;
       showSlider.value = form.periodStart && form.periodEnd ? true : false;
@@ -33,18 +34,19 @@ export const yearSlider = {
     const min = computed(() => setSliderValue(store.state.content.form.periodStart));
 
     const valueMandatoryLabels = ref(null);
+
     const valueMandatory = computed(() => {
       const tabBy = store.state.content.tabBy;
       if (tabBy !== "immunizers") {
         return
       }
 
-      const sickImmunizer = store.state.content.form.sickImmunizer;
-      const dose = store.state.content.form.dose ? store.state.content.form.dose : "1ª dose";
-      const mandatoryVaccineYears = store.state.content.mandatoryVaccineYears;
+      const sickImmunizer = form.value.sickImmunizer;
+      const dose = form.value.dose ? form.value.dose : "1ª dose";
+      const mandatoryVaccineYears = mandatoryVaccineYears.value;
 
       if (mandatoryVaccineYears) {
-        const result = mandatoryVaccineYears.find(el => el[0] === sickImmunizer &&
+        const result = mandatoryVaccineYears.find(/** @type{string[]} **/ el => el[0] === sickImmunizer &&
           (el[1] === dose || el[1] === "Dose única" && dose === "1ª dose")
         );
         if (result) {

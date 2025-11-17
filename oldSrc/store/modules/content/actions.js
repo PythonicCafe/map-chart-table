@@ -181,7 +181,7 @@ export default {
     [ mutation, slug ]
   ) {
     const api = new DataFetcher(state.apiUrl);
-    const payload = await api.requestSettingApiEndPoint(slug, "/wp-json/wp/v2/pages");
+    const payload = await api.requestSettingApiEndPoint(slug, "/wp-json/wp/v2/pages-");
     commit(mutation, payload);
     return payload;
   },

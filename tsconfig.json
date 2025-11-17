@@ -11,8 +11,12 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "lib": ["ES2020", "DOM"]
+    "downlevelIteration": true,
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*",
+    "images.d.ts"
+  ]
 }

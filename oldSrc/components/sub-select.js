@@ -29,6 +29,7 @@ export const subSelect = {
     const sickTemp = ref(null);
     const localTemp = ref(null);
     const citiesTemp = ref([]);
+
     const disableLocalSelect = computed(() => store.getters[`content/disableLocalSelect`]);
     const sick = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sickImmunizer" }));
     const sicks = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "sicks" }));
@@ -47,6 +48,7 @@ export const subSelect = {
     const years = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "years" }))
     const city = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "city" }))
     const cities = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM", field: "cities" }))
+
     const selectRefsMap = reactive({});
     const resizeObserver = ref(null);
     const isLoadingCities = ref(false);

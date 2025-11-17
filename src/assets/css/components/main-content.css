@@ -1,0 +1,27 @@
+.main-content {
+    margin-top: 16px;
+}
+
+.map-section {
+    min-height: 520px;
+}
+
+@media (max-width: 475px) {
+    .map-section {
+        min-height: 420px;
+    }
+}
+
+.main-title {
+    margin: 0px;
+    padding: 0px;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.sub-title {
+    margin: 0px;
+    padding: 0px;
+    font-weight: 400;
+    font-size: 1.25rem;
+}

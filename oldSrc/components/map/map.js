@@ -16,8 +16,10 @@ export const map = {
     const yearMapElement = ref(null);
     const mapChart = ref(null);
     const timeOutId = ref(null);
+
     const store = useStore();
     const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
+
     const datasetStates = ref(null);
     const datasetCities = ref(null);
     const granularity = computed(() => store.state.content.form.granularity);

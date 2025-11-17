@@ -1,0 +1,59 @@
+import { NConfigProvider, ptBR, NMessageProvider } from 'naive-ui'
+
+export default {
+    components: { NConfigProvider, NMessageProvider },
+    setup() {
+        const lightThemeOverrides = {
+            common: {
+                primaryColor: '#e96f5f',
+                primaryColorHover: '#e96f5f',
+                primaryColorPressed: '#e96f5f',
+                fontSizeMedium: '.95rem',
+            },
+            Slider: {
+                indicatorColor: '#e96f5f',
+            },
+            Pagination: {
+                itemBorderRadius: '50%',
+            },
+            Button: {
+                fontSizeMedium: '.95rem',
+            },
+            Tabs: {
+                tabFontSizeMedium: '.95rem',
+            },
+            DataTable: {
+                fontSizeMedium: '.95rem',
+                thColorHover: '#e96f5f',
+                thColor: '#ececec',
+                tdColorStriped: '#ececec',
+                thFontWeight: '500',
+                thIconColor: '#e96f5f',
+            },
+            Select: {
+                peers: {
+                    InternalSelectMenu: {
+                        clearTransition: null,
+                        fadeTransition: null,
+                        slideUpTransition: null,
+                    },
+                },
+            },
+        }
+        return {
+            // Configuration for the provider
+            ptBR: ptBR,
+            lightThemeOverrides,
+        }
+    },
+    template: `
+    <n-config-provider
+      :locale="ptBR"
+      :theme-overrides="lightThemeOverrides"
+    >
+      <n-messageProvider>
+        <slot />
+      </n-messageProvider>
+    </n-config-provider>
+  `,
+}

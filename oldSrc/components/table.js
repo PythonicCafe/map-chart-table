@@ -1,4 +1,4 @@
-import { ref, onMounted, computed, watch } from "vue/dist/vue.esm-bundler";
+import { ref, onMounted, onBeforeUnomount, computed, watch } from "vue/dist/vue.esm-bundler";
 import { NButton, NDataTable, NSelect, NEmpty } from "naive-ui";
 import { computedVar, formatToTable } from "../utils";
 import { useStore } from 'vuex';
@@ -17,13 +17,15 @@ export const table = {
   },
   setup() {
     const store = useStore();
+
     const rows =  ref([]);
     const columns = ref([]);
     const page = ref(1);
     const pageCount = ref(0);
     const pageTotalItems = ref(10);
-    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
     const sorter = ref(null);
+
+    const loading = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
 
     const pagination = computed(() => ({
         page: page.value,
@@ -74,7 +76,11 @@ export const table = {
 
     onMounted(async () => {
       updateTableContent()
-    });
+    })
+
+    onBeforeUnomount(() => {
+      tableStore.resetState()
+    })
 
     watch(
       () =>  {

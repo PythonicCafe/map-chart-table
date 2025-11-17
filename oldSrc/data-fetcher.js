@@ -69,6 +69,7 @@ export class DataFetcher {
   }
 
   async requestSettingApiEndPoint(endPoint, apiEndpoint, signal) {
+    console.log(endPoint, apiEndpoint)
     const args = [endPoint, apiEndpoint];
     if (args) {
       args.push(signal);
