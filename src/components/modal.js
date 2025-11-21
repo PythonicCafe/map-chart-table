@@ -1,36 +1,36 @@
-import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NModal, NScrollbar } from "naive-ui";
+import { ref, computed } from 'vue/dist/vue.esm-bundler'
+import { NModal, NScrollbar } from 'naive-ui'
 
 export const modal = {
-  components:  {
-    NModal,
-    NScrollbar
-  },
-  props: {
-    show: {
-      type: Boolean
+    components: {
+        NModal,
+        NScrollbar,
     },
-    title: {
-      type: String
-    }
-  },
-  setup (props, { emit }) {
-    const showModal = computed({
-      get() {
-        return props.show;
-      },
-      set(value) {
-        emit("update:show", value);
-      }
-    });
-    return {
-      bodyStyle: {
-        maxWidth: '900px',
-      },
-      showModal
-    }
-  },
-  template: `
+    props: {
+        show: {
+            type: Boolean,
+        },
+        title: {
+            type: String,
+        },
+    },
+    setup(props, { emit }) {
+        const showModal = computed({
+            get() {
+                return props.show
+            },
+            set(value) {
+                emit('update:show', value)
+            },
+        })
+        return {
+            bodyStyle: {
+                maxWidth: '900px',
+            },
+            showModal,
+        }
+    },
+    template: `
     <n-modal
       v-model:show="showModal"
       class="custom-card"

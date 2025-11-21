@@ -1,50 +1,44 @@
-import { computed } from "vue/dist/vue.esm-bundler";
-import { modal as Modal } from "./modal.js";
+import { computed } from 'vue/dist/vue.esm-bundler'
+import { modal as Modal } from './modal.js'
 
-import
-{
-  NScrollbar,
-  NSkeleton,
-  NEmpty
-} from "naive-ui";
+import { NScrollbar, NSkeleton, NEmpty } from 'naive-ui'
 
 export const modalGeneric = {
-  components:  {
-    Modal,
-    NScrollbar,
-    NSkeleton,
-    NEmpty,
-  },
-  props: {
-    show: {
-      type: Boolean
+    components: {
+        Modal,
+        NScrollbar,
+        NSkeleton,
+        NEmpty,
     },
-    loading: {
-      type: Boolean
+    props: {
+        show: {
+            type: Boolean,
+        },
+        loading: {
+            type: Boolean,
+        },
+        title: {
+            type: String,
+        },
+        modalContent: {
+            type: String,
+        },
     },
-    title: {
-      type: String
-    },
-    modalContent: {
-      type: String
-    }
-  },
-  setup (props, { emit }) {
+    setup(props, { emit }) {
+        const showModal = computed({
+            get() {
+                return props.show
+            },
+            set(value) {
+                emit('update:show', value)
+            },
+        })
 
-    const showModal = computed({
-      get() {
-        return props.show;
-      },
-      set(value) {
-        emit("update:show", value);
-      }
-    });
-
-    return {
-      showModal
-    }
-  },
-  template: `
+        return {
+            showModal,
+        }
+    },
+    template: `
       <modal
         v-model:show="showModal"
         :title="title"
@@ -79,5 +73,5 @@ export const modalGeneric = {
           </n-empty>
         </template>
       </modal>
-    `
+    `,
 }

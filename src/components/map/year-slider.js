@@ -1,120 +1,151 @@
-import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NCard, NSlider, NSpace, NButton, NIconWrapper, NIcon } from "naive-ui";
+import { ref, computed } from 'vue/dist/vue.esm-bundler'
+import { NCard, NSlider, NSpace, NButton, NIconWrapper, NIcon } from 'naive-ui'
 import { useStore } from 'vuex'
-import { computedVar } from "../../utils";
-import { biCaretDown } from "../../icons.js";
+import { computedVar } from '../../utils'
+import { biCaretDown } from '../../icons.js'
 
 export const yearSlider = {
-  components:  {
-    NCard,
-    NSlider,
-    NSpace,
-    NButton,
-    NIconWrapper,
-    NIcon
-  },
-  setup () {
-    const store = useStore();
-    const period = computed(computedVar({ store, base: "form", mutation: "content/UPDATE_FORM",  field: "period" }));
-    const showSlider = ref(false);
-    const showTooltip = ref(false);
-    const mapPlaying = computed(computedVar({ store, mutation: "content/UPDATE_YEAR_SLIDER_ANIMATION",  field: "yearSlideAnimation" }));
-    const stopPlayMap = ref(false);
-    const setSliderValue = (period) => {
-      const form = store.state.content.form;
-      showSlider.value = form.periodStart && form.periodEnd ? true : false;
-      if (period) {
-        return Number(period);
-      }
-      return;
-    }
-
-    const max = computed(() => setSliderValue(store.state.content.form.periodEnd));
-    const min = computed(() => setSliderValue(store.state.content.form.periodStart));
-
-    const valueMandatoryLabels = ref(null);
-    const valueMandatory = computed(() => {
-      const tabBy = store.state.content.tabBy;
-      if (tabBy !== "immunizers") {
-        return
-      }
-
-      const sickImmunizer = store.state.content.form.sickImmunizer;
-      const dose = store.state.content.form.dose ? store.state.content.form.dose : "1ª dose";
-      const mandatoryVaccineYears = store.state.content.mandatoryVaccineYears;
-
-      if (mandatoryVaccineYears) {
-        const result = mandatoryVaccineYears.find(el => el[0] === sickImmunizer &&
-          (el[1] === dose || el[1] === "Dose única" && dose === "1ª dose")
-        );
-        if (result) {
-          valueMandatoryLabels.value = [result[2], result[3]];
-          if (
-            max.value && min.value &&
-            (
-              (max.value && max.value <= result[3]) ||
-              (min.value && min.value >= result[2])
-            )
-          ) {
-            return [result[2], result[3]];
-          } else if (max.value && max.value <= result[3] && max.value >= result[2]) {
-            return result[3];
-          } else if (min.value && min.value >= result[2] && min.value <= result[3] ) {
-            return result[2];
-          }
+    components: {
+        NCard,
+        NSlider,
+        NSpace,
+        NButton,
+        NIconWrapper,
+        NIcon,
+    },
+    setup() {
+        const store = useStore()
+        const period = computed(
+            computedVar({
+                store,
+                base: 'form',
+                mutation: 'content/UPDATE_FORM',
+                field: 'period',
+            })
+        )
+        const showSlider = ref(false)
+        const showTooltip = ref(false)
+        const mapPlaying = computed(
+            computedVar({
+                store,
+                mutation: 'content/UPDATE_YEAR_SLIDER_ANIMATION',
+                field: 'yearSlideAnimation',
+            })
+        )
+        const stopPlayMap = ref(false)
+        const setSliderValue = (period) => {
+            const form = store.state.content.form
+            showSlider.value = form.periodStart && form.periodEnd ? true : false
+            if (period) {
+                return Number(period)
+            }
+            return
         }
-      }
 
-      return
-    });
+        const max = computed(() =>
+            setSliderValue(store.state.content.form.periodEnd)
+        )
+        const min = computed(() =>
+            setSliderValue(store.state.content.form.periodStart)
+        )
 
-    const years = computed(() => {
-      let y = min.value;
-      const result = [];
-      while (y <= max.value) {
-        result.push(y++);
-      }
-      return result;
-    })
+        const valueMandatoryLabels = ref(null)
+        const valueMandatory = computed(() => {
+            const tabBy = store.state.content.tabBy
+            if (tabBy !== 'immunizers') {
+                return
+            }
 
-    const waitFor = (delay) => new Promise(resolve => setTimeout(resolve, delay));
+            const sickImmunizer = store.state.content.form.sickImmunizer
+            const dose = store.state.content.form.dose
+                ? store.state.content.form.dose
+                : '1ª dose'
+            const mandatoryVaccineYears =
+                store.state.content.mandatoryVaccineYears
 
-    const playMap = async () => {
-      showTooltip.value = true;
-      mapPlaying.value = true;
-      for (let year of years.value){
-        if (stopPlayMap.value) {
-          stopPlayMap.value = false;
-          return;
+            if (mandatoryVaccineYears) {
+                const result = mandatoryVaccineYears.find(
+                    (el) =>
+                        el[0] === sickImmunizer &&
+                        (el[1] === dose ||
+                            (el[1] === 'Dose única' && dose === '1ª dose'))
+                )
+                if (result) {
+                    valueMandatoryLabels.value = [result[2], result[3]]
+                    if (
+                        max.value &&
+                        min.value &&
+                        ((max.value && max.value <= result[3]) ||
+                            (min.value && min.value >= result[2]))
+                    ) {
+                        return [result[2], result[3]]
+                    } else if (
+                        max.value &&
+                        max.value <= result[3] &&
+                        max.value >= result[2]
+                    ) {
+                        return result[3]
+                    } else if (
+                        min.value &&
+                        min.value >= result[2] &&
+                        min.value <= result[3]
+                    ) {
+                        return result[2]
+                    }
+                }
+            }
+
+            return
+        })
+
+        const years = computed(() => {
+            let y = min.value
+            const result = []
+            while (y <= max.value) {
+                result.push(y++)
+            }
+            return result
+        })
+
+        const waitFor = (delay) =>
+            new Promise((resolve) => setTimeout(resolve, delay))
+
+        const playMap = async () => {
+            showTooltip.value = true
+            mapPlaying.value = true
+            for (let year of years.value) {
+                if (stopPlayMap.value) {
+                    stopPlayMap.value = false
+                    return
+                }
+                period.value = year
+                await waitFor(1000)
+            }
+            showTooltip.value = false
+            mapPlaying.value = false
+            stopPlayMap.value = false
         }
-        period.value = year
-        await waitFor(1000)
-      }
-      showTooltip.value = false;
-      mapPlaying.value = false;
-      stopPlayMap.value = false;
-    }
 
-    return {
-      max,
-      min,
-      valueMandatory,
-      showSlider,
-      showTooltip,
-      formatTooltip: (value) =>
-        `Presente no calendário vacinal entre ${valueMandatoryLabels.value[0]} e ${valueMandatoryLabels.value[1]}`,
-      playMap,
-      mapPlaying,
-      stopMap: () => {
-        stopPlayMap.value = true
-        showTooltip.value = false;
-        mapPlaying.value = false;
-      },
-      period,
-      biCaretDown
-    }
-  },
-  template: `
+        return {
+            max,
+            min,
+            valueMandatory,
+            showSlider,
+            showTooltip,
+            formatTooltip: (value) =>
+                `Presente no calendário vacinal entre ${valueMandatoryLabels.value[0]} e ${valueMandatoryLabels.value[1]}`,
+            playMap,
+            mapPlaying,
+            stopMap: () => {
+                stopPlayMap.value = true
+                showTooltip.value = false
+                mapPlaying.value = false
+            },
+            period,
+            biCaretDown,
+        }
+    },
+    template: `
     <section
       class="year-slider"
     >

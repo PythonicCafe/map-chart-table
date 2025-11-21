@@ -1,45 +1,45 @@
-import { computed } from "vue/dist/vue.esm-bundler";
-import { NModal, NScrollbar, NTabs, NTabPane, NSpin } from "naive-ui";
+import { computed } from 'vue/dist/vue.esm-bundler'
+import { NModal, NScrollbar, NTabs, NTabPane, NSpin } from 'naive-ui'
 
 export const modalWithTabs = {
-  components:  {
-    NModal,
-    NScrollbar,
-    NTabs,
-    NTabPane,
-    NSpin
-  },
-  props: {
-    data: {
-      type: Array
+    components: {
+        NModal,
+        NScrollbar,
+        NTabs,
+        NTabPane,
+        NSpin,
     },
-    show: {
-      type: Boolean
+    props: {
+        data: {
+            type: Array,
+        },
+        show: {
+            type: Boolean,
+        },
+        title: {
+            type: String,
+        },
     },
-    title: {
-      type: String
-    }
-  },
-  setup (props, { emit }) {
-    const showModal = computed({
-      get() {
-        return props.show;
-      },
-      set(value) {
-        emit("update:show", value);
-      }
-    });
+    setup(props, { emit }) {
+        const showModal = computed({
+            get() {
+                return props.show
+            },
+            set(value) {
+                emit('update:show', value)
+            },
+        })
 
-    const items = computed(() => props.data);
-    return {
-      bodyStyle: {
-        maxWidth: '900px',
-      },
-      showModal,
-      items
-    }
-  },
-  template: `
+        const items = computed(() => props.data)
+        return {
+            bodyStyle: {
+                maxWidth: '900px',
+            },
+            showModal,
+            items,
+        }
+    },
+    template: `
     <n-modal
       v-model:show="showModal"
       class="custom-card"

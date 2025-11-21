@@ -1,266 +1,298 @@
-import { NCard, NSkeleton, useMessage, NModal, NButton, NSpin } from "naive-ui";
-import { ref, computed, onMounted, watch } from "vue/dist/vue.esm-bundler";
-import { chart as Chart } from "./chart";
-import { map as Map } from "./map/map";
-import { table as Table } from "./table";
-import { subSelect as SubSelect } from "./sub-select";
-import { filterSuggestion as FilterSuggestion } from "./filter-suggestion";
-import { subButtons as SubButtons } from "./sub-buttons";
-import { yearSlider as YearSlider } from "./map/year-slider";
-import { mapRange as MapRange } from "./map/map-range";
+import { NCard, NSkeleton, useMessage, NModal, NButton, NSpin } from 'naive-ui'
+import { ref, computed, onMounted, watch } from 'vue/dist/vue.esm-bundler'
+import { chart as Chart } from './chart'
+import { map as Map } from './map/map'
+import { table as Table } from './table'
+import { subSelect as SubSelect } from './sub-select'
+import { filterSuggestion as FilterSuggestion } from './filter-suggestion'
+import { subButtons as SubButtons } from './sub-buttons'
+import { yearSlider as YearSlider } from './map/year-slider'
+import { mapRange as MapRange } from './map/map-range'
 import { useStore } from 'vuex'
-import { mapFields, computedVar } from '../utils';
-import { useRouter, useRoute } from 'vue-router';
-import { formatToApi } from "../common";
+import { mapFields, computedVar } from '../utils'
+import { useRouter, useRoute } from 'vue-router'
+import { formatToApi } from '../common'
 
 export const mainCard = {
-  components:  {
-    NCard,
-    Chart,
-    Map,
-    Table,
-    FilterSuggestion,
-    SubSelect,
-    SubButtons,
-    YearSlider,
-    MapRange,
-    NSkeleton,
-    NModal,
-    NButton,
-    NSpin
-  },
-  props: {
-    api: {
-      type: String,
-      required: true
+    components: {
+        NCard,
+        Chart,
+        Map,
+        Table,
+        FilterSuggestion,
+        SubSelect,
+        SubButtons,
+        YearSlider,
+        MapRange,
+        NSkeleton,
+        NModal,
+        NButton,
+        NSpin,
     },
-  },
-  setup() {
-    const store = useStore();
-    const message = useMessage();
-    const map = ref(null);
-    const mapData = ref([]);
-    const mapTooltip = ref([]);
-    const show = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
-    const isMobileScreen = ref(null);
-    const formPopulated = computed(() => store.getters["content/selectsEmpty"]);
-    const getWindowWidth = () => {
-      isMobileScreen.value = window.innerWidth <= 1368;
-    }
-    window.addEventListener('resize', getWindowWidth)
-    const tab = computed(() => store.state.content.tab);
-    const form = computed(() => mapFields(
-      {
-        store,
-        fields: [
-          "sickImmunizer",
-          "sicksImmunizers",
-          "type",
-          "dose",
-          "types",
-          "local",
-          "locals",
-          "period",
-          "periods",
-          "periodStart",
-          "periodEnd",
-          "granularity",
-          "granularities",
-        ],
-        base: "form",
-        mutation: "content/UPDATE_FORM"
-      })
-    );
-
-    const router = useRouter();
-    const route = useRoute();
-
-    const handleMapChange = (datasetValues) => {
-      mapData.value = datasetValues;
-    };
-
-    const handleMapTooltip = (tooltip) => {
-      mapTooltip.value = tooltip;
-    };
-
-    const URLquery = { ...route.query };
-    const removeQueryFromRouter = (key) => {
-        delete URLquery[key];
-        message.warning('URL contém valor inválido para filtragem')
-        router.replace({ query: URLquery });
-    }
-
-    const setStateFromUrl = () => {
-      const formState = store.state.content.form
-      const routeArgs = { ...route.query };
-      const routerResult = {};
-      const routerResultTabs = {};
-
-      if (!Object.keys(routeArgs).length) {
-        return;
-      }
-
-      for (const [key, value] of Object.entries(routeArgs)) {
-        if (key === "sickImmunizer") {
-          if (value.includes(",")) {
-            const values = value.split(",")
-            const sicks = formState["sicks"].map(el => el.value)
-            const immunizers = formState["immunizers"].map(el => el.value)
-            if (
-              values.every(val => sicks.includes(val)) ||
-              values.every(val => immunizers.includes(val))
-            ) {
-                routerResult[key] = values;
-            } else {
-              removeQueryFromRouter(key);
-            }
-          } else if (
-            formState["sicks"].some(el => el.value === value) ||
-            formState["immunizers"].some(el => el.value === value)
-          ) {
-            routerResult[key] = value;
-          } else {
-            removeQueryFromRouter(key);
-          }
-        } else if (key === "city") {
-          // TODO: define if cities will be in URL state
-          // const values = value.split(",")
-          // const cities = formState["cities"].map(el => el.value)
-          // if (values.every(val => cities.includes(val))) {
-          //     routerResult[key] = values;
-          // } else {
-          //   removeQueryFromRouter(key);
-          // }
-        } else if (key === "local") {
-          const values = value.split(",")
-          const locals = formState["locals"].map(el => el.value)
-          if (values.every(val => locals.includes(val))) {
-              routerResult[key] = values;
-          } else {
-            removeQueryFromRouter(key);
-          }
-        } else if (key === "granularity") {
-          formState["granularities"].some(el => el.value === value) ?
-            routerResult[key] = value : removeQueryFromRouter(key);
-        } else if (key === "dose") {
-          formState["doses"].some(el => el.value === value) ?
-            routerResult[key] = value : removeQueryFromRouter(key);
-        } else if (key === "type") {
-          formState["types"].some(el => el.value === value) ?
-            routerResult[key] = value : removeQueryFromRouter(key);
-        } else if (key === "tab") {
-          ["map", "chart", "table"].some(el => el === value) ?
-            routerResultTabs[key] = value : removeQueryFromRouter(key);
-        } else if (key === "tabBy") {
-          ["immunizers", "sicks"].some(el => el === value) ?
-            routerResultTabs[key] = value : removeQueryFromRouter(key);
-        } else if (["periodStart", "periodEnd"].includes(key)) {
-          const resultValue = Number(value)
-          formState["years"].some(el => el.value === resultValue) ?
-            routerResult[key] = resultValue : removeQueryFromRouter(key);
-        } else if (key === "period") {
-          routerResult[key] = Number(value);
-        } else if (value.includes(",")) {
-          routerResult[key] = value.split(",");
-        } else {
-          routerResult[key] = value ?? null;
+    props: {
+        api: {
+            type: String,
+            required: true,
+        },
+    },
+    setup() {
+        const store = useStore()
+        const message = useMessage()
+        const map = ref(null)
+        const mapData = ref([])
+        const mapTooltip = ref([])
+        const show = computed(
+            computedVar({
+                store,
+                mutation: 'content/UPDATE_LOADING',
+                field: 'loading',
+            })
+        )
+        const isMobileScreen = ref(null)
+        const formPopulated = computed(
+            () => store.getters['content/selectsEmpty']
+        )
+        const getWindowWidth = () => {
+            isMobileScreen.value = window.innerWidth <= 1368
         }
-      }
+        window.addEventListener('resize', getWindowWidth)
+        const tab = computed(() => store.state.content.tab)
+        const form = computed(() =>
+            mapFields({
+                store,
+                fields: [
+                    'sickImmunizer',
+                    'sicksImmunizers',
+                    'type',
+                    'dose',
+                    'types',
+                    'local',
+                    'locals',
+                    'period',
+                    'periods',
+                    'periodStart',
+                    'periodEnd',
+                    'granularity',
+                    'granularities',
+                ],
+                base: 'form',
+                mutation: 'content/UPDATE_FORM',
+            })
+        )
 
-      store.commit("content/UPDATE_FROM_URL", {
-        tab: routerResultTabs?.tab ? routerResultTabs.tab : "map",
-        tabBy: routerResultTabs?.tabBy ?  routerResultTabs.tabBy : "sicks",
-        form: { ...routerResult },
-      });
-    };
+        const router = useRouter()
+        const route = useRoute()
 
-    const setUrlFromState = () => {
-      const routeArgs = { ...route.query };
-      let stateResult = formatToApi({
-        form: { ...store.state.content.form },
-        tab: store.state.content.tab !== "map" ? store.state.content.tab : undefined,
-        tabBy: store.state.content.tabBy !== "sicks" ? store.state.content.tabBy : undefined,
-      });
-      if (Array.isArray(stateResult.sickImmunizer) && stateResult.sickImmunizer.length) {
-        stateResult.sickImmunizer = [...stateResult?.sickImmunizer].join(",");
-      }
-      if (Array.isArray(stateResult.local) && stateResult.local.length) {
-        stateResult.local = [...stateResult?.local].join(",");
-      }
-      // TODO: define if cities will be in URL state
-      // if (Array.isArray(stateResult.city) && stateResult.city.length) {
-      //   stateResult.city = [...stateResult?.city].join(",");
-      // }
-      delete stateResult.city
+        const handleMapChange = (datasetValues) => {
+            mapData.value = datasetValues
+        }
 
-      if (!JSON.stringify(routeArgs) == JSON.stringify(stateResult)) {
-        return;
-      }
+        const handleMapTooltip = (tooltip) => {
+            mapTooltip.value = tooltip
+        }
 
-      return router.replace({ query: stateResult });
-    }
+        const URLquery = { ...route.query }
+        const removeQueryFromRouter = (key) => {
+            delete URLquery[key]
+            message.warning('URL contém valor inválido para filtragem')
+            router.replace({ query: URLquery })
+        }
 
-    watch(() => {
-        const form = store.state.content.form;
-        return [
-          form.dose,
-          form.granularity,
-          form.granularity,
-          form.local,
-          form.period,
-          form.periodEnd,
-          form.periodStart,
-          form.sickImmunizer,
-          form.type,
-          // TODO: define if cities will be in URL state
-          // form.city,
-          store.state.content.tab,
-          store.state.content.tabBy
-        ]
-      },
-      async () => {
-        setUrlFromState();
-      }
-    )
+        const setStateFromUrl = () => {
+            const formState = store.state.content.form
+            const routeArgs = { ...route.query }
+            const routerResult = {}
+            const routerResultTabs = {}
 
-    onMounted(async () => {
-      getWindowWidth();
-      await store.dispatch("content/updateFormSelect");
-      setStateFromUrl();
-    });
+            if (!Object.keys(routeArgs).length) {
+                return
+            }
 
-    // Show messages from state
-    store.subscribe((mutation, state) => {
-      if (
-        [
-          "message/ERROR",
-          "message/SUCCESS",
-          "message/INFO",
-          "message/WARNING",
-        ].includes(mutation.type)
-      ) {
-        message.create(state.message.message, { type: state.message.type });
-        store.commit("message/CLEAR");
-      }
-    });
+            for (const [key, value] of Object.entries(routeArgs)) {
+                if (key === 'sickImmunizer') {
+                    if (value.includes(',')) {
+                        const values = value.split(',')
+                        const sicks = formState['sicks'].map((el) => el.value)
+                        const immunizers = formState['immunizers'].map(
+                            (el) => el.value
+                        )
+                        if (
+                            values.every((val) => sicks.includes(val)) ||
+                            values.every((val) => immunizers.includes(val))
+                        ) {
+                            routerResult[key] = values
+                        } else {
+                            removeQueryFromRouter(key)
+                        }
+                    } else if (
+                        formState['sicks'].some((el) => el.value === value) ||
+                        formState['immunizers'].some((el) => el.value === value)
+                    ) {
+                        routerResult[key] = value
+                    } else {
+                        removeQueryFromRouter(key)
+                    }
+                } else if (key === 'city') {
+                    // TODO: define if cities will be in URL state
+                    // const values = value.split(",")
+                    // const cities = formState["cities"].map(el => el.value)
+                    // if (values.every(val => cities.includes(val))) {
+                    //     routerResult[key] = values;
+                    // } else {
+                    //   removeQueryFromRouter(key);
+                    // }
+                } else if (key === 'local') {
+                    const values = value.split(',')
+                    const locals = formState['locals'].map((el) => el.value)
+                    if (values.every((val) => locals.includes(val))) {
+                        routerResult[key] = values
+                    } else {
+                        removeQueryFromRouter(key)
+                    }
+                } else if (key === 'granularity') {
+                    formState['granularities'].some((el) => el.value === value)
+                        ? (routerResult[key] = value)
+                        : removeQueryFromRouter(key)
+                } else if (key === 'dose') {
+                    formState['doses'].some((el) => el.value === value)
+                        ? (routerResult[key] = value)
+                        : removeQueryFromRouter(key)
+                } else if (key === 'type') {
+                    formState['types'].some((el) => el.value === value)
+                        ? (routerResult[key] = value)
+                        : removeQueryFromRouter(key)
+                } else if (key === 'tab') {
+                    ;['map', 'chart', 'table'].some((el) => el === value)
+                        ? (routerResultTabs[key] = value)
+                        : removeQueryFromRouter(key)
+                } else if (key === 'tabBy') {
+                    ;['immunizers', 'sicks'].some((el) => el === value)
+                        ? (routerResultTabs[key] = value)
+                        : removeQueryFromRouter(key)
+                } else if (['periodStart', 'periodEnd'].includes(key)) {
+                    const resultValue = Number(value)
+                    formState['years'].some((el) => el.value === resultValue)
+                        ? (routerResult[key] = resultValue)
+                        : removeQueryFromRouter(key)
+                } else if (key === 'period') {
+                    routerResult[key] = Number(value)
+                } else if (value.includes(',')) {
+                    routerResult[key] = value.split(',')
+                } else {
+                    routerResult[key] = value ?? null
+                }
+            }
 
-    return {
-      handleMapChange,
-      handleMapTooltip,
-      map,
-      mapData,
-      mapTooltip,
-      mainTitle: computed(() => store.getters[`content/mainTitle`]),
-      subTitle: computed(() => store.getters[`content/subTitle`]),
-      form,
-      tab,
-      showModal: ref(false),
-      isMobileScreen,
-      show,
-      formPopulated
-    };
-  },
-  template: `
+            store.commit('content/UPDATE_FROM_URL', {
+                tab: routerResultTabs?.tab ? routerResultTabs.tab : 'map',
+                tabBy: routerResultTabs?.tabBy
+                    ? routerResultTabs.tabBy
+                    : 'sicks',
+                form: { ...routerResult },
+            })
+        }
+
+        const setUrlFromState = () => {
+            const routeArgs = { ...route.query }
+            let stateResult = formatToApi({
+                form: { ...store.state.content.form },
+                tab:
+                    store.state.content.tab !== 'map'
+                        ? store.state.content.tab
+                        : undefined,
+                tabBy:
+                    store.state.content.tabBy !== 'sicks'
+                        ? store.state.content.tabBy
+                        : undefined,
+            })
+            if (
+                Array.isArray(stateResult.sickImmunizer) &&
+                stateResult.sickImmunizer.length
+            ) {
+                stateResult.sickImmunizer = [
+                    ...stateResult?.sickImmunizer,
+                ].join(',')
+            }
+            if (Array.isArray(stateResult.local) && stateResult.local.length) {
+                stateResult.local = [...stateResult?.local].join(',')
+            }
+            // TODO: define if cities will be in URL state
+            // if (Array.isArray(stateResult.city) && stateResult.city.length) {
+            //   stateResult.city = [...stateResult?.city].join(",");
+            // }
+            delete stateResult.city
+
+            if (!JSON.stringify(routeArgs) == JSON.stringify(stateResult)) {
+                return
+            }
+
+            return router.replace({ query: stateResult })
+        }
+
+        watch(
+            () => {
+                const form = store.state.content.form
+                return [
+                    form.dose,
+                    form.granularity,
+                    form.granularity,
+                    form.local,
+                    form.period,
+                    form.periodEnd,
+                    form.periodStart,
+                    form.sickImmunizer,
+                    form.type,
+                    // TODO: define if cities will be in URL state
+                    // form.city,
+                    store.state.content.tab,
+                    store.state.content.tabBy,
+                ]
+            },
+            async () => {
+                setUrlFromState()
+            }
+        )
+
+        onMounted(async () => {
+            getWindowWidth()
+            await store.dispatch('content/updateFormSelect')
+            setStateFromUrl()
+        })
+
+        // Show messages from state
+        store.subscribe((mutation, state) => {
+            if (
+                [
+                    'message/ERROR',
+                    'message/SUCCESS',
+                    'message/INFO',
+                    'message/WARNING',
+                ].includes(mutation.type)
+            ) {
+                message.create(state.message.message, {
+                    type: state.message.type,
+                })
+                store.commit('message/CLEAR')
+            }
+        })
+
+        return {
+            handleMapChange,
+            handleMapTooltip,
+            map,
+            mapData,
+            mapTooltip,
+            mainTitle: computed(() => store.getters[`content/mainTitle`]),
+            subTitle: computed(() => store.getters[`content/subTitle`]),
+            form,
+            tab,
+            showModal: ref(false),
+            isMobileScreen,
+            show,
+            formPopulated,
+        }
+    },
+    template: `
     <section>
       <template v-if="isMobileScreen">
         <div class="filter-mobile-button">

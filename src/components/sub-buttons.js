@@ -1,320 +1,372 @@
-import { ref, computed } from "vue/dist/vue.esm-bundler";
-import { NButton, NIcon, NCard, NScrollbar, NTabs, NTabPane, NSpin } from "naive-ui";
-import { biBook, biListUl, biDownload, biShareFill, biFiletypeCsv, biGraphUp } from "../icons.js";
-import { formatToTable, formatDatePtBr } from "../utils.js";
-import { useStore } from "vuex";
-import CsvWriterGen from "csvwritergen";
-import sbim from "../assets/images/sbim.png";
-import cc from "../assets/images/cc.png";
-import riAlertLine from "../assets/images/ri-alert-line.svg";
-import { modalWithTabs as ModalWithTabs } from "./modalWithTabs.js";
-import { modal as Modal } from "./modal.js";
-import CanvasDownload from "../canvas-download.js";
-import logo from "../assets/images/logo-vacinabr.svg";
-import Abandono from "../assets/images/abandono.svg";
-import Cobertura from "../assets/images/cobertura.svg";
-import HomGeo from "../assets/images/hom_geo.svg";
-import HomVac from "../assets/images/hom_vac.svg";
-import Meta from "../assets/images/meta.svg";
+import { ref, computed } from 'vue/dist/vue.esm-bundler'
+import {
+    NButton,
+    NIcon,
+    NCard,
+    NScrollbar,
+    NTabs,
+    NTabPane,
+    NSpin,
+} from 'naive-ui'
+import {
+    biBook,
+    biListUl,
+    biDownload,
+    biShareFill,
+    biFiletypeCsv,
+    biGraphUp,
+} from '../icons.js'
+import { formatToTable, formatDatePtBr } from '../utils.js'
+import { useStore } from 'vuex'
+import CsvWriterGen from 'csvwritergen'
+import sbim from '../assets/images/sbim.png'
+import cc from '../assets/images/cc.png'
+import riAlertLine from '../assets/images/ri-alert-line.svg'
+import { modalWithTabs as ModalWithTabs } from './modalWithTabs.js'
+import { modal as Modal } from './modal.js'
+import CanvasDownload from '../canvas-download.js'
+import logo from '../assets/images/logo-vacinabr.svg'
+import Abandono from '../assets/images/abandono.svg'
+import Cobertura from '../assets/images/cobertura.svg'
+import HomGeo from '../assets/images/hom_geo.svg'
+import HomVac from '../assets/images/hom_vac.svg'
+import Meta from '../assets/images/meta.svg'
 
 export const subButtons = {
-  components:  {
-    Modal,
-    ModalWithTabs,
-    NButton,
-    NCard,
-    NIcon,
-    NScrollbar,
-    NTabPane,
-    NTabs
-  },
-  setup() {
-    const svg = ref(null);
-    const chartPNG = ref(null);
-    const chart = ref(null);
-    const store = useStore();
-    const showModal = ref(false);
-    const showModalVac = ref(false);
-    const legend = ref(computed(() => store.state.content.legend));
-    const csvAllDataLink = ref(computed(() => store.state.content.csvAllDataLink));
-    const csvRowsExceeded = ref(computed(() => store.state.content.csvRowsExceeded));
-    const maxCsvExportRows = ref(computed(() => store.state.content.maxCsvExportRows));
-    const loadingDownload = ref(false)
-    const formPopulated = computed(() => store.getters["content/selectsPopulated"])
+    components: {
+        Modal,
+        ModalWithTabs,
+        NButton,
+        NCard,
+        NIcon,
+        NScrollbar,
+        NTabPane,
+        NTabs,
+    },
+    setup() {
+        const svg = ref(null)
+        const chartPNG = ref(null)
+        const chart = ref(null)
+        const store = useStore()
+        const showModal = ref(false)
+        const showModalVac = ref(false)
+        const legend = ref(computed(() => store.state.content.legend))
+        const csvAllDataLink = ref(
+            computed(() => store.state.content.csvAllDataLink)
+        )
+        const csvRowsExceeded = ref(
+            computed(() => store.state.content.csvRowsExceeded)
+        )
+        const maxCsvExportRows = ref(
+            computed(() => store.state.content.maxCsvExportRows)
+        )
+        const loadingDownload = ref(false)
+        const formPopulated = computed(
+            () => store.getters['content/selectsPopulated']
+        )
 
-    const aboutVaccines = computed(() => {
-      const text = store.state.content.aboutVaccines;
-      if (!text || !text.length) {
-        return
-      }
-      const div = document.createElement("div");
-      div.innerHTML = text[0].content.rendered
-      const result = [...div.querySelectorAll("table>tbody>tr")].map(
-        tr => {
-          return {
-            header: tr.querySelectorAll("td")[0].innerHTML,
-            content: tr.querySelectorAll("td")[1].innerHTML
-          }
+        const aboutVaccines = computed(() => {
+            const text = store.state.content.aboutVaccines
+            if (!text || !text.length) {
+                return
+            }
+            const div = document.createElement('div')
+            div.innerHTML = text[0].content.rendered
+            const result = [...div.querySelectorAll('table>tbody>tr')].map(
+                (tr) => {
+                    return {
+                        header: tr.querySelectorAll('td')[0].innerHTML,
+                        content: tr.querySelectorAll('td')[1].innerHTML,
+                    }
+                }
+            )
+            return result
+        })
+
+        const modalGlossary = computed(() => {
+            const glossary = store.state.content.glossary
+            return glossary && glossary[0]
+                ? glossary[0].content.rendered
+                : glossary
+        })
+
+        const downloadSvg = () => {
+            if (!formPopulated.value) {
+                store.commit(
+                    'message/ERROR',
+                    'Preencha os seletores para gerar mapa'
+                )
+                return
+            }
+
+            // GA Event
+            if (window.gtag) {
+                window.gtag('event', 'file_download', {
+                    file_extension: 'svg',
+                    link_text: 'Mapa SVG',
+                    file_name: 'mapa.svg',
+                })
+            }
+
+            const svgData = document.querySelector('#canvas').innerHTML
+            const svgBlob = new Blob([svgData], {
+                type: 'image/svg+xml;charset=utf-8',
+            })
+            const svgUrl = URL.createObjectURL(svgBlob)
+            const downloadLink = document.createElement('a')
+            downloadLink.href = svgUrl
+            downloadLink.download = 'mapa.svg'
+            document.body.appendChild(downloadLink)
+            downloadLink.click()
+            document.body.removeChild(downloadLink)
         }
-      )
-      return result;
-    })
 
-    const modalGlossary = computed(() => {
-      const glossary = store.state.content.glossary;
-      return glossary && glossary[0] ? glossary[0].content.rendered : glossary;
-    })
+        const downloadPng = async () => {
+            // GA Event
+            if (window.gtag) {
+                window.gtag('event', 'file_download', {
+                    file_extension: 'png',
+                    link_text: 'Mapa PNG',
+                    file_name: 'mapa.png',
+                })
+            }
 
-    const downloadSvg = () => {
-      if (!formPopulated.value) {
-        store.commit('message/ERROR', "Preencha os seletores para gerar mapa");
-        return;
-      }
+            if (!formPopulated.value) {
+                store.commit(
+                    'message/ERROR',
+                    'Preencha os seletores para gerar mapa'
+                )
+                return
+            }
 
-      // GA Event
-      if (window.gtag) {
-        window.gtag('event', 'file_download', {
-          'file_extension': 'svg',
-          'link_text': 'Mapa SVG',
-          'file_name': 'mapa.svg'
-        });
-      }
+            const svgElement = document.querySelector('#canvas>svg')
+            const svgContent = new XMLSerializer().serializeToString(svgElement)
 
-      const svgData = document.querySelector("#canvas").innerHTML;
-      const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
-      const svgUrl = URL.createObjectURL(svgBlob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = svgUrl;
-      downloadLink.download = "mapa.svg";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    }
+            // Convert SVG content to a data URL
+            const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' })
+            const svgUrl = URL.createObjectURL(svgBlob)
 
-    const downloadPng = async () => {
-      // GA Event
-      if (window.gtag) {
-        window.gtag('event', 'file_download', {
-          'file_extension': 'png',
-          'link_text': 'Mapa PNG',
-          'file_name': 'mapa.png'
-        });
-      }
+            const images = [
+                { image: svgUrl, height: 650, width: 650 },
+                { image: logo, height: 53, width: 218, posX: 5, posY: 642 },
+            ]
 
-      if (!formPopulated.value) {
-        store.commit('message/ERROR', "Preencha os seletores para gerar mapa");
-        return;
-      }
+            const type = store.state.content.form.type
+            let legendSvg
 
-      const svgElement = document.querySelector("#canvas>svg");
-      const svgContent = new XMLSerializer().serializeToString(svgElement);
+            if (type === 'Abandono') {
+                legendSvg = Abandono
+            } else if (type === 'Cobertura') {
+                legendSvg = Cobertura
+            } else if (type === 'Homogeneidade geográfica') {
+                legendSvg = HomGeo
+            } else if (type === 'Homogeneidade entre vacinas') {
+                legendSvg = HomVac
+            } else if (type === 'Meta atingida') {
+                legendSvg = Meta
+            }
 
-      // Convert SVG content to a data URL
-      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-
-      const images = [
-        { image: svgUrl, height: 650, width: 650 },
-        { image: logo, height: 53, width: 218, posX: 5, posY: 642 },
-      ]
-
-      const type = store.state.content.form.type;
-      let legendSvg;
-
-      if (type === "Abandono") {
-        legendSvg = Abandono;
-      } else if (type === "Cobertura") {
-        legendSvg = Cobertura;
-      } else if (type === "Homogeneidade geográfica") {
-        legendSvg = HomGeo;
-      } else if (type === "Homogeneidade entre vacinas") {
-        legendSvg = HomVac;
-      } else if (type === "Meta atingida") {
-        legendSvg = Meta;
-      }
-
-      if (legendSvg && store.state.content.tab === "map") {
-        images.push(
-          { image: legendSvg, width: 293, height: 88, posX: 1080, posY: 622 }
-        );
-      }
-      const canvasDownload = new CanvasDownload(
-        images,
-        {
-          title: store.getters['content/mainTitle'],
-          subTitle: store.getters['content/subTitle'],
-          source: store.state.content.legend + ".",
+            if (legendSvg && store.state.content.tab === 'map') {
+                images.push({
+                    image: legendSvg,
+                    width: 293,
+                    height: 88,
+                    posX: 1080,
+                    posY: 622,
+                })
+            }
+            const canvasDownload = new CanvasDownload(images, {
+                title: store.getters['content/mainTitle'],
+                subTitle: store.getters['content/subTitle'],
+                source: store.state.content.legend + '.',
+            })
+            await canvasDownload.download()
         }
-      );
-      await canvasDownload.download();
-    }
 
-    const downloadCsv = async () => {
-      loadingDownload.value = true;
-      const periodStart = store.state.content.form.periodStart;
-      const periodEnd = store.state.content.form.periodEnd;
-      let years = [];
-      if (periodStart) {
-        let y =  periodStart;
-        while (y <= periodEnd) {
-          years.push(y++);
+        const downloadCsv = async () => {
+            loadingDownload.value = true
+            const periodStart = store.state.content.form.periodStart
+            const periodEnd = store.state.content.form.periodEnd
+            let years = []
+            if (periodStart) {
+                let y = periodStart
+                while (y <= periodEnd) {
+                    years.push(y++)
+                }
+            }
+
+            const currentResult = await store.dispatch('content/requestData', {
+                detail: true,
+                csv: true,
+            })
+
+            if (currentResult && currentResult.aborted) {
+                return
+            }
+            if (currentResult && currentResult.error) {
+                loadingDownload.value = false
+            }
+
+            if (!currentResult) {
+                store.commit(
+                    'message/ERROR',
+                    'Preencha os seletores para gerar csv'
+                )
+                loadingDownload.value = false
+                return
+            }
+            // GA Event
+            if (window.gtag) {
+                window.gtag('event', 'file_download', {
+                    file_extension: 'csv',
+                    link_text: 'Dados utilizados na interface em CSV',
+                    file_name: 'tabela.csv',
+                })
+            }
+
+            const tableData = formatToTable(
+                currentResult.data,
+                currentResult.localNames,
+                currentResult.metadata
+            )
+
+            const header = tableData.header.map((x) => Object.values(x)[0])
+            const type = store.state.content.form.type
+            header[header.findIndex((head) => head === 'Valor')] = type
+            const rows = tableData.rows.map((x) => Object.values(x))
+            if (type == 'Doses aplicadas') {
+                const index = header.findIndex(
+                    (column) => column === 'Doses (qtd)'
+                )
+                header.splice(index, 1)
+                rows.forEach((row) => row.splice(index, 1))
+            }
+            const csvwriter = new CsvWriterGen(header, rows)
+            csvwriter.anchorElement('tabela')
+            loadingDownload.value = false
         }
-      }
 
-      const currentResult = await store.dispatch("content/requestData", { detail: true, csv: true });
+        const openInNewTab = () => {
+            // GA Event
+            if (window.gtag) {
+                window.gtag('event', 'file_download', {
+                    file_extension: 'zip',
+                    link_text: 'Dados completos em CSV',
+                    file_name: 'vacinabr.zip',
+                    link_url: '/wp-content/uploads/vacinabr/vacinabr.zip',
+                })
+            }
 
-      if (currentResult && currentResult.aborted) {
-        return;
-      }
-      if (currentResult && currentResult.error) {
-        loadingDownload.value = false;
-      }
-
-      if (!currentResult) {
-        store.commit('message/ERROR', "Preencha os seletores para gerar csv");
-        loadingDownload.value = false;
-        return;
-      }
-      // GA Event
-      if (window.gtag) {
-        window.gtag('event', 'file_download', {
-          'file_extension': 'csv',
-          'link_text': 'Dados utilizados na interface em CSV',
-          'file_name': 'tabela.csv'
-        });
-      }
-
-      const tableData = formatToTable(currentResult.data, currentResult.localNames, currentResult.metadata);
-
-      const header = tableData.header.map(x => Object.values(x)[0])
-      const type = store.state.content.form.type
-      header[header.findIndex(head => head === "Valor")] = type
-      const rows = tableData.rows.map(x => Object.values(x))
-      if (type == "Doses aplicadas") {
-        const index = header.findIndex(column => column === 'Doses (qtd)')
-        header.splice(index, 1)
-        rows.forEach(row => row.splice(index, 1))
-      }
-      const csvwriter = new CsvWriterGen(header, rows);
-      csvwriter.anchorElement('tabela');
-      loadingDownload.value = false;
-    }
-
-    const openInNewTab = () => {
-      // GA Event
-      if (window.gtag) {
-        window.gtag('event', 'file_download', {
-          'file_extension': 'zip',
-          'link_text': 'Dados completos em CSV',
-          'file_name': 'vacinabr.zip',
-          'link_url': '/wp-content/uploads/vacinabr/vacinabr.zip'
-        });
-      }
-
-      window.open(csvAllDataLink.value["url"], '_blank');
-    }
-
-    const clickShowVac = () => {
-      showModalVac.value = !showModalVac.value;
-    }
-
-    const clickShowModal = () => {
-      const map = document.querySelector("#canvas");
-      svg.value = map?.innerHTML;
-      const canvas = document.getElementById("chart");
-      chartPNG.value = canvas && ![...canvas.classList].includes("element-hidden") ? canvas?.toDataURL('image/png', 1) : null;
-      showModal.value = true;
-    }
-
-    const copyCurrentLink = () => {
-      navigator.clipboard.writeText(window.location.href);
-      store.commit('message/SUCCESS', "Link copiado para o seu clipboard");
-    }
-
-    const sendMail = () => {
-      document.location.href =
-        "mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem";
-    }
-
-    const downloadChartAsImage = async () => {
-      const imageLink = document.createElement("a");
-      imageLink.download = 'chart.png';
-      if (!chartPNG.value) {
-        store.commit('message/ERROR', "Preencha os seletores para gerar imagem")
-        return;
-      }
-      // GA Event
-      if (window.gtag) {
-        window.gtag('event', 'file_download', {
-          'file_extension': 'png',
-          'link_text': 'Chart PNG',
-          'file_name': 'image.png'
-        });
-      }
-
-      const canvasDownload = new CanvasDownload(
-        [
-          { image: chartPNG.value },
-          { image: logo, height: 53, width: 218, posX: 5, posY: 842 },
-        ],
-        {
-          title: store.getters['content/mainTitle'],
-          subTitle: store.getters['content/subTitle'],
-          source: store.state.content.legend + ".",
-          canvasHeight: 900,
-          yTextSource: 894
+            window.open(csvAllDataLink.value['url'], '_blank')
         }
-      );
-      await canvasDownload.download();
-    }
 
-    const goToCCLink = () => {
-      window.open('https://creativecommons.org/licenses/by/4.0/');
-    }
+        const clickShowVac = () => {
+            showModalVac.value = !showModalVac.value
+        }
 
-    const lastUpdate = computed(() => store.state.content.lastUpdateDate)
-    return {
-      lastUpdate,
-      bodyStyle: {
-        maxWidth: '900px',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-      },
-      showModal,
-      biBook,
-      biListUl,
-      biDownload,
-      biShareFill,
-      biFiletypeCsv,
-      biGraphUp,
-      downloadSvg,
-      downloadPng,
-      downloadCsv,
-      downloadCsvAll: openInNewTab,
-      clickShowModal,
-      svg,
-      chart,
-      legend,
-      aboutVaccines,
-      copyCurrentLink,
-      sbim,
-      cc,
-      sendMail,
-      riAlertLine,
-      downloadChartAsImage,
-      chartPNG,
-      tab: computed(() => store.state.content.tab),
-      goToCCLink,
-      showModalVac,
-      clickShowVac,
-      modalGlossary,
-      formatDatePtBr,
-      csvRowsExceeded,
-      maxCsvExportRows,
-      loadingDownload
-    };
-  },
-  template: `
+        const clickShowModal = () => {
+            const map = document.querySelector('#canvas')
+            svg.value = map?.innerHTML
+            const canvas = document.getElementById('chart')
+            chartPNG.value =
+                canvas && ![...canvas.classList].includes('element-hidden')
+                    ? canvas?.toDataURL('image/png', 1)
+                    : null
+            showModal.value = true
+        }
+
+        const copyCurrentLink = () => {
+            navigator.clipboard.writeText(window.location.href)
+            store.commit('message/SUCCESS', 'Link copiado para o seu clipboard')
+        }
+
+        const sendMail = () => {
+            document.location.href =
+                'mailto:vacinabr@iqc.org.br?subject=Erro no VacinaBR&body=Sua Mensagem'
+        }
+
+        const downloadChartAsImage = async () => {
+            const imageLink = document.createElement('a')
+            imageLink.download = 'chart.png'
+            if (!chartPNG.value) {
+                store.commit(
+                    'message/ERROR',
+                    'Preencha os seletores para gerar imagem'
+                )
+                return
+            }
+            // GA Event
+            if (window.gtag) {
+                window.gtag('event', 'file_download', {
+                    file_extension: 'png',
+                    link_text: 'Chart PNG',
+                    file_name: 'image.png',
+                })
+            }
+
+            const canvasDownload = new CanvasDownload(
+                [
+                    { image: chartPNG.value },
+                    { image: logo, height: 53, width: 218, posX: 5, posY: 842 },
+                ],
+                {
+                    title: store.getters['content/mainTitle'],
+                    subTitle: store.getters['content/subTitle'],
+                    source: store.state.content.legend + '.',
+                    canvasHeight: 900,
+                    yTextSource: 894,
+                }
+            )
+            await canvasDownload.download()
+        }
+
+        const goToCCLink = () => {
+            window.open('https://creativecommons.org/licenses/by/4.0/')
+        }
+
+        const lastUpdate = computed(() => store.state.content.lastUpdateDate)
+        return {
+            lastUpdate,
+            bodyStyle: {
+                maxWidth: '900px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+            },
+            showModal,
+            biBook,
+            biListUl,
+            biDownload,
+            biShareFill,
+            biFiletypeCsv,
+            biGraphUp,
+            downloadSvg,
+            downloadPng,
+            downloadCsv,
+            downloadCsvAll: openInNewTab,
+            clickShowModal,
+            svg,
+            chart,
+            legend,
+            aboutVaccines,
+            copyCurrentLink,
+            sbim,
+            cc,
+            sendMail,
+            riAlertLine,
+            downloadChartAsImage,
+            chartPNG,
+            tab: computed(() => store.state.content.tab),
+            goToCCLink,
+            showModalVac,
+            clickShowVac,
+            modalGlossary,
+            formatDatePtBr,
+            csvRowsExceeded,
+            maxCsvExportRows,
+            loadingDownload,
+        }
+    },
+    template: `
     <section>
       <div class="main-card-footer-container">
         <div class="main-card-footer">

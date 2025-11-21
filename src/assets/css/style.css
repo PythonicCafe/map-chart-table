@@ -1,18 +1,18 @@
-@import url("./base.css");
-@import url("./map-chart-table.css");
-@import url("./map-chart-table-legend.css");
-@import url("./components/container.css");
-@import url("./components/label.css");
-@import url("./components/tab.css");
-@import url("./components/select.css");
-@import url("./components/slider.css");
-@import url("./components/table.css");
-@import url("./components/main-header.css");
-@import url("./components/main-content.css");
-@import url("./components/main-footer.css");
-@import url("./components/collapsable.css");
-@import url("./components/modal.css");
-@import url("./components/filter-suggestion.css");
+@import url('./base.css');
+@import url('./map-chart-table.css');
+@import url('./map-chart-table-legend.css');
+@import url('./components/container.css');
+@import url('./components/label.css');
+@import url('./components/tab.css');
+@import url('./components/select.css');
+@import url('./components/slider.css');
+@import url('./components/table.css');
+@import url('./components/main-header.css');
+@import url('./components/main-content.css');
+@import url('./components/main-footer.css');
+@import url('./components/collapsable.css');
+@import url('./components/modal.css');
+@import url('./components/filter-suggestion.css');
 
 /*
  * Fix table resize rows error.
@@ -23,87 +23,87 @@
  * */
 
 .v-binder-follower-container {
-  position: initial;
+    position: initial;
 }
 
 .mct-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 .mct-scrollbar::-webkit-scrollbar-track {
-  border-radius: 100vh;
-  background: #f7f4ed;
+    border-radius: 100vh;
+    background: #f7f4ed;
 }
 
 .mct-scrollbar::-webkit-scrollbar-thumb {
-  background: #e0cbcb;
-  border-radius: 100vh;
-  border: 3px solid #f6f7ed;
+    background: #e0cbcb;
+    border-radius: 100vh;
+    border: 3px solid #f6f7ed;
 }
 
 .mct-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #c0a0b9;
+    background: #c0a0b9;
 }
 
 .pulse-button {
-  position: relative;
-  overflow: visible;
+    position: relative;
+    overflow: visible;
 }
 
 .pulse-button::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 110%;
-  outline: 8px solid #18a058;
-  outline-offset: -6px;
-  border-radius: 34px;
-  animation: pulse 2s infinite;
-  z-index: 0;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 110%;
+    outline: 8px solid #18a058;
+    outline-offset: -6px;
+    border-radius: 34px;
+    animation: pulse 2s infinite;
+    z-index: 0;
 }
 
 .pulse-button:hover::after {
-  outline-color: #36ad6a;
+    outline-color: #36ad6a;
 }
 
 .pulse-button:active::after {
-  outline-color: #0c7a43;
+    outline-color: #0c7a43;
 }
 
 .pulse-button:focus-visible {
-  border: 1px solid black;
+    border: 1px solid black;
 }
 
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  70% {
-    transform: scale(1.05);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1.05);
-    opacity: 0;
-  }
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    70% {
+        transform: scale(1.05);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.05);
+        opacity: 0;
+    }
 }
 
 .vbr,
 .vbr ::before,
 .vbr ::after {
-  box-sizing: unset !important;
+    box-sizing: unset !important;
 }
 
 /* Remove fade/scale selects animations */
 .fade-in-scale-up-transition-enter-active,
 .fade-in-scale-up-transition-leave-active {
-  transition: none !important;
+    transition: none !important;
 }
 
 .fade-in-scale-up-transition-enter-from,
 .fade-in-scale-up-transition-leave-to {
-  opacity: 1 !important;
-  transform: none !important;
+    opacity: 1 !important;
+    transform: none !important;
 }
