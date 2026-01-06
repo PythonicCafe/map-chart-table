@@ -680,6 +680,47 @@ export default defineComponent({
                         :consistent-menu-width="false"
                     />
                 </n-form-item>
+                <n-form-item label="Municípios" v-if="showCitiesSelect">
+                    <n-space vertical>
+                        <n-select
+                            :consistent-menu-width="true"
+                            :disabled="disableAll"
+                            :options="citiesTemp"
+                            :ref="el => (selectRefsMap['field8'] = el)"
+                            :style="styleWidth"
+                            @update:value="value => handleCitiesUpdateValue(value)"
+                            @update:show="show => handleShowUpdate(show, 'field8')"
+                            class="mct-select"
+                            clearable
+                            filterable
+                            max-tag-count="responsive"
+                            placeholder="Selecione Município"
+                            v-model:value="cityTemp"
+                            :multiple="true"
+                            :filter="customFilter"
+                        >
+                            <template #action v-if="tab === 'table'">
+                                <n-form-item label="Ação">
+                                    <n-button :on-click="() => selectAllCities('field8')" size="small">
+                                        {{ (cityTemp && cityTemp.length === citiesTemp.length ? 'Desmarcar' : 'Marcar') + ' todos' }}
+                                        <n-spin v-show="isLoadingCities" size="tiny" :stroke-width="20" style="margin-left: 4px;" />
+                                    </n-button>
+                                </n-form-item>
+                            </template>
+                            <template #action v-else-if="tab === 'chart' && (cityTemp && cityTemp.length)">
+                                <n-form-item label="Ação">
+                                    <n-button
+                                        :on-click="() => selectAllCities('field8', true)"
+                                        size="small"
+                                    >
+                                        Desmarcar todos
+                                        <n-spin v-if="isLoadingCities" size="tiny" :stroke-width="16" style="margin-left: 6px;" />
+                                    </n-button>
+                                </n-form-item>
+                            </template>
+                        </n-select>
+                    </n-space>
+                </n-form-item>
             </section>
             <n-form-item>
               <n-button title="Limpar todas as seleções" style="padding: 10px" @click="eraseForm" :disabled="disableAll">
