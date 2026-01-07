@@ -157,21 +157,48 @@ export default defineComponent({
 
             // We use setTimeout to run this code after Vue render process
             setTimeout(() => {
-                const allOptions = toRaw(citiesTemp.value)
                 const selectLength = Array.isArray(cityTemp.value)
                     ? cityTemp.value.length
                     : null
 
-                if (selectLength === allOptions.length || uncheckAll) {
+                if (Array.isArray(form.value.local) && form.value.local.length) {
+
+                  if (
+                    Array.isArray(cityTemp.value) &&
+                    Array.isArray(citiesTemp.value) &&
+                    cityTemp.value.length === citiesTemp.value.length
+                  ) {
                     formValue.city = []
                     cityTemp.value = []
                     handleShowUpdate(true, field)
                     isLoadingCities.value = false
                     return
-                }
+                  }
 
-                formValue.city = allCitiesValues
-                cityTemp.value = allCitiesValues
+                  let result = /** @type{string[]} */ ([])
+                  form.value.local.forEach((/** @type{string} **/ state) => {
+                    form.value.cities.filter((/** @type{{ uf: string }} */ item) => item.uf === state)
+                    const cities = /** @type{string[]} */ (
+                      form.value.cities.filter((/** @type{{ uf: string }} */ item) => item.uf === state).map(city => city.codigo6)
+                    )
+                    result.push(...cities)
+                  })
+                  formValue.city = result
+                  cityTemp.value = result
+                } else {
+                  const allOptions = toRaw(citiesTemp.value)
+
+                  if (selectLength === allOptions.length || uncheckAll) {
+                      formValue.city = []
+                      cityTemp.value = []
+                      handleShowUpdate(true, field)
+                      isLoadingCities.value = false
+                      return
+                  }
+
+                  formValue.city = allCitiesValues
+                  cityTemp.value = allCitiesValues
+                }
 
                 handleShowUpdate(true, field)
                 isLoadingCities.value = false
