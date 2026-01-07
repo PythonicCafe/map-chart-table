@@ -25,6 +25,8 @@ import { storeToRefs } from 'pinia'
 import { useContentStore } from '@/stores'
 import { biEraser } from '@/icons'
 
+import { useMessageStore } from '@/stores'
+
 export default defineComponent({
     components: {
         NButton,
@@ -43,6 +45,7 @@ export default defineComponent({
         },
     },
     setup(props) {
+        const messageStore = useMessageStore()
         /** @type {any[]} */
         const allCitiesValues = []
 
@@ -320,7 +323,7 @@ export default defineComponent({
             if (valueLength > maxSelection) {
                 formValue.city = value.slice(0, maxSelection)
                 cityTemp.value = formValue.city
-                // store.commit("message/INFO", "Valores de seletor de municípios foram atualizado para limites de gráfico"); // Substituir por lógica de notificação Pinia/Naive-UI
+                messageStore.message('info', 'Valores de seletor de municípios foram atualizado para limites de gráfico')
             }
         }
 
