@@ -1,0 +1,219 @@
+import { NCard, NSkeleton, useMessage, NModal, NButton, NSpin } from "naive-ui";
+import { ref, computed, onMounted, watch } from "vue/dist/vue.esm-bundler";
+import { chart as Chart } from "./chart";
+import { map as Map } from "./map/map";
+import { table as Table } from "./table";
+import { subSelect as SubSelect } from "./sub-select";
+import { filterSuggestion as FilterSuggestion } from "./filter-suggestion";
+import { subButtons as SubButtons } from "./sub-buttons";
+import { yearSlider as YearSlider } from "./map/year-slider";
+import { mapRange as MapRange } from "./map/map-range";
+import { useStore } from 'vuex'
+import { mapFields, computedVar } from '../utils';
+import { useRouter, useRoute } from 'vue-router';
+import { formatToApi } from "../common";
+
+export const mainCard = {
+  components:  {
+    NCard,
+    Chart,
+    Map,
+    Table,
+    FilterSuggestion,
+    SubSelect,
+    SubButtons,
+    YearSlider,
+    MapRange,
+    NSkeleton,
+    NModal,
+    NButton,
+    NSpin
+  },
+  props: {
+    api: {
+      type: String,
+      required: true
+    },
+  },
+  setup() {
+    const store = useStore();
+    const message = useMessage();
+    const map = ref(null);
+    const mapData = ref([]);
+    const mapTooltip = ref([]);
+    const show = computed(computedVar({ store,  mutation: "content/UPDATE_LOADING", field: "loading" }));
+    const isMobileScreen = ref(null);
+    const formPopulated = computed(() => store.getters["content/selectsEmpty"]);
+    const getWindowWidth = () => {
+      isMobileScreen.value = window.innerWidth <= 1368;
+    }
+    window.addEventListener('resize', getWindowWidth)
+    const tab = computed(() => store.state.content.tab);
+    const form = computed(() => mapFields(
+      {
+        store,
+        fields: [
+          "sickImmunizer",
+          "sicksImmunizers",
+          "type",
+          "dose",
+          "types",
+          "local",
+          "locals",
+          "period",
+          "periods",
+          "periodStart",
+          "periodEnd",
+          "granularity",
+          "granularities",
+        ],
+        base: "form",
+        mutation: "content/UPDATE_FORM"
+      })
+    );
+
+    const router = useRouter();
+    const route = useRoute();
+
+    const handleMapChange = (datasetValues) => {
+      mapData.value = datasetValues;
+    };
+
+    const handleMapTooltip = (tooltip) => {
+      mapTooltip.value = tooltip;
+    };
+
+    onMounted(async () => {
+      getWindowWidth();
+      await store.dispatch("content/updateFormSelect");
+      setStateFromUrl();
+    });
+
+    // Show messages from state
+    store.subscribe((mutation, state) => {
+      if (
+        [
+          "message/ERROR",
+          "message/SUCCESS",
+          "message/INFO",
+          "message/WARNING",
+        ].includes(mutation.type)
+      ) {
+        message.create(state.message.message, { type: state.message.type });
+        store.commit("message/CLEAR");
+      }
+    });
+
+    return {
+      handleMapChange,
+      handleMapTooltip,
+      map,
+      mapData,
+      mapTooltip,
+      mainTitle: computed(() => store.getters[`content/mainTitle`]),
+      subTitle: computed(() => store.getters[`content/subTitle`]),
+      form,
+      tab,
+      showModal: ref(false),
+      isMobileScreen,
+      show,
+      formPopulated
+    };
+  },
+  template: `
+    <section>
+      <template v-if="isMobileScreen">
+        <div class="filter-mobile-button">
+          <n-button
+            type="primary"
+            round
+            @click="showModal = true"
+            style="width: 240px; margin: 12px 0px;"
+          >Filtrar
+        </n-button>
+        </div>
+        <n-modal
+          v-model:show="showModal"
+          transform-origin="center"
+          preset="card"
+          style="width: 100%; min-height: 100vh"
+        >
+          <n-card
+            :bordered="false"
+            size="huge"
+          >
+            <SubSelect :modal="true" />
+            <div class="filter-mobile-button">
+              <n-button
+                type="primary"
+                round @click="showModal = false"
+                style="width: 240px; margin-top: 32px;"
+              >Pronto
+              </n-button>
+            </div>
+          </n-card>
+        </n-modal>
+      </template>
+      <div class="sub-select-container" v-else>
+        <SubSelect />
+      </div>
+      <div class="main-content">
+        <n-spin :show="show.loading">
+          <div style="min-height: 4.8rem">
+            <h2
+              v-if="mainTitle"
+              style="margin: 0px; padding: 0px; font-weight: 700; font-size: 1.5rem"
+            >{{ mainTitle }}
+            </h2>
+            <n-skeleton
+              v-else
+              height="2.3rem"
+              width="60%"
+              :animated="false"
+            />
+            <h3
+              v-if="subTitle"
+              style="margin: 0px; padding: 0px; font-weight: 400; font-size: 1.25rem"
+            >{{ subTitle }}
+            </h3>
+            <n-skeleton
+              v-else
+              height="2rem"
+              width="45%"
+              :animated="false"
+              style="margin-top: 4px"
+            />
+          </div>
+          <section style="map-section">
+            <template v-if="tab === 'map'">
+              <div>
+                <div style="display: flex; gap: 12px">
+                  <MapRange :mapData="mapData" :mapTooltip="mapTooltip" />
+                  <div style="width: 100%;">
+                    <Map
+                      ref="map"
+                      :api='api'
+                      @map-change="handleMapChange"
+                      @map-tooltip="handleMapTooltip"
+                    />
+                    <YearSlider />
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="tab === 'chart'">
+              <Chart />
+            </template>
+            <template v-else>
+              <Table />
+            </template>
+          </section>
+          <FilterSuggestion v-if="formPopulated" />
+        </n-spin>
+      </div>
+      <div class="main-content main-content--sub">
+        <SubButtons />
+      </div>
+    </section>
+  `,
+}

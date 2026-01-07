@@ -1,0 +1,23 @@
+.n-collapse-item.n-collapse-item--left-arrow-placement {
+  outline: 1px solid #e0e0e0;
+  border: none;
+  border-radius: 3px;
+  padding: 8px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 4px;
+}
+
+.n-collapse .n-collapse-item .n-collapse-item__header .n-collapse-item__header-main {
+  font-weight: 500;
+}
+
+.n-collapse .n-collapse-item:not(:first-child) {
+  border-top: none !important;
+}
+
+.n-collapse .n-collapse-item .n-collapse-item__header {
+  padding: 0px;
+}
+
+.n-collapse .n-collapse-item__header-extra .bi {
+  fill: var(--primary-color);
+}

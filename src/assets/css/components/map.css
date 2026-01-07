@@ -1,0 +1,8 @@
+.map-element-container {
+    display: flex;
+    gap: 12px;
+}
+
+.map-content {
+    width: 100%;
+}

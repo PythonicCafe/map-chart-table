@@ -1,34 +1,39 @@
 {
-  "name": "dashboard",
+  "name": "mct",
   "private": true,
-  "version": "1.5.1",
+  "version": "1.7.0",
   "type": "module",
-  "main": "dist/dashboard.js",
+  "main": "dist/mct.js",
   "scripts": {
     "development": "run-p start dev",
     "dev": "vite --host",
     "start": "nodemon server.js",
     "build": "vite build",
+    "bundle": "run-p types build",
     "preview": "vite preview",
     "test:unit": "vitest --environment jsdom --root src/ run",
-    "test-watch:unit": "vitest --environment jsdom --root src/ watch"
+    "test-watch:unit": "vitest --environment jsdom --root src/ watch",
+    "types": "tsc",
+    "types-watch": "tsc --watch",
+    "prettier": "prettier src/ --write"
   },
   "devDependencies": {
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "cors": "^2.8.5",
+    "csvwritergen": "^0.0.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "naive-ui": "^2.34.4",
+    "naive-ui": "^2.43.1",
     "nodemon": "^2.0.22",
     "npm-run-all": "^4.1.5",
+    "prettier": "3.6.2",
+    "typescript": "^5.9.3",
     "vite": "^4.2.0",
-    "vue": "^3.2.47",
-    "vuex": "^4.1.0",
-    "vuex-map-fields": "^1.4.1"
+    "vue": "^3.5.24",
+    "vue-router": "^4.6.3"
   },
   "dependencies": {
-    "csvwritergen": "^0.0.4",
-    "vue-router": "^4.2.4"
+    "pinia": "^3.0.4"
   }
 }
