@@ -619,6 +619,7 @@ export default defineComponent({
                     v-model:value="localTemp"
                     :options="form.locals"
                     class="mct-select"
+                    clearable
                     :style="styleWidth"
                     placeholder="Selecione Estado"
                     multiple
