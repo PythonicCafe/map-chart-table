@@ -492,14 +492,14 @@ export const useContentStore = defineStore('content', {
                         this.removeQueryFromRouter(key)
                     }
                 } else if (key === 'city') {
-                    // TODO: define if cities will be in URL state
-                    // const values = value.split(",")
-                    // const cities = formState["cities"].map(el => el.value)
-                    // if (values.every(val => cities.includes(val))) {
-                    //     routerResult[key] = values;
-                    // } else {
-                    //   removeQueryFromRouter(key);
-                    // }
+                    const values = value.split(",")
+                    const cities = formState["cities"].map(el => el.codigo6)
+
+                    if (values.every(val => cities.includes(val))) {
+                        routerResult[key] = values
+                    } else {
+                      this.removeQueryFromRouter(key)
+                    }
                 } else if (key === 'local') {
                     const values = value.split(',')
                     const locals = formState['locals'].map((el) => el.value)
@@ -602,13 +602,14 @@ export const useContentStore = defineStore('content', {
                 stateResult.local = [...stateResult?.local].join(',')
             }
 
-            // TODO: define if cities will be in URL state
-
-            // if (Array.isArray(stateResult.city) && stateResult.city.length) {
-            //   stateResult.city = [...stateResult?.city].join(",");
-            // }
-
-            delete stateResult.city
+            if (Array.isArray(stateResult.city)) {
+              const cityLength = stateResult.city.length
+              if (cityLength && cityLength <= 30) {
+                stateResult.city = [...stateResult?.city].join(",")
+              } else {
+                stateResult.city = []
+              }
+            }
 
             if (JSON.stringify(routeArgs) === JSON.stringify(stateResult)) {
                 return

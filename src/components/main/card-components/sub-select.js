@@ -164,14 +164,18 @@ export default defineComponent({
                 if (Array.isArray(form.value.local) && form.value.local.length) {
 
                   if (
-                    Array.isArray(cityTemp.value) &&
-                    Array.isArray(citiesTemp.value) &&
-                    cityTemp.value.length === citiesTemp.value.length
+                    (
+                      Array.isArray(cityTemp.value) &&
+                      Array.isArray(citiesTemp.value) &&
+                      cityTemp.value.length === citiesTemp.value.length
+                    ) ||
+                    uncheckAll
                   ) {
                     formValue.city = []
                     cityTemp.value = []
                     handleShowUpdate(true, field)
                     isLoadingCities.value = false
+                    disableStateCitiesSelector(cityTemp.value)
                     return
                   }
 
@@ -193,6 +197,7 @@ export default defineComponent({
                       cityTemp.value = []
                       handleShowUpdate(true, field)
                       isLoadingCities.value = false
+                      disableStateCitiesSelector(cityTemp.value)
                       return
                   }
 
@@ -348,9 +353,17 @@ export default defineComponent({
             }
 
             if (valueLength > maxSelection) {
-                formValue.city = value.slice(0, maxSelection)
+                const newValue = value.slice(0, maxSelection)
+                formValue.city = newValue
                 cityTemp.value = formValue.city
                 messageStore.message('info', 'Valores de seletor de municípios foram atualizado para limites de gráfico')
+
+                formValue.cities.forEach((item) => {
+                    if (!newValue.includes(item.codigo6)) {
+                        item.disabled = true
+                        item.disabledText = 'Limite de seleções atingido'
+                    }
+                })
             }
         }
 
@@ -483,10 +496,20 @@ export default defineComponent({
             }
         )
 
+        // Watch to set first value to select field after page load
+        watch(
+            () => form.value.city,
+            () => {
+                cityTemp.value = form.value.city
+            }
+        )
+
         watch(
             () => tab.value,
             async () => {
-                disableStateCitiesSelector(cityTemp.value)
+                if (tab.value === 'chart') {
+                  disableStateCitiesSelector(cityTemp.value)
+                }
                 await showCitiesSelectUpdate()
             }
         )

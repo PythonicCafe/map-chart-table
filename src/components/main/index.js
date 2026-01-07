@@ -86,8 +86,7 @@ export default defineComponent({
                 form.value.periodStart,
                 form.value.sickImmunizer,
                 form.value.type,
-                // TODO: define if cities will be in URL state
-                // form.city,
+                form.value.city,
                 tab.value,
                 tabBy.value,
             ],
