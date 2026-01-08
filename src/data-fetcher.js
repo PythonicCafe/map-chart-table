@@ -51,7 +51,6 @@ export class DataFetcher {
         }
     }
 
-    // TODO: Maybe we will need to do more complex filters with args in request body
     /**
      * Fetches data with advanced options, allowing for custom methods, headers, and a request body.
      *
@@ -59,7 +58,7 @@ export class DataFetcher {
      * @param {string} endPoint - The specific API endpoint.
      * @param {FetchOptions} [options={}] - Fetch options including signal, body, method, and headers.
      * @param {string} [apiPoint="/wp-json/api/v1/"] - The API path prefix.
-     * @returns {Promise<string|{ [key: string]: any, error?: Error, aborted?: boolean }>}
+     * @returns {Promise<{ [key: string]: any, error?: Error | string, aborted?: boolean }>}
      * This can be a JSON object, raw text, an abort object, or an Error.
      */
     async requestDataInBody(
@@ -70,11 +69,10 @@ export class DataFetcher {
         const {
             signal,
             body,
-            method = 'GET',
+            method = 'POST',
             headers: customHeaders = {},
         } = options
 
-        console.log({ api: this.api, apiPoint, endPoint })
         const url = this.api + apiPoint + endPoint
 
         /** @type {Object.<string, any>} */
@@ -89,11 +87,6 @@ export class DataFetcher {
         }
 
         try {
-            // Remove keys with undefined values
-            Object.keys(fetchOptions).forEach(
-                (key) =>
-                    fetchOptions[key] === undefined && delete fetchOptions[key]
-            )
 
             const response = await fetch(url, fetchOptions)
 
@@ -102,16 +95,16 @@ export class DataFetcher {
                 return await response.json()
             }
 
-            return response.text()
+            return response
         } catch (error) {
             console.log(error)
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     return { aborted: true }
                 }
-                return error
+                return { error: String(error) }
             }
-            return new Error(String(error))
+            return { error: String(error) }
         }
     }
 

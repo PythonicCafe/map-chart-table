@@ -187,7 +187,6 @@ export const useContentStore = defineStore('content', {
                 return
             }
 
-            // TODO: Add encodeURI to another fields
             const sI = Array.isArray(form.sickImmunizer)
                 ? form.sickImmunizer.join('|')
                 : form.sickImmunizer
@@ -225,6 +224,9 @@ export const useContentStore = defineStore('content', {
             if (stateTotal) {
                 request += '&stateTotal=true'
             }
+            if (form.city && form.city.length && form.city.length <= 30) {
+              request += '&city=' + form.city
+            }
 
             const granularity = form.granularity
 
@@ -245,24 +247,67 @@ export const useContentStore = defineStore('content', {
                 isStateData = 'citiesNames'
             }
 
-            const [result, localNames] = await Promise.all([
-                api.request((csv ? `export-csv/` : `data/`) + request, signal),
-                api.request(isStateData),
-            ])
+            let result
+            let localNames
 
-            if (result.aborted) {
+            if (this.form.city && this.form.city.length > 30) {
+              const body = /** @type{Record<string, string | number | boolean>} */ ({
+                city: form.city,
+                tab: this.tab,
+                tabBy: this.tabBy,
+                type: form.type,
+                granularity: form.granularity,
+                sickImmunizer: encodeURIComponent(sI),
+                local: loc,
+                dose: form.dose
+              })
+
+              if (form.periodStart) {
+                body.periodStart = form.periodStart
+              }
+              if (form.periodEnd) {
+                body.periodEnd = form.periodEnd
+              }
+              if (page) {
+                body.page = page
+              }
+              if (sorter) {
+                body.sorter = sorter.columnKey + sorter.order
+              }
+              if (detail) {
+                body.detail = true
+              }
+              if (stateTotal) {
+                body.stateTotal = true
+              }
+
+              [result, localNames] = await Promise.all([
+                    api.requestDataInBody((csv ? `export-csv/` : `data/`) + request, {
+                      signal,
+                      body
+                  }),
+                  api.request(isStateData),
+              ])
+            } else {
+              [result, localNames] = await Promise.all([
+                  api.request((csv ? `export-csv/` : `data/`) + request, signal),
+                  api.request(isStateData),
+              ])
+            }
+
+            if (result?.aborted) {
                 this.loading = false
                 return { result, localNames: [] }
             }
 
             const messageStore = useMessageStore()
-            if (result.error) {
+            if (!result || result.error || (result?.data?.status === 404)) {
                 messageStore.message(
                     'error',
                     'Não foi possível carregar os dados. Tente novamente mais tarde.'
                 )
                 this.loading = false
-                return { result: {}, localNames: [], error: result.error }
+                return { result: {}, localNames: [], error: result?.error }
             } else if (!result || (result.data && result.data.length <= 1)) {
                 this.titles = null
                 messageStore.message(
@@ -818,7 +863,6 @@ export const useContentStore = defineStore('content', {
             }
             return false
         },
-        // TODO: Fix title not being setted after chart update data
         mainTitle: (state) => {
             let title = null
             const { sickImmunizer, dose, granularity, local, period, type } =
