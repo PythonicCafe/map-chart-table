@@ -181,18 +181,23 @@ export const useContentStore = defineStore('content', {
                 !form.sickImmunizer ||
                 !form.dose ||
                 (!form.periodStart && !form.periodEnd) ||
-                (!form.local.length && form.granularity !== 'Nacional')
+                (!form.local.length && form.granularity !== 'Nacional' && form.granularity !== 'Municípios') ||
+                (form.granularity === 'Municípios' && (!form.city || (form.city && !form.city.length)))
             ) {
                 this.loading = false
                 return
             }
 
-            const sI = Array.isArray(form.sickImmunizer)
-                ? form.sickImmunizer.join('|')
-                : form.sickImmunizer
+
+            const ci = Array.isArray(form.city)
+                ? form.city.join('|')
+                : form.city
             const loc = Array.isArray(form.local)
                 ? form.local.join('|')
                 : form.local
+            const sI = Array.isArray(form.sickImmunizer)
+                ? form.sickImmunizer.join('|')
+                : form.sickImmunizer
             let request =
                 '?tab=' +
                 this.tab +
@@ -225,7 +230,7 @@ export const useContentStore = defineStore('content', {
                 request += '&stateTotal=true'
             }
             if (form.city && form.city.length && form.city.length <= 30) {
-              request += '&city=' + form.city
+              request += '&city=' + ci
             }
 
             const granularity = form.granularity
@@ -252,7 +257,7 @@ export const useContentStore = defineStore('content', {
 
             if (this.form.city && this.form.city.length > 30) {
               const body = /** @type{Record<string, string | number | boolean>} */ ({
-                city: form.city,
+                city: ci,
                 tab: this.tab,
                 tabBy: this.tabBy,
                 type: form.type,
@@ -880,7 +885,7 @@ export const useContentStore = defineStore('content', {
                 !period ||
                 !sickImmunizer ||
                 !type ||
-                (!local.length && granularity !== 'Nacional')
+                (!local.length && (granularity !== 'Nacional' && granularity !== 'Municípios'))
             ) {
                 return
             }
@@ -909,7 +914,7 @@ export const useContentStore = defineStore('content', {
                 !period ||
                 !sickImmunizer ||
                 !type ||
-                (!local.length && granularity !== 'Nacional') ||
+                (!local.length && (granularity !== 'Nacional' && granularity !== 'Municípios')) ||
                 !dose
             ) {
                 return
@@ -924,7 +929,7 @@ export const useContentStore = defineStore('content', {
             return subtitle
         },
         selectsPopulated: (state) => {
-            const { sickImmunizer, dose, granularity, local, period, type } =
+            const { sickImmunizer, dose, granularity, local, period, type, city } =
                 state.form
 
             const isSickImuAnArray =
@@ -937,7 +942,7 @@ export const useContentStore = defineStore('content', {
                 dose &&
                 granularity &&
                 (local.length ||
-                    (!local.length && granularity === 'Nacional')) &&
+                    (!local.length && (granularity === 'Nacional' || (granularity === 'Municípios' && city && city.length)))) &&
                 period &&
                 type
             )

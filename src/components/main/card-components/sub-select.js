@@ -524,6 +524,9 @@ export default defineComponent({
         watch(
             () => form.value.granularity,
             async () => {
+                if (form.value.granularity !== 'Municípios') {
+                  form.value.city = []
+                }
                 await showCitiesSelectUpdate()
             }
         )

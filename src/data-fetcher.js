@@ -97,7 +97,6 @@ export class DataFetcher {
 
             return response
         } catch (error) {
-            console.log(error)
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     return { aborted: true }
