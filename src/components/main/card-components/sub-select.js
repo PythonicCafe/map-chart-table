@@ -161,48 +161,57 @@ export default defineComponent({
                     ? cityTemp.value.length
                     : null
 
-                if (Array.isArray(form.value.local) && form.value.local.length) {
+                if (
+                    Array.isArray(form.value.local) &&
+                    form.value.local.length
+                ) {
+                    if (
+                        (Array.isArray(cityTemp.value) &&
+                            Array.isArray(citiesTemp.value) &&
+                            cityTemp.value.length ===
+                                citiesTemp.value.length) ||
+                        uncheckAll
+                    ) {
+                        formValue.city = []
+                        cityTemp.value = []
+                        handleShowUpdate(true, field)
+                        isLoadingCities.value = false
+                        disableStateCitiesSelector(cityTemp.value)
+                        return
+                    }
 
-                  if (
-                    (
-                      Array.isArray(cityTemp.value) &&
-                      Array.isArray(citiesTemp.value) &&
-                      cityTemp.value.length === citiesTemp.value.length
-                    ) ||
-                    uncheckAll
-                  ) {
-                    formValue.city = []
-                    cityTemp.value = []
-                    handleShowUpdate(true, field)
-                    isLoadingCities.value = false
-                    disableStateCitiesSelector(cityTemp.value)
-                    return
-                  }
-
-                  let result = /** @type{string[]} */ ([])
-                  form.value.local.forEach((/** @type{string} **/ state) => {
-                    form.value.cities.filter((/** @type{{ uf: string }} */ item) => item.uf === state)
-                    const cities = /** @type{string[]} */ (
-                      form.value.cities.filter((/** @type{{ uf: string }} */ item) => item.uf === state).map(city => city.codigo6)
-                    )
-                    result.push(...cities)
-                  })
-                  formValue.city = result
-                  cityTemp.value = result
+                    let result = /** @type{string[]} */ ([])
+                    form.value.local.forEach((/** @type{string} **/ state) => {
+                        form.value.cities.filter(
+                            (/** @type{{ uf: string }} */ item) =>
+                                item.uf === state
+                        )
+                        const cities = /** @type{string[]} */ (
+                            form.value.cities
+                                .filter(
+                                    (/** @type{{ uf: string }} */ item) =>
+                                        item.uf === state
+                                )
+                                .map((city) => city.codigo6)
+                        )
+                        result.push(...cities)
+                    })
+                    formValue.city = result
+                    cityTemp.value = result
                 } else {
-                  const allOptions = toRaw(citiesTemp.value)
+                    const allOptions = toRaw(citiesTemp.value)
 
-                  if (selectLength === allOptions.length || uncheckAll) {
-                      formValue.city = []
-                      cityTemp.value = []
-                      handleShowUpdate(true, field)
-                      isLoadingCities.value = false
-                      disableStateCitiesSelector(cityTemp.value)
-                      return
-                  }
+                    if (selectLength === allOptions.length || uncheckAll) {
+                        formValue.city = []
+                        cityTemp.value = []
+                        handleShowUpdate(true, field)
+                        isLoadingCities.value = false
+                        disableStateCitiesSelector(cityTemp.value)
+                        return
+                    }
 
-                  formValue.city = allCitiesValues
-                  cityTemp.value = allCitiesValues
+                    formValue.city = allCitiesValues
+                    cityTemp.value = allCitiesValues
                 }
 
                 handleShowUpdate(true, field)
@@ -356,7 +365,10 @@ export default defineComponent({
                 const newValue = value.slice(0, maxSelection)
                 formValue.city = newValue
                 cityTemp.value = formValue.city
-                messageStore.message('info', 'Valores de seletor de municípios foram atualizado para limites de gráfico')
+                messageStore.message(
+                    'info',
+                    'Valores de seletor de municípios foram atualizado para limites de gráfico'
+                )
 
                 formValue.cities.forEach((item) => {
                     if (!newValue.includes(item.codigo6)) {
@@ -508,9 +520,9 @@ export default defineComponent({
             () => tab.value,
             async () => {
                 if (tab.value === 'chart') {
-                  disableStateCitiesSelector(cityTemp.value)
+                    disableStateCitiesSelector(cityTemp.value)
                 } else if (tab.value === 'map') {
-                  form.value.city = []
+                    form.value.city = []
                 }
                 await showCitiesSelectUpdate()
             }
@@ -527,7 +539,7 @@ export default defineComponent({
             () => form.value.granularity,
             async () => {
                 if (form.value.granularity !== 'Municípios') {
-                  form.value.city = []
+                    form.value.city = []
                 }
                 await showCitiesSelectUpdate()
             }
@@ -545,13 +557,13 @@ export default defineComponent({
             }
             // Update values if user is resizing window to mobile size
             if (form.value.sickImmunizer) {
-              sickTemp.value = form.value.sickImmunizer
+                sickTemp.value = form.value.sickImmunizer
             }
             if (form.value.local) {
-              localTemp.value = form.value.local
+                localTemp.value = form.value.local
             }
             if (form.value.city) {
-              cityTemp.value = form.value.city
+                cityTemp.value = form.value.city
             }
         })
 

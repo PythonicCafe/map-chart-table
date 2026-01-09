@@ -11,6 +11,8 @@ import { NButton, NDataTable, NEmpty, NSelect } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { useContentStore, useTableStore } from '@/stores'
 
+import { arraysSameContent } from '@/utils'
+
 export default defineComponent({
     components: {
         NButton,
@@ -48,15 +50,32 @@ export default defineComponent({
         })
 
         watch(
-            () => form.value,
-            async () => {
-                // Avoid render before change tab
-                if (Array.isArray(form.value.sickImmunizer)) {
+            () => [
+                form.value.city,
+                form.value.dose,
+                form.value.granularity,
+                form.value.granularity,
+                form.value.local,
+                form.value.period,
+                form.value.periodEnd,
+                form.value.periodStart,
+                form.value.sickImmunizer,
+                form.value.type,
+            ],
+            async (newVals, oldVals) => {
+                const hasChanged = newVals.some((val, i) => {
+                    // city index
+                    if (i === 0) {
+                        return !arraysSameContent(val, oldVals[0])
+                    }
+                    return val !== oldVals[i]
+                })
+                // Avoid render before change tab and duplicated requests
+                if (Array.isArray(form.value.sickImmunizer) && hasChanged) {
                     page.value = 1
                     await tableStore.setTableData()
                 }
-            },
-            { deep: true }
+            }
         )
 
         /**

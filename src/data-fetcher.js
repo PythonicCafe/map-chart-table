@@ -87,7 +87,6 @@ export class DataFetcher {
         }
 
         try {
-
             const response = await fetch(url, fetchOptions)
 
             const contentType = response.headers.get('content-type')

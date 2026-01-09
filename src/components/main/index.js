@@ -77,6 +77,7 @@ export default defineComponent({
         // Update URL from state form and tabs changes
         watch(
             () => [
+                form.value.city,
                 form.value.dose,
                 form.value.granularity,
                 form.value.granularity,
@@ -86,7 +87,6 @@ export default defineComponent({
                 form.value.periodStart,
                 form.value.sickImmunizer,
                 form.value.type,
-                form.value.city,
                 tab.value,
                 tabBy.value,
             ],

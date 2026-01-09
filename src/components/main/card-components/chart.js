@@ -10,6 +10,8 @@ import { NSelect, NEmpty } from 'naive-ui'
 import { useContentStore, useChartStore } from '@/stores/index'
 import { storeToRefs } from 'pinia'
 
+import { arraysSameContent } from '@/utils'
+
 /**
  * @typedef {{dataset: { label: string, data: string }, parsed: { y: string }, dataIndex: number }} context
  */
@@ -445,10 +447,28 @@ export default defineComponent({
         })
 
         watch(
-            () => form.value,
-            async (formValue) => {
-                // Avoid render before tab changed to chart/tables
-                if (Array.isArray(formValue.sickImmunizer)) {
+            () => [
+                form.value.city,
+                form.value.dose,
+                form.value.granularity,
+                form.value.granularity,
+                form.value.local,
+                form.value.period,
+                form.value.periodEnd,
+                form.value.periodStart,
+                form.value.sickImmunizer,
+                form.value.type,
+            ],
+            async (newVals, oldVals) => {
+                const hasChanged = newVals.some((val, i) => {
+                    // city index
+                    if (i === 0) {
+                        return !arraysSameContent(val, oldVals[0])
+                    }
+                    return val !== oldVals[i]
+                })
+                // Avoid render before change tab and duplicated requests
+                if (Array.isArray(form.value.sickImmunizer) && hasChanged) {
                     await chartStore.setChartData()
                     renderChart(years.value, dataChart.value)
                 }

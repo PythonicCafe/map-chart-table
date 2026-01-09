@@ -181,14 +181,19 @@ export const useContentStore = defineStore('content', {
                 !form.sickImmunizer ||
                 !form.dose ||
                 (!form.periodStart && !form.periodEnd) ||
-                (!form.local.length && form.granularity === 'Municípios' && this.tab === 'map') ||
-                (!form.local.length && form.granularity !== 'Nacional' && form.granularity !== 'Municípios') ||
-                (form.granularity === 'Municípios' && (!form.city || !form.city.length) && this.tab !== 'map')
+                (!form.local.length &&
+                    form.granularity === 'Municípios' &&
+                    this.tab === 'map') ||
+                (!form.local.length &&
+                    form.granularity !== 'Nacional' &&
+                    form.granularity !== 'Municípios') ||
+                (form.granularity === 'Municípios' &&
+                    (!form.city || !form.city.length) &&
+                    this.tab !== 'map')
             ) {
                 this.loading = false
                 return
             }
-
 
             const ci = Array.isArray(form.city)
                 ? form.city.join('|')
@@ -231,7 +236,7 @@ export const useContentStore = defineStore('content', {
                 request += '&stateTotal=true'
             }
             if (form.city && form.city.length && form.city.length <= 30) {
-              request += '&city=' + ci
+                request += '&city=' + ci
             }
 
             const granularity = form.granularity
@@ -257,48 +262,55 @@ export const useContentStore = defineStore('content', {
             let localNames
 
             if (this.form.city && this.form.city.length > 30) {
-              const body = /** @type{Record<string, string | number | boolean>} */ ({
-                city: ci,
-                tab: this.tab,
-                tabBy: this.tabBy,
-                type: form.type,
-                granularity: form.granularity,
-                sickImmunizer: encodeURIComponent(sI),
-                local: loc,
-                dose: form.dose
-              })
+                const body =
+                    /** @type{Record<string, string | number | boolean>} */ ({
+                        city: ci,
+                        tab: this.tab,
+                        tabBy: this.tabBy,
+                        type: form.type,
+                        granularity: form.granularity,
+                        sickImmunizer: encodeURIComponent(sI),
+                        local: loc,
+                        dose: form.dose,
+                    })
 
-              if (form.periodStart) {
-                body.periodStart = form.periodStart
-              }
-              if (form.periodEnd) {
-                body.periodEnd = form.periodEnd
-              }
-              if (page) {
-                body.page = page
-              }
-              if (sorter) {
-                body.sorter = sorter.columnKey + sorter.order
-              }
-              if (detail) {
-                body.detail = true
-              }
-              if (stateTotal) {
-                body.stateTotal = true
-              }
+                if (form.periodStart) {
+                    body.periodStart = form.periodStart
+                }
+                if (form.periodEnd) {
+                    body.periodEnd = form.periodEnd
+                }
+                if (page) {
+                    body.page = page
+                }
+                if (sorter) {
+                    body.sorter = sorter.columnKey + sorter.order
+                }
+                if (detail) {
+                    body.detail = true
+                }
+                if (stateTotal) {
+                    body.stateTotal = true
+                }
 
-              [result, localNames] = await Promise.all([
-                    api.requestDataInBody((csv ? `export-csv/` : `data/`) + request, {
-                      signal,
-                      body
-                  }),
-                  api.request(isStateData),
-              ])
+                ;[result, localNames] = await Promise.all([
+                    api.requestDataInBody(
+                        (csv ? `export-csv/` : `data/`) + request,
+                        {
+                            signal,
+                            body,
+                        }
+                    ),
+                    api.request(isStateData),
+                ])
             } else {
-              [result, localNames] = await Promise.all([
-                  api.request((csv ? `export-csv/` : `data/`) + request, signal),
-                  api.request(isStateData),
-              ])
+                ;[result, localNames] = await Promise.all([
+                    api.request(
+                        (csv ? `export-csv/` : `data/`) + request,
+                        signal
+                    ),
+                    api.request(isStateData),
+                ])
             }
 
             if (result?.aborted) {
@@ -307,7 +319,7 @@ export const useContentStore = defineStore('content', {
             }
 
             const messageStore = useMessageStore()
-            if (!result || result.error || (result?.data?.status === 404)) {
+            if (!result || result.error || result?.data?.status === 404) {
                 messageStore.message(
                     'error',
                     'Não foi possível carregar os dados. Tente novamente mais tarde.'
@@ -543,13 +555,13 @@ export const useContentStore = defineStore('content', {
                         this.removeQueryFromRouter(key)
                     }
                 } else if (key === 'city') {
-                    const values = value.split(",")
-                    const cities = formState["cities"].map(el => el.codigo6)
+                    const values = value.split(',')
+                    const cities = formState['cities'].map((el) => el.codigo6)
 
-                    if (values.every(val => cities.includes(val))) {
+                    if (values.every((val) => cities.includes(val))) {
                         routerResult[key] = values
                     } else {
-                      this.removeQueryFromRouter(key)
+                        this.removeQueryFromRouter(key)
                     }
                 } else if (key === 'local') {
                     const values = value.split(',')
@@ -654,12 +666,12 @@ export const useContentStore = defineStore('content', {
             }
 
             if (Array.isArray(stateResult.city)) {
-              const cityLength = stateResult.city.length
-              if (cityLength && cityLength <= 30) {
-                stateResult.city = [...stateResult?.city].join(",")
-              } else {
-                stateResult.city = []
-              }
+                const cityLength = stateResult.city.length
+                if (cityLength && cityLength <= 30) {
+                    stateResult.city = [...stateResult?.city].join(',')
+                } else {
+                    stateResult.city = []
+                }
             }
 
             if (JSON.stringify(routeArgs) === JSON.stringify(stateResult)) {
@@ -871,8 +883,15 @@ export const useContentStore = defineStore('content', {
         },
         mainTitle: (state) => {
             let title = null
-            const { sickImmunizer, dose, granularity, local, period, type, city } =
-                state.form
+            const {
+                sickImmunizer,
+                dose,
+                granularity,
+                local,
+                period,
+                type,
+                city,
+            } = state.form
             if (
                 sickImmunizer &&
                 Array.isArray(sickImmunizer) &&
@@ -886,9 +905,16 @@ export const useContentStore = defineStore('content', {
                 !period ||
                 !sickImmunizer ||
                 !type ||
-                !local.length && (granularity !== 'Nacional' && (granularity !== 'Municípios' && (!city || !city.length) )) ||
-                !local.length && granularity === 'Municípios' && state.tab === 'map' ||
-                granularity === 'Municípios' && (!city || !city.length) && state.tab !== 'map'
+                (!local.length &&
+                    granularity !== 'Nacional' &&
+                    granularity !== 'Municípios' &&
+                    (!city || !city.length)) ||
+                (!local.length &&
+                    granularity === 'Municípios' &&
+                    state.tab === 'map') ||
+                (granularity === 'Municípios' &&
+                    (!city || !city.length) &&
+                    state.tab !== 'map')
             ) {
                 return
             }
@@ -903,8 +929,15 @@ export const useContentStore = defineStore('content', {
         },
         subTitle: (state) => {
             let subtitle = null
-            const { sickImmunizer, dose, granularity, local, period, type, city } =
-                state.form
+            const {
+                sickImmunizer,
+                dose,
+                granularity,
+                local,
+                period,
+                type,
+                city,
+            } = state.form
             if (
                 sickImmunizer &&
                 Array.isArray(sickImmunizer) &&
@@ -918,9 +951,16 @@ export const useContentStore = defineStore('content', {
                 !sickImmunizer ||
                 !type ||
                 !dose ||
-                !local.length && (granularity !== 'Nacional' && (granularity !== 'Municípios' && (!city || !city.length) )) ||
-                !local.length && granularity === 'Municípios' && state.tab === 'map' ||
-                granularity === 'Municípios' && (!city || !city.length) && state.tab !== 'map'
+                (!local.length &&
+                    granularity !== 'Nacional' &&
+                    granularity !== 'Municípios' &&
+                    (!city || !city.length)) ||
+                (!local.length &&
+                    granularity === 'Municípios' &&
+                    state.tab === 'map') ||
+                (granularity === 'Municípios' &&
+                    (!city || !city.length) &&
+                    state.tab !== 'map')
             ) {
                 return
             }
@@ -934,8 +974,15 @@ export const useContentStore = defineStore('content', {
             return subtitle
         },
         selectsPopulated: (state) => {
-            const { sickImmunizer, dose, granularity, local, period, type, city } =
-                state.form
+            const {
+                sickImmunizer,
+                dose,
+                granularity,
+                local,
+                period,
+                type,
+                city,
+            } = state.form
 
             const isSickImuAnArray =
                 sickImmunizer && Array.isArray(sickImmunizer)
@@ -947,7 +994,11 @@ export const useContentStore = defineStore('content', {
                 dose &&
                 granularity &&
                 (local.length ||
-                    (!local.length && (granularity === 'Nacional' || (granularity === 'Municípios' && city && city.length)))) &&
+                    (!local.length &&
+                        (granularity === 'Nacional' ||
+                            (granularity === 'Municípios' &&
+                                city &&
+                                city.length)))) &&
                 period &&
                 type
             )

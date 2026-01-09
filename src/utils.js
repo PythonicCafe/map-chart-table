@@ -685,6 +685,23 @@ export const disableOptionsByGranularityOrType = (state, payload) => {
 }
 
 /**
+ * Check if array have same content
+ * @param {string[]} arr1
+ * @param {string[]} arr2
+ *
+ * @return boolean
+ */
+export const arraysSameContent = (arr1, arr2) => {
+    if (arr1 === arr2) return true
+    if (!arr1 || !arr2 || arr1.length !== arr2.length) return false
+
+    const str1 = JSON.stringify([...arr1].sort())
+    const str2 = JSON.stringify([...arr2].sort())
+
+    return str1 === str2
+}
+
+/**
  * @param {string} str
  * @returns {string}
  */
