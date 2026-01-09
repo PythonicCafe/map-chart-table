@@ -181,8 +181,9 @@ export const useContentStore = defineStore('content', {
                 !form.sickImmunizer ||
                 !form.dose ||
                 (!form.periodStart && !form.periodEnd) ||
+                (!form.local.length && form.granularity === 'Municípios' && this.tab === 'map') ||
                 (!form.local.length && form.granularity !== 'Nacional' && form.granularity !== 'Municípios') ||
-                (form.granularity === 'Municípios' && (!form.city || (form.city && !form.city.length)))
+                (form.granularity === 'Municípios' && (!form.city || !form.city.length) && this.tab !== 'map')
             ) {
                 this.loading = false
                 return
@@ -870,7 +871,7 @@ export const useContentStore = defineStore('content', {
         },
         mainTitle: (state) => {
             let title = null
-            const { sickImmunizer, dose, granularity, local, period, type } =
+            const { sickImmunizer, dose, granularity, local, period, type, city } =
                 state.form
             if (
                 sickImmunizer &&
@@ -885,7 +886,9 @@ export const useContentStore = defineStore('content', {
                 !period ||
                 !sickImmunizer ||
                 !type ||
-                (!local.length && (granularity !== 'Nacional' && granularity !== 'Municípios'))
+                !local.length && (granularity !== 'Nacional' && (granularity !== 'Municípios' && (!city || !city.length) )) ||
+                !local.length && granularity === 'Municípios' && state.tab === 'map' ||
+                granularity === 'Municípios' && (!city || !city.length) && state.tab !== 'map'
             ) {
                 return
             }
@@ -900,7 +903,7 @@ export const useContentStore = defineStore('content', {
         },
         subTitle: (state) => {
             let subtitle = null
-            const { sickImmunizer, dose, granularity, local, period, type } =
+            const { sickImmunizer, dose, granularity, local, period, type, city } =
                 state.form
             if (
                 sickImmunizer &&
@@ -914,8 +917,10 @@ export const useContentStore = defineStore('content', {
                 !period ||
                 !sickImmunizer ||
                 !type ||
-                (!local.length && (granularity !== 'Nacional' && granularity !== 'Municípios')) ||
-                !dose
+                !dose ||
+                !local.length && (granularity !== 'Nacional' && (granularity !== 'Municípios' && (!city || !city.length) )) ||
+                !local.length && granularity === 'Municípios' && state.tab === 'map' ||
+                granularity === 'Municípios' && (!city || !city.length) && state.tab !== 'map'
             ) {
                 return
             }

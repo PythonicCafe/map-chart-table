@@ -509,6 +509,8 @@ export default defineComponent({
             async () => {
                 if (tab.value === 'chart') {
                   disableStateCitiesSelector(cityTemp.value)
+                } else if (tab.value === 'map') {
+                  form.value.city = []
                 }
                 await showCitiesSelectUpdate()
             }
@@ -622,7 +624,7 @@ export default defineComponent({
                     :multiple="tab !== 'map'"
                     :on-update:show="show => handleSicksUpdateShow(show, 'field1')"
                     :on-update:value="handleSicksUpdateValue"
-                    :options="tabBy === 'form.sicks' ? form.sicks : form.immunizers"
+                    :options="tabBy === 'sicks' ? form.sicks : form.immunizers"
                     :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
                     :render-option="renderOption"
                     clearable

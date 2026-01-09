@@ -53,8 +53,16 @@
     font-weight: 500;
 }
 
-/* MediaQuery */
+.n-data-table-th.n-data-table-th--sorting.n-data-table-th--sortable {
+  color: white;
+  background: #e96f5f;
+}
 
+.n-data-table-tr.n-data-table-tr--striped .n-data-table-td.n-data-table-td--sorting.n-data-table-td--right-align {
+  background: #fadfdb;
+}
+
+/* MediaQuery */
 @media (max-width: 800px) {
     .table-custom .n-pagination {
         justify-content: space-between;
