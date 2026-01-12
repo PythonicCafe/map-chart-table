@@ -12,10 +12,10 @@ import { useContentStore } from '@/stores/content'
 /**
  * Retuns default state
  * @returns {{
- *  dataChart: { label: string, data: (string | null)[], backgroundColor: string, borderColor: string, borderWidth: number, }[] | null
- *  loading: boolean
- *  locals: string[] | null
- *  years: string[] | null
+ * dataChart: { label: string, data: (string | null)[], backgroundColor: string, borderColor: string, borderWidth: number, }[] | null
+ * loading: boolean
+ * locals: string[] | null
+ * years: string[] | null
  * }}
  */
 const getDefaultState = () => {
@@ -33,11 +33,12 @@ export const useChartStore = defineStore('chart', {
         async setChartData() {
             this.loading = true
             const contentStore = useContentStore()
+
             const response = /** @type{ApiResponseChart} */ (
                 await contentStore.requestData({
                     detail: true,
                     stateNameAsCode: false,
-                    stateTotal: true,
+                    stateTotal: true
                 })
             )
 
@@ -55,32 +56,41 @@ export const useChartStore = defineStore('chart', {
             // Loop through the dataArray starting from the second element to not get header
             let localNames = /** @type string[] */ ([])
             let counter = 0
+
             for (let i = 1; i < dataArray.length; i++) {
-                let [year, local, value, population, doses, sickImmunizer] =
+                let [year, local, value, population, doses, sickImmunizer, doseDesc] =
                     dataArray[i]
+
                 if (!isNaN(local)) {
                     local = response.localNames.find(
                         (/** @type{string} */ name) => name[0] == local
                     )
                 }
-                if (!localNames.includes(local + sickImmunizer)) {
-                    counter++
-                    localNames.push(local + sickImmunizer)
+
+                let uniqueKey = sickImmunizer
+                if (doseDesc) {
+                    uniqueKey = `${sickImmunizer} - ${doseDesc}`
                 }
 
-                if (!data[sickImmunizer]) {
-                    data[sickImmunizer] = {}
+                if (!localNames.includes(local + uniqueKey)) {
+                    counter++
+                    localNames.push(local + uniqueKey)
                 }
-                if (!data[sickImmunizer][year]) {
-                    data[sickImmunizer][year] = {}
+
+                // Usa uniqueKey ao invés de apenas sickImmunizer
+                if (!data[uniqueKey]) {
+                    data[uniqueKey] = {}
+                }
+                if (!data[uniqueKey][year]) {
+                    data[uniqueKey][year] = {}
                 }
                 if (value.at(-1) === '%') {
-                    data[sickImmunizer][year][local] = value.substring(
+                    data[uniqueKey][year][local] = value.substring(
                         0,
                         value.length - 1
                     )
                 } else {
-                    data[sickImmunizer][year][local] = value
+                    data[uniqueKey][year][local] = value
                 }
                 years.push(year)
                 locals.push(local)
@@ -94,9 +104,22 @@ export const useChartStore = defineStore('chart', {
             // Formating data to chartResult
             const chartResult =
                 /** @type{Record<string, (string|null)[]>} */ ({})
+
             for (let local of this.locals) {
                 for (let [key, val] of Object.entries(data)) {
-                    const legend = `${key} ${local}`
+
+                    let legend = ''
+                    if (key.includes(' - ')) {
+                        const parts = key.split(' - ')
+                        const dosePart = parts.pop()
+                        const namePart = parts.join(' - ')
+
+                        legend = `${namePart} ${local} - ${dosePart}`
+                    } else {
+                        // Caso padrão sem dose
+                        legend = `${key} ${local}`
+                    }
+
                     for (let year of this.years) {
                         if (!chartResult[legend]) {
                             chartResult[legend] = []

@@ -70,6 +70,8 @@ export default defineComponent({
                     }
                     return val !== oldVals[i]
                 })
+
+                console.log({ hasChanged })
                 // Avoid render before change tab and duplicated requests
                 if (Array.isArray(form.value.sickImmunizer) && hasChanged) {
                     page.value = 1

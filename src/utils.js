@@ -108,7 +108,7 @@ export const formatToTable = (data, localNames, metadata) => {
         let align = 0
         /** @type {number|null} */
         let minWidth = 200
-        if (['ano', 'valor', 'população', 'doses', 'código'].includes(column)) {
+        if (['ano', 'valor', 'população', 'doses', 'doenca', 'código'].includes(column)) {
             align = 'right'
             width = 120
             minWidth = null
@@ -119,11 +119,13 @@ export const formatToTable = (data, localNames, metadata) => {
             title = 'Doença'
         } else if (title === 'Doses') {
             title = 'Doses (qtd)'
+        } else if (title === 'Dose') {
+            title = 'Doses (tipo)'
         }
         header.push({
             title,
             key: column,
-            sorter: ['código', 'local'].includes(column) ? false : 'default',
+            sorter: ['código', 'local', 'dose'].includes(column) ? false : 'default',
             width,
             titleAlign: 'left',
             align,
