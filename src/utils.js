@@ -336,7 +336,13 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
             disabled: true,
             disabledText: disabledTextAbandono,
         }
-        if (state.form.dose == doses[index].label) {
+        const firstDoseLabel = doses[index].label
+        if (
+          Array.isArray(state.form.dose) && state.form.dose.includes(firstDoseLabel)
+        ) {
+          const selectedDoseIndex = state.form.dose.findIndex(item => item === firstDoseLabel)
+          state.form.dose.slice(0, selectedDoseIndex)
+        } else if (state.form.dose == firstDoseLabel) {
             state.form.dose = null
         }
     } else if (formKey == 'type' && formValue != 'Abandono') {
@@ -349,7 +355,12 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
             disabled: false,
             disabledText: disabledText1Dose,
         }
-    } else if (formKey == 'dose' && formValue == '1ª dose') {
+    } else if (
+      formKey == 'dose'&& (
+        !Array.isArray(formValue) && formValue == '1ª dose' ||
+        formValue && formValue.includes('1ª dose')
+      )
+    ) {
         const types = state.form.types
         /** @type {number} */
         // @ts-ignore
@@ -362,7 +373,12 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
         if (state.form.type == types[index].label) {
             state.form.type = null
         }
-    } else if (formKey == 'dose' && formValue != '1ª dose') {
+    } else if (
+        formKey == 'dose' && (
+         !Array.isArray(formValue) && formValue != '1ª dose' ||
+         formValue && !formValue.includes('1ª dose')
+        )
+    ) {
         const types = state.form.types
         /** @type {number} */
         // @ts-ignore

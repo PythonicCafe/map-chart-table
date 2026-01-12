@@ -25,7 +25,7 @@ let currentControllerMap
  * @property {any[]} types - A list of options.
  * @property {string[] | string} local - Selected locations (multi-select).
  * @property {any[]} locals - A list of options.
- * @property {any | null} dose - The selected dose.
+ * @property {any} dose - The selected dose.
  * @property {any[]} doses - A list of options.
  * @property {any | null} period - The selected period.
  * @property {any | null} years - Selected years.
@@ -174,6 +174,17 @@ export const useContentStore = defineStore('content', {
                 this.loading = false
                 return
             }
+
+            // If the form field 'dose' is an array and empty, return without making a request
+            if (
+                form.dose &&
+                Array.isArray(form.dose) &&
+                !form.dose.length
+            ) {
+                this.loading = false
+                return
+            }
+
             // Ensure all required form fields are populated
             if (
                 !form.type ||
@@ -204,6 +215,9 @@ export const useContentStore = defineStore('content', {
             const sI = Array.isArray(form.sickImmunizer)
                 ? form.sickImmunizer.join('|')
                 : form.sickImmunizer
+            const dos = Array.isArray(form.dose)
+                ? form.dose.join('|')
+                : form.dose
             let request =
                 '?tab=' +
                 this.tab +
@@ -218,7 +232,7 @@ export const useContentStore = defineStore('content', {
                 '&local=' +
                 loc +
                 '&dose=' +
-                form.dose
+                dos
 
             request += form.periodStart
                 ? '&periodStart=' + form.periodStart
@@ -582,7 +596,20 @@ export const useContentStore = defineStore('content', {
                         this.removeQueryFromRouter(key)
                     }
                 } else if (key === 'dose') {
-                    if (formState['doses'].some((el) => el.value === value)) {
+                    if (isTabToShowSickAsArray) {
+                        const values = value.split(',')
+                        const doses = formState['doses'].map((el) => el.value)
+                        if (values.every((val) => doses.includes(val))) {
+                            const sickImmunizer = routerResult['sickImmunizer']
+                            if (values.length > 1 || sickImmunizer.length === 1) {
+                              routerResult[key] = values
+                            } else {
+                              routerResult[key] = values[0]
+                            }
+                        } else {
+                            this.removeQueryFromRouter(key)
+                        }
+                    } else if (formState['doses'].some((el) => el.value === value)) {
                         routerResult[key] = value
                     } else {
                         this.removeQueryFromRouter(key)
@@ -661,6 +688,16 @@ export const useContentStore = defineStore('content', {
                     ...stateResult?.sickImmunizer,
                 ].join(',')
             }
+
+            if (
+                Array.isArray(stateResult.dose) &&
+                stateResult.dose.length
+            ) {
+                stateResult.dose = [
+                    ...stateResult?.dose,
+                ].join(',')
+            }
+
             if (Array.isArray(stateResult.local) && stateResult.local.length) {
                 stateResult.local = [...stateResult?.local].join(',')
             }
@@ -763,6 +800,22 @@ export const useContentStore = defineStore('content', {
                     disableOptionsByTypeOrDose(this, 'type', type)
                     disableOptionsByGranularityOrType(this, { type: type })
                 }
+                if (
+                  Array.isArray(this.form.dose) &&
+                  key === 'sickImmunizer' &&
+                  Array.isArray(value) &&
+                  value.length > 1
+                ) {
+                    this.form.dose = this.form.dose[0]
+                } else if (key === 'sickImmunizer' && Array.isArray(value) && value.length === 1) {
+                  if (this.form.dose && !Array.isArray(this.form.dose)) {
+                    this.form.dose = [this.form.dose]
+                  }
+                } else if (key === 'sickImmunizer' && Array.isArray(value) && value.length > 1) {
+                  if (Array.isArray(this.form.dose)) {
+                    this.form.dose = this.form.dose[0]
+                  }
+                }
             } else if (key === 'granularity') {
                 disableOptionsByGranularityOrType(this, { [key]: value })
             } else if (key === 'type') {
@@ -773,28 +826,29 @@ export const useContentStore = defineStore('content', {
             // @ts-ignore
             this.form[key] = value
 
-            if (
-                this.form.sickImmunizer &&
-                this.form.type &&
-                this.form.local.length &&
-                this.form.periodStart &&
-                this.form.periodEnd &&
-                this.form.granularity &&
-                // Avoid unecessary updates and enable use empty dose field
-                !Object.keys({ key, value }).includes('period') &&
-                !Object.keys({ key, value }).includes('dose') &&
-                !this.form.dose
-            ) {
-                const activeDoses = this.form.doses.filter(
-                    (dose) => !dose.disabled
-                )
-                if (activeDoses.length) {
-                    const newDose = activeDoses[activeDoses.length - 1].value
-                    disableOptionsByDoseOrSick(this, { dose: newDose })
-                    disableOptionsByTypeOrDose(this, 'dose', newDose)
-                    this.form.dose = newDose
-                }
-            }
+            // TODO: Reenable or delete old auto select dose function
+            // if (
+            //     this.form.sickImmunizer &&
+            //     this.form.type &&
+            //     this.form.local.length &&
+            //     this.form.periodStart &&
+            //     this.form.periodEnd &&
+            //     this.form.granularity &&
+            //     // Avoid unecessary updates and enable use empty dose field
+            //     !Object.keys({ key, value }).includes('period') &&
+            //     !Object.keys({ key, value }).includes('dose') &&
+            //     !this.form.dose
+            // ) {
+            //     const activeDoses = this.form.doses.filter(
+            //         (dose) => !dose.disabled
+            //     )
+            //     if (activeDoses.length) {
+            //         const newDose = activeDoses[activeDoses.length - 1].value
+            //         disableOptionsByDoseOrSick(this, { dose: newDose })
+            //         disableOptionsByTypeOrDose(this, 'dose', newDose)
+            //         this.form.dose = newDose
+            //     }
+            // }
             this.checkGramWithState()
         },
         checkGramWithState() {
@@ -826,28 +880,51 @@ export const useContentStore = defineStore('content', {
             if (['table', 'chart'].includes(value)) {
                 if (!this.form.sickImmunizer) {
                     this.form.sickImmunizer = []
+                    if (!this.form.dose) {
+                        this.form.dose = []
+                    } else if (!Array.isArray(this.form.dose)) {
+                        this.form.dose = [this.form.dose]
+                    }
                 } else if (!Array.isArray(this.form.sickImmunizer)) {
                     this.form.sickImmunizer = [this.form.sickImmunizer]
+
+                    if (this.form.sickImmunizer.length === 1) {
+                      if (!this.form.dose) {
+                          this.form.dose = []
+                      } else if (!Array.isArray(this.form.dose)) {
+                          this.form.dose = [this.form.dose]
+                      }
+                    }
                     messageStore.message(
                         'info',
                         'Seletores atualizados para tipo de exibição selecionada'
                     )
                 }
-            } else if (
-                this.form.sickImmunizer &&
-                Array.isArray(this.form.sickImmunizer) &&
-                this.form.sickImmunizer.length > 0
-            ) {
-                this.form.sickImmunizer = this.form.sickImmunizer[0]
-                disableOptionsByDoseOrSick(this, {
-                    ['sickImmunizer']: this.form.sickImmunizer,
-                })
-                messageStore.message(
-                    'info',
-                    'Seletores atualizados para tipo de exibição selecionada'
-                )
             } else {
-                this.form.sickImmunizer = null
+              if (
+                  this.form.sickImmunizer &&
+                  Array.isArray(this.form.sickImmunizer) &&
+                  this.form.sickImmunizer.length > 0
+              ) {
+                  this.form.sickImmunizer = this.form.sickImmunizer[0]
+                  disableOptionsByDoseOrSick(this, {
+                      ['sickImmunizer']: this.form.sickImmunizer,
+                  })
+                  messageStore.message(
+                      'info',
+                      'Seletores atualizados para tipo de exibição selecionada'
+                  )
+              } else {
+                  this.form.sickImmunizer = null
+              }
+
+              if (
+                this.form.dose &&
+                Array.isArray(this.form.dose) &&
+                this.form.dose.length > 0
+              ) {
+                  this.form.dose = this.form.dose[0]
+              }
             }
 
             this.checkGramWithState()
@@ -900,6 +977,13 @@ export const useContentStore = defineStore('content', {
                 return
             }
             if (
+                dose &&
+                Array.isArray(dose) &&
+                !dose.length
+            ) {
+                return
+            }
+            if (
                 !dose ||
                 !granularity ||
                 !period ||
@@ -942,6 +1026,13 @@ export const useContentStore = defineStore('content', {
                 sickImmunizer &&
                 Array.isArray(sickImmunizer) &&
                 !sickImmunizer.length
+            ) {
+                return
+            }
+            if (
+                dose &&
+                Array.isArray(dose) &&
+                !dose.length
             ) {
                 return
             }
@@ -989,9 +1080,16 @@ export const useContentStore = defineStore('content', {
             const isSickImuFilledArray =
                 isSickImuAnArray && sickImmunizer.length
             const isSickImuFilledField = !isSickImuAnArray && sickImmunizer
+
+            const isDoseAnArray =
+                sickImmunizer && Array.isArray(dose)
+            const isDoseFilledArray =
+                isDoseAnArray && dose.length
+            const isDoseFilledField = !isDoseAnArray && dose
+
             return (
                 (isSickImuFilledArray || isSickImuFilledField) &&
-                dose &&
+                (isDoseFilledArray || isDoseFilledField) &&
                 granularity &&
                 (local.length ||
                     (!local.length &&

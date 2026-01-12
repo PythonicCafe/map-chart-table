@@ -620,6 +620,7 @@ export default defineComponent({
             updateDatePosition,
             contentStore,
             updateDate,
+            sickImmunizer: computed(() => form.value.sickImmunizer),
         }
     },
     template: `
@@ -647,7 +648,7 @@ export default defineComponent({
             <n-form-item label="Dose">
                 <n-select
                     :ref="el => (selectRefsMap['field2'] = el)"
-                    v-model:value="form.dose"
+                    :value="form.dose"
                     class="mct-select-dose"
                     filterable
                     max-tag-count="responsive"
@@ -658,7 +659,9 @@ export default defineComponent({
                     clearable
                     :disabled="disableAll"
                     :on-clear="() => clear('dose')"
+                    :multiple="sickImmunizer && sickImmunizer.length <= 1"
                     @update:show="show => handleShowUpdate(show, 'field2')"
+                    @update:value="(val) => contentStore.setFormField('dose', val)"
                 />
             </n-form-item>
             <n-form-item label="Tipo de dado">
