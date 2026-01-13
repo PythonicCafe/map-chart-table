@@ -71,7 +71,6 @@ export default defineComponent({
                     return val !== oldVals[i]
                 })
 
-                console.log({ hasChanged })
                 // Avoid render before change tab and duplicated requests
                 if (Array.isArray(form.value.sickImmunizer) && hasChanged) {
                     page.value = 1
@@ -92,7 +91,11 @@ export default defineComponent({
          * @param {{ columnKey: string; order: string }} newSorter
          */
         const handleSorterChange = async (newSorter) => {
-            sorter.value = newSorter
+            const resultSorter = { ...newSorter }
+            if (resultSorter.columnKey === 'doenca' || resultSorter.columnKey === 'imunizante') {
+              resultSorter.columnKey = 'valor'
+            }
+            sorter.value = resultSorter
             if (!newSorter.order) {
                 sorter.value = undefined
             }

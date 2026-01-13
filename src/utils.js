@@ -108,7 +108,7 @@ export const formatToTable = (data, localNames, metadata) => {
         let align = 0
         /** @type {number|null} */
         let minWidth = 200
-        if (['ano', 'valor', 'população', 'doses', 'doenca', 'código'].includes(column)) {
+        if (['ano', 'valor', 'população', 'doses', 'código', 'dose'].includes(column)) {
             align = 'right'
             width = 120
             minWidth = null
@@ -120,12 +120,12 @@ export const formatToTable = (data, localNames, metadata) => {
         } else if (title === 'Doses') {
             title = 'Doses (qtd)'
         } else if (title === 'Dose') {
-            title = 'Doses (tipo)'
+            title = 'Dose (tipo)'
         }
         header.push({
             title,
             key: column,
-            sorter: ['código', 'local', 'dose'].includes(column) ? false : 'default',
+            sorter: ['código', 'dose'].includes(column) ? false : 'default',
             width,
             titleAlign: 'left',
             align,
@@ -183,7 +183,10 @@ export const formatToTable = (data, localNames, metadata) => {
         rows.push(row)
     }
 
-    header.splice(1, 0, header.splice(6, 1)[0])
+    // Move Código column
+    header.splice(1, 0, header.splice(7, 1)[0])
+    // Move Doses (tipo) column
+    header.splice(6, 0, header.splice(7, 1)[0])
 
     return { header, rows }
 }
@@ -480,15 +483,20 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
         (el) => el === 'doenca_imuno'
     )
     if (selected[0] === 'dose') {
-        if (!selectedValue) {
+
+        const selectedValuesList = Array.isArray(selectedValue) ? selectedValue : (selectedValue ? [selectedValue] : []);
+
+        if (selectedValuesList.length === 0) {
             // CLEAR_STATE
             // @ts-ignore
             resetOptions(sicksImmunizers)
             return
         }
-        const listIndex = blockedListHeader.findIndex(
-            (el) => el === blockHeaderName(selectedValue)
-        )
+
+        // findAll indexes corresponding to columns of selected values
+        const listIndices = selectedValuesList.map((val) =>
+            blockedListHeader.findIndex((el) => el === blockHeaderName(val))
+        ).filter(index => index !== -1)
 
         // @ts-ignore
         for (let i = 0; i < sicksImmunizers.length; i++) {
@@ -502,17 +510,20 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
                         .normalize('NFD')
                         .replace(/[\u0300-\u036f]/g, '') === type
             )
-            const disabled =
-                blockedListRow && blockedListRow[listIndex] === false
-                    ? true
-                    : false
+
+            // Verify if blocked (false) to some of indexes found
+            const isBlocked = listIndices.some((index) =>
+                blockedListRow && blockedListRow[index] === false
+            )
+
+            const disabled = isBlocked ? true : false;
 
             // @ts-ignore
             sicksImmunizers[i] = {
                 // @ts-ignore
                 ...sicksImmunizers[i],
                 disabled,
-                disabledText: 'Não selecionável para essa dose.',
+                disabledText: 'Não selecionável para essa(s) dose(s).',
             }
         }
     } else if (selected[0] === 'sickImmunizer') {
@@ -546,6 +557,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
             })
         }
 
+        // Set disabled options
         for (let i = 0; i < doses.length; i++) {
             let disabled
             if (resultToBlock && Array.isArray(selectedValue)) {

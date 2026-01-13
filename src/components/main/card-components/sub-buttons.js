@@ -171,13 +171,21 @@ export default defineComponent({
             const type = form.value.type
             header[header.findIndex((head) => head === 'Valor')] = type
             const rows = tableData.rows.map((x) => Object.values(x))
-            if (type == 'Doses aplicadas') {
+            if (type === 'Doses aplicadas') {
                 const index = header.findIndex(
                     (column) => column === 'Doses (qtd)'
                 )
                 header.splice(index, 1)
                 rows.forEach((row) => row.splice(index, 1))
             }
+
+            //  Fix header position in csv result
+            if (header.length > 7) {
+              header.splice(6, 0, header.splice(7, 1)[0])
+            } else {
+              header.splice(5, 0, header.splice(6, 1)[0])
+            }
+
             const csvwriter = new CsvWriterGen(header, rows)
             csvwriter.anchorElement('tabela')
             loadingDownload.value = false
