@@ -108,7 +108,11 @@ export const formatToTable = (data, localNames, metadata) => {
         let align = 0
         /** @type {number|null} */
         let minWidth = 200
-        if (['ano', 'valor', 'população', 'doses', 'código', 'dose'].includes(column)) {
+        if (
+            ['ano', 'valor', 'população', 'doses', 'código', 'dose'].includes(
+                column
+            )
+        ) {
             align = 'right'
             width = 120
             minWidth = null
@@ -343,10 +347,13 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
         }
         const firstDoseLabel = doses[index].label
         if (
-          Array.isArray(state.form.dose) && state.form.dose.includes(firstDoseLabel)
+            Array.isArray(state.form.dose) &&
+            state.form.dose.includes(firstDoseLabel)
         ) {
-          const selectedDoseIndex = state.form.dose.findIndex(item => item === firstDoseLabel)
-          state.form.dose.slice(0, selectedDoseIndex)
+            const selectedDoseIndex = state.form.dose.findIndex(
+                (item) => item === firstDoseLabel
+            )
+            state.form.dose.slice(0, selectedDoseIndex)
         } else if (state.form.dose == firstDoseLabel) {
             state.form.dose = null
         }
@@ -361,10 +368,9 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
             disabledText: disabledText1Dose,
         }
     } else if (
-      formKey == 'dose'&& (
-        !Array.isArray(formValue) && formValue == '1ª dose' ||
-        formValue && formValue.includes('1ª dose')
-      )
+        formKey == 'dose' &&
+        ((!Array.isArray(formValue) && formValue == '1ª dose') ||
+            (formValue && formValue.includes('1ª dose')))
     ) {
         const types = state.form.types
         /** @type {number} */
@@ -379,10 +385,9 @@ export const disableOptionsByTypeOrDose = (state, formKey, formValue) => {
             state.form.type = null
         }
     } else if (
-        formKey == 'dose' && (
-         !Array.isArray(formValue) && formValue != '1ª dose' ||
-         formValue && !formValue.includes('1ª dose')
-        )
+        formKey == 'dose' &&
+        ((!Array.isArray(formValue) && formValue != '1ª dose') ||
+            (formValue && !formValue.includes('1ª dose')))
     ) {
         const types = state.form.types
         /** @type {number} */
@@ -483,8 +488,11 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
         (el) => el === 'doenca_imuno'
     )
     if (selected[0] === 'dose') {
-
-        const selectedValuesList = Array.isArray(selectedValue) ? selectedValue : (selectedValue ? [selectedValue] : []);
+        const selectedValuesList = Array.isArray(selectedValue)
+            ? selectedValue
+            : selectedValue
+              ? [selectedValue]
+              : []
 
         if (selectedValuesList.length === 0) {
             // CLEAR_STATE
@@ -494,9 +502,11 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
         }
 
         // findAll indexes corresponding to columns of selected values
-        const listIndices = selectedValuesList.map((val) =>
-            blockedListHeader.findIndex((el) => el === blockHeaderName(val))
-        ).filter(index => index !== -1)
+        const listIndices = selectedValuesList
+            .map((val) =>
+                blockedListHeader.findIndex((el) => el === blockHeaderName(val))
+            )
+            .filter((index) => index !== -1)
 
         // @ts-ignore
         for (let i = 0; i < sicksImmunizers.length; i++) {
@@ -512,11 +522,11 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
             )
 
             // Verify if blocked (false) to some of indexes found
-            const isBlocked = listIndices.some((index) =>
-                blockedListRow && blockedListRow[index] === false
+            const isBlocked = listIndices.some(
+                (index) => blockedListRow && blockedListRow[index] === false
             )
 
-            const disabled = isBlocked ? true : false;
+            const disabled = isBlocked ? true : false
 
             // @ts-ignore
             sicksImmunizers[i] = {

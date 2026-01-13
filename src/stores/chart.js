@@ -38,7 +38,7 @@ export const useChartStore = defineStore('chart', {
                 await contentStore.requestData({
                     detail: true,
                     stateNameAsCode: false,
-                    stateTotal: true
+                    stateTotal: true,
                 })
             )
 
@@ -58,8 +58,15 @@ export const useChartStore = defineStore('chart', {
             let counter = 0
 
             for (let i = 1; i < dataArray.length; i++) {
-                let [year, local, value, population, doses, sickImmunizer, doseDesc] =
-                    dataArray[i]
+                let [
+                    year,
+                    local,
+                    value,
+                    population,
+                    doses,
+                    sickImmunizer,
+                    doseDesc,
+                ] = dataArray[i]
 
                 if (!isNaN(local)) {
                     local = response.localNames.find(
@@ -107,7 +114,6 @@ export const useChartStore = defineStore('chart', {
 
             for (let local of this.locals) {
                 for (let [key, val] of Object.entries(data)) {
-
                     let legend = ''
                     if (key.includes(' - ')) {
                         const parts = key.split(' - ')

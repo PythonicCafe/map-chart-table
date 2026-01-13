@@ -181,9 +181,9 @@ export default defineComponent({
 
             //  Fix header position in csv result
             if (header.length > 7) {
-              header.splice(6, 0, header.splice(7, 1)[0])
+                header.splice(6, 0, header.splice(7, 1)[0])
             } else {
-              header.splice(5, 0, header.splice(6, 1)[0])
+                header.splice(5, 0, header.splice(6, 1)[0])
             }
 
             const csvwriter = new CsvWriterGen(header, rows)

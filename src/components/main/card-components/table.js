@@ -92,8 +92,11 @@ export default defineComponent({
          */
         const handleSorterChange = async (newSorter) => {
             const resultSorter = { ...newSorter }
-            if (resultSorter.columnKey === 'doenca' || resultSorter.columnKey === 'imunizante') {
-              resultSorter.columnKey = 'valor'
+            if (
+                resultSorter.columnKey === 'doenca' ||
+                resultSorter.columnKey === 'imunizante'
+            ) {
+                resultSorter.columnKey = 'valor'
             }
             sorter.value = resultSorter
             if (!newSorter.order) {

@@ -176,11 +176,7 @@ export const useContentStore = defineStore('content', {
             }
 
             // If the form field 'dose' is an array and empty, return without making a request
-            if (
-                form.dose &&
-                Array.isArray(form.dose) &&
-                !form.dose.length
-            ) {
+            if (form.dose && Array.isArray(form.dose) && !form.dose.length) {
                 this.loading = false
                 return
             }
@@ -601,15 +597,20 @@ export const useContentStore = defineStore('content', {
                         const doses = formState['doses'].map((el) => el.value)
                         if (values.every((val) => doses.includes(val))) {
                             const sickImmunizer = routerResult['sickImmunizer']
-                            if (values.length > 1 || sickImmunizer.length === 1) {
-                              routerResult[key] = values
+                            if (
+                                values.length > 1 ||
+                                sickImmunizer.length === 1
+                            ) {
+                                routerResult[key] = values
                             } else {
-                              routerResult[key] = values[0]
+                                routerResult[key] = values[0]
                             }
                         } else {
                             this.removeQueryFromRouter(key)
                         }
-                    } else if (formState['doses'].some((el) => el.value === value)) {
+                    } else if (
+                        formState['doses'].some((el) => el.value === value)
+                    ) {
                         routerResult[key] = value
                     } else {
                         this.removeQueryFromRouter(key)
@@ -689,13 +690,8 @@ export const useContentStore = defineStore('content', {
                 ].join(',')
             }
 
-            if (
-                Array.isArray(stateResult.dose) &&
-                stateResult.dose.length
-            ) {
-                stateResult.dose = [
-                    ...stateResult?.dose,
-                ].join(',')
+            if (Array.isArray(stateResult.dose) && stateResult.dose.length) {
+                stateResult.dose = [...stateResult?.dose].join(',')
             }
 
             if (Array.isArray(stateResult.local) && stateResult.local.length) {
@@ -801,20 +797,28 @@ export const useContentStore = defineStore('content', {
                     disableOptionsByGranularityOrType(this, { type: type })
                 }
                 if (
-                  Array.isArray(this.form.dose) &&
-                  key === 'sickImmunizer' &&
-                  Array.isArray(value) &&
-                  value.length > 1
+                    Array.isArray(this.form.dose) &&
+                    key === 'sickImmunizer' &&
+                    Array.isArray(value) &&
+                    value.length > 1
                 ) {
                     this.form.dose = this.form.dose[0]
-                } else if (key === 'sickImmunizer' && Array.isArray(value) && value.length === 1) {
-                  if (this.form.dose && !Array.isArray(this.form.dose)) {
-                    this.form.dose = [this.form.dose]
-                  }
-                } else if (key === 'sickImmunizer' && Array.isArray(value) && value.length > 1) {
-                  if (Array.isArray(this.form.dose)) {
-                    this.form.dose = this.form.dose[0]
-                  }
+                } else if (
+                    key === 'sickImmunizer' &&
+                    Array.isArray(value) &&
+                    value.length === 1
+                ) {
+                    if (this.form.dose && !Array.isArray(this.form.dose)) {
+                        this.form.dose = [this.form.dose]
+                    }
+                } else if (
+                    key === 'sickImmunizer' &&
+                    Array.isArray(value) &&
+                    value.length > 1
+                ) {
+                    if (Array.isArray(this.form.dose)) {
+                        this.form.dose = this.form.dose[0]
+                    }
                 }
             } else if (key === 'granularity') {
                 disableOptionsByGranularityOrType(this, { [key]: value })
@@ -889,11 +893,11 @@ export const useContentStore = defineStore('content', {
                     this.form.sickImmunizer = [this.form.sickImmunizer]
 
                     if (this.form.sickImmunizer.length === 1) {
-                      if (!this.form.dose) {
-                          this.form.dose = []
-                      } else if (!Array.isArray(this.form.dose)) {
-                          this.form.dose = [this.form.dose]
-                      }
+                        if (!this.form.dose) {
+                            this.form.dose = []
+                        } else if (!Array.isArray(this.form.dose)) {
+                            this.form.dose = [this.form.dose]
+                        }
                     }
                     messageStore.message(
                         'info',
@@ -901,30 +905,30 @@ export const useContentStore = defineStore('content', {
                     )
                 }
             } else {
-              if (
-                  this.form.sickImmunizer &&
-                  Array.isArray(this.form.sickImmunizer) &&
-                  this.form.sickImmunizer.length > 0
-              ) {
-                  this.form.sickImmunizer = this.form.sickImmunizer[0]
-                  disableOptionsByDoseOrSick(this, {
-                      ['sickImmunizer']: this.form.sickImmunizer,
-                  })
-                  messageStore.message(
-                      'info',
-                      'Seletores atualizados para tipo de exibição selecionada'
-                  )
-              } else {
-                  this.form.sickImmunizer = null
-              }
+                if (
+                    this.form.sickImmunizer &&
+                    Array.isArray(this.form.sickImmunizer) &&
+                    this.form.sickImmunizer.length > 0
+                ) {
+                    this.form.sickImmunizer = this.form.sickImmunizer[0]
+                    disableOptionsByDoseOrSick(this, {
+                        ['sickImmunizer']: this.form.sickImmunizer,
+                    })
+                    messageStore.message(
+                        'info',
+                        'Seletores atualizados para tipo de exibição selecionada'
+                    )
+                } else {
+                    this.form.sickImmunizer = null
+                }
 
-              if (
-                this.form.dose &&
-                Array.isArray(this.form.dose) &&
-                this.form.dose.length > 0
-              ) {
-                  this.form.dose = this.form.dose[0]
-              }
+                if (
+                    this.form.dose &&
+                    Array.isArray(this.form.dose) &&
+                    this.form.dose.length > 0
+                ) {
+                    this.form.dose = this.form.dose[0]
+                }
             }
 
             this.checkGramWithState()
@@ -976,11 +980,7 @@ export const useContentStore = defineStore('content', {
             ) {
                 return
             }
-            if (
-                dose &&
-                Array.isArray(dose) &&
-                !dose.length
-            ) {
+            if (dose && Array.isArray(dose) && !dose.length) {
                 return
             }
             if (
@@ -1029,11 +1029,7 @@ export const useContentStore = defineStore('content', {
             ) {
                 return
             }
-            if (
-                dose &&
-                Array.isArray(dose) &&
-                !dose.length
-            ) {
+            if (dose && Array.isArray(dose) && !dose.length) {
                 return
             }
             if (
@@ -1081,10 +1077,8 @@ export const useContentStore = defineStore('content', {
                 isSickImuAnArray && sickImmunizer.length
             const isSickImuFilledField = !isSickImuAnArray && sickImmunizer
 
-            const isDoseAnArray =
-                sickImmunizer && Array.isArray(dose)
-            const isDoseFilledArray =
-                isDoseAnArray && dose.length
+            const isDoseAnArray = sickImmunizer && Array.isArray(dose)
+            const isDoseFilledArray = isDoseAnArray && dose.length
             const isDoseFilledField = !isDoseAnArray && dose
 
             return (

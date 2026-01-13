@@ -86,7 +86,12 @@ export default defineComponent({
         const splitTextToChart = (label) => {
             let labelSplited = label.split(' ')
 
-            let lastLabel = labelSplited[labelSplited.length - 4] + ' ' + labelSplited[labelSplited.length - 2] + labelSplited[labelSplited.length - 1].slice(0, 1) + '.'
+            let lastLabel =
+                labelSplited[labelSplited.length - 4] +
+                ' ' +
+                labelSplited[labelSplited.length - 2] +
+                labelSplited[labelSplited.length - 1].slice(0, 1) +
+                '.'
             const vaccineName = labelSplited.join(' ')
 
             const acronym =
@@ -107,7 +112,6 @@ export default defineComponent({
                     ', ' +
                     labelSplited[2].substr(0, 6) +
                     '.'
-
             } else if (label.includes(',')) {
                 labelSplited = label.split(',')
                 lastLabel =
