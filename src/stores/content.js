@@ -281,7 +281,7 @@ export const useContentStore = defineStore('content', {
                         granularity: form.granularity,
                         sickImmunizer: encodeURIComponent(sI),
                         local: loc,
-                        dose: form.dose,
+                        dose: dos,
                     })
 
                 if (form.periodStart) {
