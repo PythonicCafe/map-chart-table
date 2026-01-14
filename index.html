@@ -27,7 +27,7 @@
 
     <script type="module">
       import MCT from "./src/main.js";
-      const dashboard = new MCT({ api: "http://localhost" });
+      const dashboard = new MCT({ api: "http://localhost:80" });
 
       document.querySelector(".glossary").addEventListener("click", () => {
         dashboard.genericModal("Glossário", "?slug=glossario-vacinabr")

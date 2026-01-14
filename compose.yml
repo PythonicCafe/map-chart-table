@@ -15,3 +15,16 @@ services:
        source: ./
        target: /srv/app
    tty: true
+ cypress:
+    image: cypress/included:15.9.0
+    user: "${UID}:${GID}"
+    profiles:
+      - e2e
+    depends_on:
+      - mct_web
+    environment:
+      - NODE_NO_WARNINGS=1
+    working_dir: /e2e
+    volumes:
+      - ./:/e2e
+    network_mode: host

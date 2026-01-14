@@ -224,7 +224,7 @@ export const convertArrayToObject = (inputArray) => {
  * @returns {function(Function, number=): void} - A debounced version of the input function.
  */
 export const createDebounce = () => {
-    /** @type {number | undefined} */
+    /** @type {any} */
     let timer
     return (fn, wait = 300) => {
         if (timer) clearTimeout(timer)

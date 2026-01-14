@@ -663,7 +663,11 @@ export default defineComponent({
         }
     },
     template: `
-        <section ref="formRef" class="mct-selects" :class="isMobileScreen ? 'mct-selects--modal' : ''">
+        <section
+          ref="formRef"
+          class="mct-selects"
+          :class="isMobileScreen ? 'mct-selects--modal' : ''"
+        >
             <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Vacina'">
                 <n-select
                     :ref="el => (selectRefsMap['field1'] = el)"
@@ -682,6 +686,7 @@ export default defineComponent({
                     clearable
                     :disabled="disableAll"
                     :on-clear="() => clear('sickImmunizer')"
+                    data-test="select-doenca"
                 />
             </n-form-item>
             <n-form-item label="Dose">
@@ -701,6 +706,7 @@ export default defineComponent({
                     :multiple="sickImmunizer && sickImmunizer.length <= 1"
                     :on-update:show="show => handleDosesUpdateShow(show, 'field2')"
                     :on-update:value="handleDosesUpdateValue"
+                    data-test="select-dose"
                 />
             </n-form-item>
             <n-form-item label="Tipo de dado">
@@ -720,6 +726,7 @@ export default defineComponent({
                     :disabled="disableAll"
                     :on-clear="() => clear('type')"
                     @update:show="show => handleShowUpdate(show, 'field3')"
+                    data-test="select-type"
                 />
             </n-form-item>
             <n-form-item label="Estados">
@@ -737,6 +744,7 @@ export default defineComponent({
                     max-tag-count="responsive"
                     :on-update:show="show => handleLocalsUpdateShow(show, 'field4')"
                     :on-update:value="handleLocalsUpdateValue"
+                    data-test="select-states"
                 >
                     <template #action>
                         <n-form-item label="Ação">
@@ -791,6 +799,7 @@ export default defineComponent({
                         :disabled="disableAll"
                         @update:show="show => handleShowUpdate(show, 'field7')"
                         :consistent-menu-width="false"
+                        data-test="select-granularity"
                     />
                 </n-form-item>
                 <n-form-item label="Municípios" v-if="showCitiesSelect">
