@@ -90,8 +90,7 @@ export default defineComponent({
                 labelSplited[labelSplited.length - 4] +
                 ' ' +
                 labelSplited[labelSplited.length - 2] +
-                labelSplited[labelSplited.length - 1].slice(0, 1) +
-                '.'
+                labelSplited[labelSplited.length - 1].slice(0, 1)
             const vaccineName = labelSplited.join(' ')
 
             const acronym =
@@ -104,14 +103,28 @@ export default defineComponent({
                 ? acronym['sigla_vacinabr']
                 : labelSplited[0].substr(0, 3) + '.'
 
-            if (form.value.granularity.toLowerCase() === 'municípios') {
+            const granularity = form.value.granularity.toLowerCase()
+            if (granularity === 'municípios') {
                 labelSplited = label.split(',')
+                const dose = /** @type{string} */ (labelSplited[labelSplited.length-1].split('-').pop())
                 lastLabel =
+                    ', ' +
+                    labelSplited[2].substr(0, 4) +
                     ' ' +
                     labelSplited[1] +
-                    ', ' +
-                    labelSplited[2].substr(0, 6) +
-                    '.'
+                    ' ' +
+                    dose.substr(0, 5)
+              } else if (granularity === 'região de saúde' || granularity === 'macrorregião de saúde') {
+                labelSplited = label.split(',')
+                const dose = /** @type{string} */ (labelSplited[labelSplited.length-1].split('-').pop())
+                const [state, region] = labelSplited[1].split('-')
+                lastLabel =
+                  region.substring(0, 5) +
+                  ' ' +
+                  state +
+                  ' ' +
+                  dose.substring(0, 5)
+
             } else if (label.includes(',')) {
                 labelSplited = label.split(',')
                 lastLabel =
@@ -165,6 +178,17 @@ export default defineComponent({
                     (chart.options.plugins.legend.labels.generateLabels(chart))
 
                 items.forEach((item) => {
+
+                    let newLabel = /** @type{any} */ (item.text.split(','))
+                    const sickName = newLabel.shift().split(' ')
+                    sickName.pop()
+
+                    if (Array.isArray(newLabel) && newLabel.length && newLabel[newLabel.length-1].includes('-')) {
+                      const newDoseLabel = /** @type{string} */ (newLabel.pop())
+                      newLabel.push(newDoseLabel.split('-')[1])
+                    }
+                    newLabel = sickName.join(' ') + ' ' + newLabel.join(', ')
+
                     const li = document.createElement('li')
                     li.style.alignItems = 'center'
                     li.style.display = 'flex'
@@ -174,10 +198,7 @@ export default defineComponent({
                     li.style.border = '1px solid #ddd'
                     li.style.padding = '2px 4px'
                     li.style.borderRadius = '3px'
-                    li.title =
-                        'Clique para' +
-                        (item.hidden ? ' exibir ' : ' ocultar ') +
-                        'dado no gráfico'
+                    li.title = newLabel + `\r\r Clique para ${item.hidden ? 'exibir' : 'ocultar'  } dado no gráfico`
 
                     li.onclick = () => {
                         chart.setDatasetVisibility(
@@ -239,9 +260,18 @@ export default defineComponent({
                     resultNewLabel.shift()
                 )
                 // Extract first value remove region code
-                const sickName = resultNewLabelSplited.split(' ')[0]
-                resultNewLabel.pop()
-                label = sickName + ' ' + resultNewLabel.join(', ')
+                const sickName = resultNewLabelSplited.split(' ')
+                sickName.pop()
+                if (resultNewLabel[resultNewLabel.length-1].includes('-')) {
+                  const newDoseLabel = /** @type{string} */ (resultNewLabel.pop())
+                  const doseName = newDoseLabel.split('-')[1]
+                  if (newDoseLabel.split('-')[0].length > 3) {
+                    resultNewLabel.push(newDoseLabel)
+                  } else {
+                    resultNewLabel.push(doseName)
+                  }
+                }
+                label = sickName.join(' ') + ' ' + resultNewLabel.join(', ')
             }
 
             label += ': '

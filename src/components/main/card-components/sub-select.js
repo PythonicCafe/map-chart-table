@@ -74,9 +74,13 @@ export default defineComponent({
         /** @type import('vue').Ref */
         const sickTemp = ref(null)
         /** @type import('vue').Ref */
+        const doseTemp = ref(null)
+        /** @type import('vue').Ref */
         const showingLocalsOptions = ref(null)
         /** @type import('vue').Ref */
         const showingSicksOptions = ref(null)
+        /** @type import('vue').Ref */
+        const showingDoseOptions = ref(null)
 
         /** @type import('vue').Ref */
         const showCitiesSelect = ref(false)
@@ -237,7 +241,6 @@ export default defineComponent({
             if (!showingLocalsOptions.value && localTemp.value) {
                 contentStore.setFormField('local', localTemp.value)
             }
-            // Close hover box options remover - Mantido o comentário
         }
         /**
          * @param {Boolean} show
@@ -245,7 +248,6 @@ export default defineComponent({
          */
         const handleSicksUpdateShow = (show, field) => {
             showingSicksOptions.value = show
-
             if (
                 !showingSicksOptions.value &&
                 sickTemp.value &&
@@ -263,7 +265,27 @@ export default defineComponent({
             if (!showingSicksOptions.value && sickTemp.value) {
                 contentStore.setFormField('sickImmunizer', value)
             }
-            // Close hover box options remover - Mantido o comentário
+        }
+
+        /**
+         * @param {String} value
+         */
+        const handleDosesUpdateValue = (value) => {
+          doseTemp.value = value
+          if (!showingDoseOptions.value && doseTemp.value) {
+            contentStore.setFormField('dose', value)
+          }
+        }
+        /**
+         * @param {Boolean} show
+         * @param {String} field
+         */
+        const handleDosesUpdateShow = (show, field) => {
+            showingDoseOptions.value = show
+            if ( !showingDoseOptions.value && doseTemp.value) {
+                contentStore.setFormField('dose', doseTemp.value)
+            }
+            handleShowUpdate(show, field)
         }
 
         const eraseForm = () => {
@@ -278,6 +300,7 @@ export default defineComponent({
                 sickTemp.value = null
                 contentStore.setFormField('sickImmunizer', null)
             } else if (key === 'dose') {
+                doseTemp.value = null
                 contentStore.setFormField('dose', null)
             } else if (key === 'type') {
                 contentStore.setFormField('type', null)
@@ -521,6 +544,8 @@ export default defineComponent({
             async () => {
                 if (tab.value === 'chart') {
                     disableStateCitiesSelector(cityTemp.value)
+                } else if (tab.value === 'table') {
+                    disableStateCitiesSelector(form.value.city)
                 } else if (tab.value === 'map') {
                     form.value.city = []
                 }
@@ -532,6 +557,13 @@ export default defineComponent({
             () => form.value.sickImmunizer,
             (sic) => {
                 sickTemp.value = sic
+            }
+        )
+
+        watch(
+            () => form.value.dose,
+            (dose) => {
+                doseTemp.value = dose
             }
         )
 
@@ -558,6 +590,9 @@ export default defineComponent({
             // Update values if user is resizing window to mobile size
             if (form.value.sickImmunizer) {
                 sickTemp.value = form.value.sickImmunizer
+            }
+            if (form.value.dose) {
+                doseTemp.value = form.value.dose
             }
             if (form.value.local) {
                 localTemp.value = form.value.local
@@ -606,6 +641,9 @@ export default defineComponent({
             handleShowUpdate,
             handleSicksUpdateShow,
             handleSicksUpdateValue,
+            handleDosesUpdateValue,
+            handleDosesUpdateShow,
+            showingDoseOptions,
             isLoadingCities,
             localTemp,
             renderOption,
@@ -614,6 +652,7 @@ export default defineComponent({
             selectRefsMap,
             showCitiesSelect,
             sickTemp,
+            doseTemp,
             styleWidth,
             tab,
             tabBy,
@@ -648,7 +687,7 @@ export default defineComponent({
             <n-form-item label="Dose">
                 <n-select
                     :ref="el => (selectRefsMap['field2'] = el)"
-                    :value="form.dose"
+                    :value="doseTemp"
                     class="mct-select-dose"
                     filterable
                     max-tag-count="responsive"
@@ -660,8 +699,8 @@ export default defineComponent({
                     :disabled="disableAll"
                     :on-clear="() => clear('dose')"
                     :multiple="sickImmunizer && sickImmunizer.length <= 1"
-                    @update:show="show => handleShowUpdate(show, 'field2')"
-                    @update:value="(val) => contentStore.setFormField('dose', val)"
+                    :on-update:show="show => handleDosesUpdateShow(show, 'field2')"
+                    :on-update:value="handleDosesUpdateValue"
                 />
             </n-form-item>
             <n-form-item label="Tipo de dado">
