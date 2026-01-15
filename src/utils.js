@@ -122,9 +122,9 @@ export const formatToTable = (data, localNames, metadata) => {
         if (title === 'Doenca') {
             title = 'Doença'
         } else if (title === 'Doses') {
-            title = 'Doses (qtd)'
+            title = 'Doses(qtd)'
         } else if (title === 'Dose') {
-            title = 'Dose (tipo)'
+            title = 'Dose(tipo)'
         }
         header.push({
             title,

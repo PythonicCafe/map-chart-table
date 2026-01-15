@@ -70,7 +70,7 @@ export const useTableStore = defineStore('table', {
                     tableData.header
                 )
             const dosesQtd = this.columns.findIndex(
-                (column) => column.title === 'Doses (qtd)'
+                (column) => column.title === 'Doses(qtd)'
             )
             if (response.result.metadata.type == 'Doses aplicadas') {
                 this.columns.splice(dosesQtd, 1)

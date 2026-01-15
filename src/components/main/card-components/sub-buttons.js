@@ -173,7 +173,7 @@ export default defineComponent({
             const rows = tableData.rows.map((x) => Object.values(x))
             if (type === 'Doses aplicadas') {
                 const index = header.findIndex(
-                    (column) => column === 'Doses (qtd)'
+                    (column) => column === 'Doses(qtd)'
                 )
                 header.splice(index, 1)
                 rows.forEach((row) => row.splice(index, 1))
