@@ -19,9 +19,6 @@ clean:		## Remove all dist/ files
 bash:	## Interact to install new packages or run specific commands in container
 	docker compose exec -it mct_web bash
 
-bash-cypress:	## Interact to install new packages or run specific commands in container
-	docker compose exec -it cypress bash
-
 dev:		# Internal command to run dev npm command script
 	docker compose exec -it mct_web npm run development
 
@@ -49,12 +46,22 @@ types-watch:   ## Run type check and generator
 clear:	stop ./compose.yml ## Stop and remove container and orphans
 	docker compose down -v --remove-orphans
 
+test-component-chrome: ## Run all component chrome
+	docker compose run --rm cypress npx cypress run --component --browser chrome --spec "cypress/component/"
+
+test-component-ff: ## Run all comopnent firefox
+	docker compose run --rm cypress npx cypress run --component --browser firefox --spec "cypress/component/"
+
 test-e2e-chrome: ## Run all e2e chrome
 	docker compose run --rm cypress npx cypress run --browser chrome --spec "cypress/e2e/"
 
-test-e2e-ff: ## Run all e2e chrome
+test-e2e-ff: ## Run all e2e firefox
 	docker compose run --rm cypress npx cypress run --browser firefox --spec "cypress/e2e/"
 
+test-component-all: test-component-chrome test-component-ff ## Run all component tests
+
 test-e2e-all: test-e2e-chrome test-e2e-ff ## Run all e2e tests
+
+test-all: test-e2e-all test-component-all ## Run all tests
 
 .PHONY: bash build clean help logs start stop types types-watch prettier
