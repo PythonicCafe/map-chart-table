@@ -22,10 +22,10 @@ import {
 } from 'naive-ui'
 
 import { storeToRefs } from 'pinia'
-import { useContentStore } from '@/stores'
+import { useContentStore } from '@/stores/content'
+import { useMessageStore } from '@/stores/message'
 import { biEraser } from '@/icons'
 
-import { useMessageStore } from '@/stores'
 
 export default defineComponent({
     components: {

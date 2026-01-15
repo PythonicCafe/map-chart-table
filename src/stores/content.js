@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { DataFetcher } from '@/data-fetcher'
-import { useMessageStore } from '@/stores'
+import { useMessageStore } from '@/stores/message'
 import { formatToApi } from '@/common'
 import { getRouter } from '@/router'
 import {

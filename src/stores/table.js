@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useContentStore } from '@/stores'
+import { useContentStore } from '@/stores/content'
 import { formatToTable } from '@/utils'
 
 /**

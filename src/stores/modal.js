@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { DataFetcher } from '@/data-fetcher'
-import { useContentStore } from '@/stores'
+import { useContentStore } from '@/stores/content'
 
 /**
  * @typedef {object} ModalState
