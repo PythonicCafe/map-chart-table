@@ -871,6 +871,13 @@ export const useContentStore = defineStore('content', {
                 this.form.type === 'Meta atingida'
             ) {
                 this.disableMap = false
+            }
+
+            if (this.form.type === 'Meta atingida') {
+                this.disableChart = true
+                if (this.tab === 'chart') {
+                    this.setTabField('table')
+                }
             } else {
                 this.disableMap = false
                 this.disableChart = false
