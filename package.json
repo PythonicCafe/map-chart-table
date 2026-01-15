@@ -18,6 +18,7 @@
     "prettier": "prettier src/ --write"
   },
   "devDependencies": {
+    "@pinia/testing": "^1.0.3",
     "chart.js": "^4.2.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "cors": "^2.8.5",
