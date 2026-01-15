@@ -110,7 +110,7 @@ export default defineComponent({
                     labelSplited[labelSplited.length - 1].split('-').pop()
                 )
                 lastLabel =
-                    ', ' +
+                    ' ' +
                     labelSplited[2].substr(0, 4) +
                     ' ' +
                     labelSplited[1] +
@@ -184,14 +184,15 @@ export default defineComponent({
                     (chart.options.plugins.legend.labels.generateLabels(chart))
 
                 items.forEach((item) => {
-                    let newLabel = /** @type{any} */ (item.text.split(','))
+                    let newLabel = /** @type{any} */ (item.text.includes(',') ? item.text.split(',') : item.text.split('-'))
                     const sickName = newLabel.shift().split(' ')
                     sickName.pop()
 
                     if (
                         Array.isArray(newLabel) &&
                         newLabel.length &&
-                        newLabel[newLabel.length - 1].includes('-')
+                        newLabel[newLabel.length - 1].includes('-') &&
+                        form.value.granularity.toLowerCase() !== 'municípios'
                     ) {
                         const newDoseLabel = /** @type{string} */ (
                             newLabel.pop()
@@ -211,7 +212,7 @@ export default defineComponent({
                     li.style.borderRadius = '3px'
                     li.title =
                         newLabel +
-                        `\r\r Clique para ${item.hidden ? 'exibir' : 'ocultar'} dado no gráfico`
+                        `\r\rClique para ${item.hidden ? 'exibir' : 'ocultar'} dado no gráfico`
 
                     li.onclick = () => {
                         chart.setDatasetVisibility(
