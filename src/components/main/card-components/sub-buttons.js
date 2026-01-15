@@ -179,6 +179,8 @@ export default defineComponent({
                 rows.forEach((row) => row.splice(index, 1))
             }
 
+            // TODO: type === 'Meta atingida' should return meta colums as sim or não
+
             //  Fix header position in csv result
             if (header.length > 7) {
                 header.splice(6, 0, header.splice(7, 1)[0])

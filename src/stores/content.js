@@ -325,6 +325,7 @@ export const useContentStore = defineStore('content', {
 
             if (result?.aborted) {
                 this.loading = false
+                this.titles = null
                 return { result, localNames: [] }
             }
 
@@ -334,6 +335,7 @@ export const useContentStore = defineStore('content', {
                     'error',
                     'Não foi possível carregar os dados. Tente novamente mais tarde.'
                 )
+                this.titles = null
                 this.loading = false
                 return { result: {}, localNames: [], error: result?.error }
             } else if (!result || (result.data && result.data.length <= 1)) {
