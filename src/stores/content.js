@@ -599,7 +599,7 @@ export const useContentStore = defineStore('content', {
                             const sickImmunizer = routerResult['sickImmunizer']
                             if (
                                 values.length > 1 ||
-                                sickImmunizer && sickImmunizer.length === 1
+                                (sickImmunizer && sickImmunizer.length === 1)
                             ) {
                                 routerResult[key] = values
                             } else {

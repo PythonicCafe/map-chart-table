@@ -26,7 +26,6 @@ import { useContentStore } from '@/stores/content'
 import { useMessageStore } from '@/stores/message'
 import { biEraser } from '@/icons'
 
-
 export default defineComponent({
     components: {
         NButton,
@@ -271,10 +270,10 @@ export default defineComponent({
          * @param {String} value
          */
         const handleDosesUpdateValue = (value) => {
-          doseTemp.value = value
-          if (!showingDoseOptions.value && doseTemp.value) {
-            contentStore.setFormField('dose', value)
-          }
+            doseTemp.value = value
+            if (!showingDoseOptions.value && doseTemp.value) {
+                contentStore.setFormField('dose', value)
+            }
         }
         /**
          * @param {Boolean} show
@@ -282,7 +281,7 @@ export default defineComponent({
          */
         const handleDosesUpdateShow = (show, field) => {
             showingDoseOptions.value = show
-            if ( !showingDoseOptions.value && doseTemp.value) {
+            if (!showingDoseOptions.value && doseTemp.value) {
                 contentStore.setFormField('dose', doseTemp.value)
             }
             handleShowUpdate(show, field)
