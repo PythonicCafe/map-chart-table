@@ -819,6 +819,7 @@ export default defineComponent({
                             v-model:value="cityTemp"
                             :multiple="true"
                             :filter="customFilter"
+                            data-test="select-city"
                         >
                             <template #action v-if="tab === 'table'">
                                 <n-form-item label="Ação">
