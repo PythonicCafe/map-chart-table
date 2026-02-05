@@ -42,8 +42,6 @@ describe('Múltiplas doses - Teste de filtro de doses', () => {
 
         cy.get('.n-base-selection-tag-wrapper .n-tag__content').contains('+30')
 
-        cy.get('.n-base-selection-tag-wrappe .n-tag__content').contains('+30')
-
         cy.get('[data-test="select-city"]').should('be.visible').click()
 
         // Verifica que tem opção desabilitada no seletor de municípios
