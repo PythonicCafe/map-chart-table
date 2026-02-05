@@ -1,7 +1,9 @@
+.PHONY: bash build clean help logs start stop types types-watch prettier test-component-chrome test-component-ff test-e2e-chrome test-e2e-ff test-component-all test-e2e-all test
+
 include .env
 
-help:	## List all make commands
-	@awk 'BEGIN {FS = ":.*##"; printf "\n  Please use `make <target>` where <target> is one of:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST)
+help:        ## List all make commands
+	@awk 'BEGIN {FS = ":.*?## "; printf "\n  Please use make <target> where <target> is one of:\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST)
 	@echo ' '
 
 build:		## Build the project with -d and --no-recreate flags
@@ -60,8 +62,6 @@ test-e2e-ff: ## Run all e2e firefox
 
 test-component-all: test-component-chrome test-component-ff ## Run all component tests
 
-test-e2e-all: test-e2e-chrome test-e2e-ff ## Run all e2e tests
+test-e2e-all: test-e2e-chrome test-e2e-ff ## Run all e2e
 
-test-all: test-e2e-all test-component-all ## Run all tests
-
-.PHONY: bash build clean help logs start stop types types-watch prettier
+test: test-component-chrome test-e2e-chrome ## Run all tests
