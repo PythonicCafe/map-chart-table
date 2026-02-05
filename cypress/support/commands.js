@@ -1,95 +1,81 @@
 Cypress.Commands.add('fillAllFilters', () => {
     // Seletor Doença
     cy.get('[data-test="select-doenca"] .n-base-selection-label')
-      .should('be.visible')
-      .click();
+        .should('be.visible')
+        .click()
 
     cy.get('.n-base-select-menu:visible')
-      .contains('Caxumba')
-      .should('be.visible')
-      .click();
+        .contains('Caxumba')
+        .should('be.visible')
+        .click()
 
     // Seletor Dose
-    cy.get('[data-test="select-dose"]')
-      .should('be.visible')
-      .click();
+    cy.get('[data-test="select-dose"]').should('be.visible').click()
 
     cy.get('.n-base-select-menu:visible')
-      .contains('1ª dose')
-      .should('be.visible')
-      .click();
+        .contains('1ª dose')
+        .should('be.visible')
+        .click()
 
-    cy.get('body').type('{esc}');
+    cy.get('body').type('{esc}')
 
     // Seletor tipo de dado
-    cy.get('[data-test="select-type"]')
-      .should('be.visible')
-      .click();
+    cy.get('[data-test="select-type"]').should('be.visible').click()
 
     cy.get('.n-base-select-menu:visible')
-      .contains('Cobertura')
-      .should('be.visible')
-      .click();
+        .contains('Cobertura')
+        .should('be.visible')
+        .click()
 
-    cy.get('body').type('{esc}');
+    cy.get('body').type('{esc}')
 
     // Seletor tipo de estados
-    cy.get('[data-test="select-states"]')
-      .should('be.visible')
-      .click();
+    cy.get('[data-test="select-states"]').should('be.visible').click()
 
     cy.get('button.n-button--small-type')
-      .should('be.visible')
-      .contains('Marcar todos')
-      .click();
+        .should('be.visible')
+        .contains('Marcar todos')
+        .click()
 
-    cy.get('body').type('{esc}');
+    cy.get('body').type('{esc}')
 
     // Seletor tipo de ano inicial
-    cy.get('.start-datepicker')
-      .should('be.visible')
-      .click();
+    cy.get('.start-datepicker').should('be.visible').click()
 
     cy.get('.n-base-select-menu:visible')
-      .should('be.visible')
-      .within(() => {
-        cy.get('.n-scrollbar .n-virtual-list')
-          .scrollTo('top');
+        .should('be.visible')
+        .within(() => {
+            cy.get('.n-scrollbar .n-virtual-list').scrollTo('top')
 
-        cy.get('div.n-base-select-option__content')
-          .contains('2000')
-          .should('be.visible')
-          .click();
-      });
+            cy.get('div.n-base-select-option__content')
+                .contains('2000')
+                .should('be.visible')
+                .click()
+        })
 
-    cy.get('body').type('{esc}');
+    cy.get('body').type('{esc}')
 
     // Seletor tipo de ano final
-    cy.get('.end-datepicker')
-      .should('be.visible')
-      .click();
+    cy.get('.end-datepicker').should('be.visible').click()
 
     cy.get('.n-base-select-menu:visible')
-      .should('be.visible')
-      .within(() => {
-        cy.get('.n-scrollbar .n-virtual-list')
-          .scrollTo('bottom');
+        .should('be.visible')
+        .within(() => {
+            cy.get('.n-scrollbar .n-virtual-list').scrollTo('bottom')
 
-        cy.get('div.n-base-select-option__content')
-          .contains('2024')
-          .should('be.visible')
-          .click();
-      });
+            cy.get('div.n-base-select-option__content')
+                .contains('2024')
+                .should('be.visible')
+                .click()
+        })
 
-    cy.get('body').type('{esc}');
+    cy.get('body').type('{esc}')
 
     // Seletor tipo de granularidade
-    cy.get('[data-test="select-granularity"]')
-      .should('be.visible')
-      .click();
+    cy.get('[data-test="select-granularity"]').should('be.visible').click()
 
     cy.get('.n-base-select-menu:visible')
-      .contains('Estados')
-      .should('be.visible')
-      .click();
-});
+        .contains('Estados')
+        .should('be.visible')
+        .click()
+})

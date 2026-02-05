@@ -184,7 +184,11 @@ export default defineComponent({
                     (chart.options.plugins.legend.labels.generateLabels(chart))
 
                 items.forEach((item) => {
-                    let newLabel = /** @type{any} */ (item.text.includes(',') ? item.text.split(',') : item.text.split('-'))
+                    let newLabel = /** @type{any} */ (
+                        item.text.includes(',')
+                            ? item.text.split(',')
+                            : item.text.split('-')
+                    )
                     const sickName = newLabel.shift().split(' ')
                     sickName.pop()
 
