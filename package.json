@@ -15,7 +15,7 @@
     "test-watch:unit": "vitest --environment jsdom --root src/ watch",
     "types": "tsc",
     "types-watch": "tsc --watch",
-    "prettier": "prettier src/ --write"
+    "prettier": "prettier src/ cypress/ --write"
   },
   "devDependencies": {
     "@pinia/testing": "^1.0.3",
