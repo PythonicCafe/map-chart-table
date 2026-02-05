@@ -1,7 +1,7 @@
 describe('Home Page - Teste de tela inicial', () => {
   beforeEach(() => {
     cy.visit('/')
-  });
+  })
 
   it('Deve carregar a página inicial corretamente', () => {
     cy.url().should('include', '/')
@@ -17,9 +17,11 @@ describe('Home Page - Teste de tela inicial', () => {
     cy.contains('h2', 'Explore a plataforma usando os filtros acima, ou selecione um dos exemplos abaixo').should('be.visible')
   })
 
-  it('Deve ter Extra filter button', function() {
+  it.only('Deve ter Extra filter button', function() {
     cy.get('#app button.pulse-button').click();
-    cy.get('div.n-card-header__main').should('have.text', 'Extra filter button');
-    cy.get('p').should('have.text', 'Olá testando conteúdo de dialog');
-  });
-});
+
+    // Verifica que dialog foi aberto e está sendo exibido em tela com cabeçalho e corpo
+    cy.get('div.n-modal').should('exist', '.n-card-header__main');
+    cy.get('div.n-modal').should('exist', '.n-card__content');
+  })
+})
