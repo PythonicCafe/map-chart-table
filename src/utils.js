@@ -599,7 +599,7 @@ export const disableOptionsByDoseOrSick = (state, payload) => {
             doses[i] = {
                 ...doses[i],
                 disabled,
-                disabledText: 'Não selecionável para essa doença/vacina',
+                disabledText: 'Não selecionável para essa(s) doença(s)/vacina(s)',
             }
         }
     }
