@@ -9,6 +9,12 @@ Cypress.Commands.add('fillAllFilters', () => {
         .should('be.visible')
         .click()
 
+    cy.get('body').type('{esc}')
+
+    cy.get('.n-base-select-menu')
+        .contains('Caxumba')
+        .should('not.be.visible')
+
     // Seletor Dose
     cy.get('[data-test="select-dose"]').should('be.visible').click()
 
@@ -18,6 +24,12 @@ Cypress.Commands.add('fillAllFilters', () => {
         .click()
 
     cy.get('body').type('{esc}')
+
+    cy.get('.n-base-select-menu').should('not.be.visible')
+
+    cy.get('.n-base-select-menu')
+        .contains('1ª dose')
+        .should('not.be.visible')
 
     // Seletor tipo de dado
     cy.get('[data-test="select-type"]').should('be.visible').click()
@@ -29,6 +41,10 @@ Cypress.Commands.add('fillAllFilters', () => {
 
     cy.get('body').type('{esc}')
 
+    cy.get('.n-base-select-menu')
+        .contains('Cobertura')
+        .should('not.be.visible')
+
     // Seletor tipo de estados
     cy.get('[data-test="select-states"]').should('be.visible').click()
 
@@ -36,6 +52,8 @@ Cypress.Commands.add('fillAllFilters', () => {
         .should('be.visible')
         .contains('Marcar todos')
         .click()
+
+    cy.get('[data-test="select-states"]').should('be.visible').click()
 
     cy.get('body').type('{esc}')
 
@@ -55,6 +73,8 @@ Cypress.Commands.add('fillAllFilters', () => {
 
     cy.get('body').type('{esc}')
 
+    cy.get('.n-base-select-menu').should('not.be.visible')
+
     // Seletor tipo de ano final
     cy.get('.end-datepicker').should('be.visible').click()
 
@@ -70,6 +90,8 @@ Cypress.Commands.add('fillAllFilters', () => {
         })
 
     cy.get('body').type('{esc}')
+
+    cy.get('.n-base-select-menu').should('not.be.visible')
 
     // Seletor tipo de granularidade
     cy.get('[data-test="select-granularity"]').should('be.visible').click()

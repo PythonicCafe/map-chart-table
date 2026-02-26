@@ -28,6 +28,8 @@ describe('Múltiplas doses - Teste de filtro de doses', () => {
 
         cy.get('body').type('{esc}')
 
+        cy.get('.n-base-select-menu').should('not.be.visible')
+
         cy.get('[data-test="select-city"]').should('be.visible').click()
 
         cy.get('button.n-button--small-type')
@@ -36,7 +38,16 @@ describe('Múltiplas doses - Teste de filtro de doses', () => {
             .click()
 
         cy.get('button.n-button--small-type .n-spin').should('not.be.visible')
+
         cy.get('body').type('{esc}')
+
+        cy.get('[data-test="select-city"]').should('be.visible').click()
+
+        cy.get('body').type('{esc}')
+
+        cy.get('button.n-button--small-type')
+            .contains('Desmarcar todos')
+            .should('not.be.visible')
 
         cy.get('.n-tabs-tab').contains('Gráfico').click()
 
@@ -57,6 +68,8 @@ describe('Múltiplas doses - Teste de filtro de doses', () => {
 
         cy.get('body').type('{esc}')
 
+        cy.get('.n-base-select-menu').should('not.be.visible')
+
         cy.get('.n-tabs-tab').contains('Tabela').click()
 
         cy.get('[data-test="select-city"]').should('be.visible').click()
@@ -72,6 +85,13 @@ describe('Múltiplas doses - Teste de filtro de doses', () => {
                 ).should('not.exist')
             })
 
+
         cy.get('body').type('{esc}')
+
+        cy.get('[data-test="select-city"]').should('be.visible').click()
+
+        cy.get('body').type('{esc}')
+
+        cy.get('.n-base-select-menu').should('not.be.visible')
     })
 })

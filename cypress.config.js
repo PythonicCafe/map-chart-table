@@ -9,9 +9,9 @@ module.exports = defineConfig({
       const envUrl = config.env.baseUrl;
       if (envUrl) {
         config.baseUrl = envUrl;
-        const baseText = 'URL acessada: ' + config.baseUrl;
 
         // Print URL logs
+        const baseText = 'URL acessada: ' + config.baseUrl;
         const lineBox = '─'.repeat(baseText.length);
         const logBoxTop = '┌─' + lineBox + '─┐';
         const logBoxBottom = '└─' + lineBox + '─┘';
