@@ -866,10 +866,7 @@ export const useContentStore = defineStore('content', {
                     this.setTabField('table')
                 }
                 this.disableMap = true
-            } else if (
-                this.form.granularity === 'Municípios' ||
-                this.form.type === 'Meta atingida'
-            ) {
+            } else {
                 this.disableMap = false
             }
 
@@ -879,7 +876,6 @@ export const useContentStore = defineStore('content', {
                     this.setTabField('table')
                 }
             } else {
-                this.disableMap = false
                 this.disableChart = false
             }
         },
