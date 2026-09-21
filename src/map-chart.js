@@ -266,7 +266,7 @@ export class MapChart {
                 let tooltipExtra = ''
                 if (result && result.population) {
                     tooltipExtra = `
-            <span class="mct-tooltip__title mct-tooltip__title--sub">População alvo</span>
+            <span class="mct-tooltip__title mct-tooltip__title--sub">${self.type === 'Abandono' ?  'Dose de referência' : 'População alvo' }</span>
             <div class="mct-tooltip__result mct-tooltip__result--sub">${result.population.toLocaleString('pt-BR')}</div>
           `
 

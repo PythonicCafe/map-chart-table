@@ -129,7 +129,7 @@ export const formatToTable = (data, localNames, metadata) => {
         header.push({
             title,
             key: column,
-            sorter: ['código', 'dose'].includes(column) ? false : 'default',
+            sorter: ['código', 'dose', 'dose_de_referência'].includes(column) ? false : 'default',
             width,
             titleAlign: 'left',
             align,
@@ -169,7 +169,7 @@ export const formatToTable = (data, localNames, metadata) => {
                 row['código'] = value
                 row[header[j].key] = name
                 continue
-            } else if (['população', 'doses'].includes(key)) {
+            } else if (['população', 'doses', 'dose de referência'].includes(key)) {
                 // @ts-ignore
                 row[header[j].key] = value.toLocaleString('pt-BR')
                 continue

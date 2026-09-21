@@ -236,7 +236,7 @@ export const useContentStore = defineStore('content', {
             request += form.periodEnd ? '&periodEnd=' + form.periodEnd : ''
             request += page ? '&page=' + page : ''
             request += sorter
-                ? '&sCol=' + sorter.columnKey + '&sOrder=' + sorter.order
+                ? '&sCol=' + sorter.columnKey.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s/g, '_') + '&sOrder=' + sorter.order
                 : ''
 
             if (detail) {
@@ -340,11 +340,11 @@ export const useContentStore = defineStore('content', {
                 return { result: {}, localNames: [], error: result?.error }
             } else if (!result || (result.data && result.data.length <= 1)) {
                 this.titles = null
+                this.loading = false
                 messageStore.message(
-                    'warning',
+                    'error',
                     'Não há dados disponíveis para os parâmetros selecionados.'
                 )
-                this.loading = false
                 return { result: {}, localNames: [] }
             } else if (result.metadata) {
                 this.titles = result.metadata.titles
