@@ -140,6 +140,9 @@ export default defineComponent({
             }
             if (currentResult && currentResult.error) {
                 loadingDownload.value = false
+            } else if (!currentResult?.result?.data.length) {
+                loadingDownload.value = false
+                return
             }
 
             if (!currentResult) {
