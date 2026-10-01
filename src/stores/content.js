@@ -790,6 +790,16 @@ export const useContentStore = defineStore('content', {
                 // If update and not periodStart, set period as periodEnd value
                 this.form.period = value
             } else if (key === 'sickImmunizer' || key === 'dose') {
+                if (
+                    key === 'dose' &&
+                    ['chart', 'table'].includes(this.tab) &&
+                    value != null &&
+                    !Array.isArray(value) &&
+                    (!Array.isArray(this.form.sickImmunizer) ||
+                        this.form.sickImmunizer.length <= 1)
+                ) {
+                    value = [value]
+                }
                 disableOptionsByDoseOrSick(this, { [key]: value })
                 disableOptionsByTypeOrDose(this, key, value)
                 // After sickImmunizer update dose select update with type and granularity
