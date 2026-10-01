@@ -461,48 +461,49 @@ export class MapChart {
         let result = []
 
         if (self.datasetCities) {
-            const resultValues = self.getMaxAndMinValues(self.datasetCities)
-            result = Object.entries(self.datasetCities).map(([key, val]) => {
-                let color = resultValues
-                    ? self.getPercentage(
-                          resultValues.maxVal,
-                          resultValues.minVal,
-                          // @ts-ignore
-                          val.value.toString().replace(/[,.]/g, '')
-                      )
-                    : parseFloat(val.value.toString())
-
+          const resultValues = self.getMaxAndMinValues(self.datasetCities)
+          result = Object.entries(self.datasetCities).reduce((acc, [key, val]) => {
+            let color = resultValues
+              ? self.getPercentage(
+                resultValues.maxVal,
+                resultValues.minVal,
                 // @ts-ignore
-                let [index, indexName, indexAcronym, currentElement] =
-                    self.getData(self.cities, key)
+                val.value.toString().replace(/[,.]/g, '')
+              )
+              : parseFloat(val.value.toString())
 
-                if (!currentElement) {
-                    return
-                }
+            // @ts-ignore
+            let [index, indexName, indexAcronym, currentElement] =
+              self.getData(self.cities, key)
 
-                const name = currentElement[indexName]
-                const label = currentElement[indexAcronym]
+            if (!currentElement) {
+              return acc
+            }
 
-                /** @type {DatasetItem} */
-                const contentData = {
-                    label: String(label),
-                    // @ts-ignore
-                    data: val,
-                    name: String(name),
-                    color: self.getColor(
-                        color,
-                        self.getMaxColorVal(),
-                        self.type
-                    ),
-                }
-                // @ts-ignore
-                const id = currentElement.id
-                if (id) {
-                    contentData['id'] = id
-                }
+            const name = currentElement[indexName]
+            const label = currentElement[indexAcronym]
 
-                return contentData
-            })
+            /** @type {DatasetItem} */
+            const contentData = {
+              label: String(label),
+              // @ts-ignore
+              data: val,
+              name: String(name),
+              color: self.getColor(
+                color,
+                self.getMaxColorVal(),
+                self.type
+              ),
+            }
+            // @ts-ignore
+            const id = currentElement.id
+            if (id) {
+              contentData['id'] = id
+            }
+
+            acc.push(contentData)
+            return acc
+          }, /** @type {DatasetItem[]} */ ([]))
         }
 
         self.datasetValues = result
