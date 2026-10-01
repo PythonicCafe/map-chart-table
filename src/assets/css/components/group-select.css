@@ -1,0 +1,40 @@
+/*
+ * Overrides Naive UI's deeply scoped flexbox to reorder the structural DOM elements. 
+ * Elements like indent and switcher will keep default order (0).
+ */
+.tree-selector__node {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.tree-selector__node .n-tree-node-content {
+  order: 1 !important;
+  flex: 1 1 auto !important;
+  padding-right: 8px !important;
+}
+
+.tree-selector__node .n-tree-node-checkbox {
+  order: 2 !important;
+  margin-left: auto !important;
+  margin-right: 8px !important;
+}
+
+.n-tree .n-tree-node {
+  min-height: 28px !important;
+  border-radius: 3px !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background-color 0.3s var(--n-bezier) !important;
+  cursor: pointer !important;
+  font-size: 1rem;
+}
+
+.tree-selector__node--group .n-tree-node-content__text {
+  color: rgba(0, 0, 0, 0.87);
+  cursor: pointer;
+  font-style: italic;
+}
+
+.n-tree .n-tree-node.n-tree-node--disabled.tree-selector__node--group .n-tree-node-content {
+  cursor: pointer;
+}

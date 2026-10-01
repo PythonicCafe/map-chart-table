@@ -752,3 +752,124 @@ const strToSnakeCaseNormalize = (str) =>
         .replace(/\s+/g, '_')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
+
+/**
+ * @typedef {Object} GroupTreeNode
+ * @property {string} label
+ * @property {string} key
+ * @property {string} [shortLabel]
+ * @property {boolean} [disabled]
+ * @property {string} [disabledText]
+ * @property {GroupTreeNode[]} [children]
+ */
+
+/**
+ * Rules to detect a "base" name and a "variant" label from a flat option label.
+ * Order matters: first match wins. Add new rules here to support new grouping patterns.
+ * @type {Array<{ regex: RegExp, base: (m: RegExpMatchArray) => string, variant: (m: RegExpMatchArray) => string }>}
+ */
+const GROUP_RULES = [
+    // Gender variant, ex: "Infecções por HPV - Feminino" / "HPV Quadrivalente - Masculino"
+    {
+        regex: /^(.*) - (Feminino|Masculino)$/,
+        base: (m) => m[1].trim(),
+        variant: (m) => m[2].trim(),
+    },
+    // Age variant, ex: "Influenza 1 ano" / "Influenza 6 meses a 1 ano"
+    {
+        regex: /^(Influenza) (.+)$/,
+        base: (m) => m[1].trim(),
+        variant: (m) => m[2].trim(),
+    },
+    // Vaccine type/brand variant, ex: "Covid 19 Moderna (Spikevax)" / "Covid 19 Pfizer (Comirnaty)"
+    {
+        regex: /^(Covid 19) (.+)$/,
+        base: (m) => m[1].trim(),
+        variant: (m) => m[2].trim(),
+    },
+    // Vaccine type/brand variant, ex: "Hepatite A, Hepatite B, Hepatite B (de 0 a 30 dias)"
+    {
+      regex: /^(Hepatite) (.+)$/,
+      base: (m) => m[1].trim(),
+      variant: (m) => m[2].trim(),
+    },
+]
+
+/**
+ * @param {string} label
+ * @returns {{ base: string, variant: string|null }}
+ */
+const matchGroupRule = (label) => {
+    for (const rule of GROUP_RULES) {
+        const match = label.match(rule.regex)
+        if (match) {
+            return { base: rule.base(match), variant: rule.variant(match) }
+        }
+    }
+    return { base: label, variant: null }
+}
+
+/**
+ * Converts a flat SelectOption[] (sicks/immunizers, as returned by the API) into an
+ * n-tree-select compatible options tree, grouping items that share the same base name
+ * (gender, age or vaccine-type variants). Items whose base has no sibling are kept as
+ * standalone leaf nodes. Original list order is preserved.
+ *
+ * @param {SelectOption[]} options
+ * @returns {GroupTreeNode[]}
+ */
+export const groupOptionsByVariant = (options) => {
+    /** @type {Map<string, Array<{ variant: string, option: SelectOption }>>} */
+    const groupsByBase = new Map()
+
+    for (const option of options) {
+        const { base, variant } = matchGroupRule(option.label)
+        if (!variant) continue
+        if (!groupsByBase.has(base)) groupsByBase.set(base, [])
+        // @ts-ignore
+        groupsByBase.get(base).push({ variant, option })
+    }
+
+    // A "base" with a single matching item is not a real group
+    for (const [base, items] of groupsByBase) {
+        if (items.length < 2) groupsByBase.delete(base)
+    }
+
+    /** @type {Set<string>} */
+    const pushedBases = new Set()
+    /** @type {GroupTreeNode[]} */
+    const result = []
+
+    for (const option of options) {
+        const { base } = matchGroupRule(option.label)
+        const groupItems = groupsByBase.get(base)
+
+        if (!groupItems) {
+            result.push({
+                label: option.label,
+                key: /** @type {string} */ (option.value),
+                shortLabel: option.label,
+                disabled: option.disabled,
+                disabledText: option.disabledText,
+            })
+            continue
+        }
+
+        if (pushedBases.has(base)) continue
+        pushedBases.add(base)
+
+        result.push({
+            label: base,
+            key: `group:${base}`,
+            children: groupItems.map(({ variant, option: opt }) => ({
+                label: opt.label,
+                shortLabel: variant,
+                key: /** @type {string} */ (opt.value),
+                disabled: opt.disabled,
+                disabledText: opt.disabledText,
+            })),
+        })
+    }
+
+    return result
+}

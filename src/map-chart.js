@@ -133,29 +133,40 @@ export class MapChart {
     }
 
     /**
-     * @param {string} [map]
+     * Injects the SVG markup into the canvas and applies stroke styles.
+     * Non-SVG values are discarded so they never render as text.
+     * @param {string} [map] SVG markup.
      */
     applyMap(map) {
-        const self = this
+      const self = this
 
-        const svgContainer = /** @type {HTMLElement} */ (
-            self.element.querySelector('#canvas')
-        )
-        svgContainer.innerHTML = map?.toString() ?? ''
-        for (const path of svgContainer.querySelectorAll('path')) {
-            path.style.stroke = 'white'
-            path.setAttribute('stroke-width', '1px')
-            path.setAttribute('vector-effect', 'non-scaling-stroke')
-        }
+      const svgContainer = /** @type {HTMLElement} */ (
+        self.element.querySelector('#canvas')
+      )
 
-        const svgElement = /** @type {SVGElement} */ (
-            svgContainer.querySelector('svg')
-        )
-        if (svgElement) {
-            svgElement.style.maxWidth = '100%'
-            svgElement.style.height = '100%'
-            svgElement.style.margin = 'auto'
-        }
+      // Objects/Promises stringify to "[object Object]" via toString() and
+      // would be painted as plain text inside the canvas.
+      const isSvgMarkup = typeof map === 'string' && map.includes('<svg')
+      svgContainer.innerHTML = isSvgMarkup ? map : ''
+
+      if (!isSvgMarkup) {
+        return
+      }
+
+      for (const path of svgContainer.querySelectorAll('path')) {
+        path.style.stroke = 'white'
+        path.setAttribute('stroke-width', '1px')
+        path.setAttribute('vector-effect', 'non-scaling-stroke')
+      }
+
+      const svgElement = /** @type {SVGElement} */ (
+        svgContainer.querySelector('svg')
+      )
+      if (svgElement) {
+        svgElement.style.maxWidth = '100%'
+        svgElement.style.height = '100%'
+        svgElement.style.margin = 'auto'
+      }
     }
 
     /**

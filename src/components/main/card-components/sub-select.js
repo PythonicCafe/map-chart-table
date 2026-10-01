@@ -26,8 +26,11 @@ import { useContentStore } from '@/stores/content'
 import { useMessageStore } from '@/stores/message'
 import { biEraser } from '@/icons'
 
+import GroupSelect from './group-select.js'
+
 export default defineComponent({
     components: {
+        GroupSelect,
         NButton,
         NDatePicker,
         NFormItem,
@@ -261,7 +264,7 @@ export default defineComponent({
          */
         const handleSicksUpdateValue = (value) => {
             sickTemp.value = value
-            if (!showingSicksOptions.value && sickTemp.value) {
+            if ((!showingSicksOptions.value || tab.value === 'map') && sickTemp.value) {
                 contentStore.setFormField('sickImmunizer', value)
             }
         }
@@ -441,6 +444,7 @@ export default defineComponent({
                 {
                     style: '',
                     delay: 500,
+                    placement: 'right'
                 },
                 {
                     trigger: () => node,
@@ -668,23 +672,17 @@ export default defineComponent({
           :class="isMobileScreen ? 'mct-selects--modal' : ''"
         >
             <n-form-item :label="tabBy === 'sicks' ? 'Doença' : 'Vacina'">
-                <n-select
+                <group-select
                     :ref="el => (selectRefsMap['field1'] = el)"
-                    v-model:value="sickTemp"
-                    max-tag-count="responsive"
-                    class="mct-select"
-                    filterable
-                    :style="styleWidth"
-                    :consistent-menu-width="false"
-                    :multiple="tab !== 'map'"
-                    :on-update:show="show => handleSicksUpdateShow(show, 'field1')"
-                    :on-update:value="handleSicksUpdateValue"
+                    :value="sickTemp"
                     :options="tabBy === 'sicks' ? form.sicks : form.immunizers"
-                    :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
-                    :render-option="renderOption"
-                    clearable
+                    :multiple="tab !== 'map'"
                     :disabled="disableAll"
-                    :on-clear="() => clear('sickImmunizer')"
+                    :placeholder="'Selecione ' + (tabBy === 'sicks' ? 'Doença' : 'Vacina')"
+                    :style="styleWidth"
+                    @update:value="handleSicksUpdateValue"
+                    @update:show="show => handleSicksUpdateShow(show, 'field1')"
+                    @clear="() => clear('sickImmunizer')"
                     data-test="select-doenca"
                 />
             </n-form-item>
