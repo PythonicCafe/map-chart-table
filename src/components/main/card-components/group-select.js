@@ -1,6 +1,9 @@
-import { defineComponent, computed, h, ref, watch } from 'vue'
+import { defineComponent, computed, h, ref, watch, onBeforeUnmount } from 'vue'
 import { NTreeSelect, NTooltip, NIcon } from 'naive-ui'
 import { groupOptionsByVariant } from '@/utils'
+
+/** Delay in milliseconds before the disabled-option tooltip is shown. */
+const TOOLTIP_DELAY_MS = 300
 
 /**
  * @typedef {Object} TooltipState
@@ -72,23 +75,41 @@ export default defineComponent({
          */
         const tooltip = ref({ show: false, x: 0, y: 0, text: '' })
 
+        /** @type {ReturnType<typeof setTimeout> | null} */
+        let showTimer = null
+
+        const clearShowTimer = () => {
+            if (showTimer === null) return
+            clearTimeout(showTimer)
+            showTimer = null
+        }
+
         /**
+         * Schedules the tooltip display after `TOOLTIP_DELAY_MS`.
+         * The node geometry is read synchronously: `event.currentTarget`
+         * is reset to null once the handler returns, so it cannot be read inside the timeout.
+         *
          * @param {MouseEvent} event
          * @param {string} text
          */
         const showTooltip = (event, text) => {
             const rect = /** @type {HTMLElement} */ (event.currentTarget).getBoundingClientRect()
-            tooltip.value = {
-                show: true,
-                x: rect.right,
-                y: rect.top + rect.height / 2,
-                text,
-            }
+            const x = rect.right
+            const y = rect.top + rect.height / 2
+
+            clearShowTimer()
+            showTimer = setTimeout(() => {
+                tooltip.value = { show: true, x, y, text }
+                showTimer = null
+            }, TOOLTIP_DELAY_MS)
         }
 
         const hideTooltip = () => {
+            clearShowTimer()
             tooltip.value = { ...tooltip.value, show: false }
         }
+
+        onBeforeUnmount(clearShowTimer)
 
         /** @param {Array<string | number>} keys */
         const handleUpdateExpandedKeys = (keys) => {
