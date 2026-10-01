@@ -787,9 +787,8 @@ const GROUP_RULES = [
         base: (m) => m[1].trim(),
         variant: (m) => m[2].trim(),
     },
-    // Vaccine type/brand variant, ex: "Hepatite A, Hepatite B, Hepatite B (de 0 a 30 dias)"
     {
-      regex: /^(Hepatite) (.+)$/,
+      regex: /^(Hepatite) (B(?: \(.+\))?)$/,
       base: (m) => m[1].trim(),
       variant: (m) => m[2].trim(),
     },
